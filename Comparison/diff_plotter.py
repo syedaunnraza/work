@@ -52,8 +52,14 @@ def compute_diff(diff_file, destination_folder):
     
     A_intervals = []
     B_intervals = []
-    
+
     index = 0
+
+    conflicts = 0
+    same = 0
+    onlyA = 0
+    onlyB = 0
+
     while (line != ''):
         A_new_interval = None
         B_new_interval = None
@@ -61,14 +67,17 @@ def compute_diff(diff_file, destination_folder):
         if line.find('|') != -1:
             A_new_interval = (index, index+1, CONFLICT)
             B_new_interval = (index, index+1, CONFLICT)
+            conflicts += 1
         elif line.find('<') != -1:
             A_new_interval = (index, index+1, ONLY_ME)
+            onlyA += 1
         elif line.find('>') != -1:
             B_new_interval = (index, index+1, ONLY_ME)
+            onlyB += 1
         else:
             A_new_interval = (index, index+1, SAME)
             B_new_interval = (index, index+1, SAME)
-
+            same += 1
         if (A_new_interval != None):
             if(len(A_intervals) > 0):
                 startP, endP, typeP = A_intervals[-1]
@@ -95,6 +104,22 @@ def compute_diff(diff_file, destination_folder):
         index += 1
 
     handle.close()
+
+    print get_time() + ' preliminary analysis results:'
+    print '\t\t total lines: ' + str(index)
+    print '\t\t total conflicts: ' + str(conflicts)
+    print '\t\t total only in A: ' + str(onlyA)
+    print '\t\t total only in B: ' + str(onlyB)
+    print '\t\t total same: ' + str(same)
+    
+    same_percent = 100.0*float(same)/float(index)
+    same_percent = "%.2f" % same_percent
+    conflict_percent = 100.0*float(conflicts)/float(index)
+    conflict_percent = "%.2f" % conflict_percent
+    print
+    print '\t\t same %age = ' + str(same_percent) + ' percent'
+    print '\t\t conflict %age = ' +  str(conflict_percent) + ' percent'
+
     return A_intervals, B_intervals
 
 def main(args):

@@ -11,7 +11,13 @@ echo ""
 currenttime=$(date +"%D %I:%M:%S %P")
 echo "[$currenttime] Analysis Scripts are Starting"
 
-(sysctl kernel.randomize_va_space=0) > /dev/null
+#currenttime=$(date +"%D %I:%M:%S %P")
+#echo "[$currenttime] Disabling ASLR"
+#(sysctl kernel.randomize_va_space=0) > /dev/null
+
+currenttime=$(date +"%D %I:%M:%S %P")
+echo "[$currenttime] Enabling ASLR"
+(sysctl kernel.randomize_va_space=1) > /dev/null
 
 /home/syed/Workspace/Samples/PinScripts/tracer_utils/logger_withoutstopping.sh $1 $2 $3 $4 
 #/home/syed/Workspace/Samples/PinScripts/tracer_utils/parse_logs.sh $1 $2 $3 $4 $5

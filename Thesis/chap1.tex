@@ -1,0 +1,217 @@
+%% This is an example first chapter.  You should put chapter/appendix that you
+%% write into a separate file, and add a line \include{yourfilename} to
+%% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
+%% You can process specific files by typing their names in at the 
+%% \files=
+%% prompt when you run the file main.tex through LaTeX.
+\chapter{Introduction}
+\section{Overview}
+Take a single program, and execute it several times. Does the 
+program always execute the same sequence of instructions?
+If not, what can cause multiple executions of the same program
+be different? Do the results change if we run
+the same program in separate 
+{\em e.g.} two identical but distinct virtual machines,
+or two slightly different virtual machines?
+
+One can immediately find a few obvious reasons
+for multiple executions of the same program
+to behave differently: input or data can vary;
+many programs deliberately use randomization schemes;
+instructions in multithreaded programs
+can interleave in myriad ways, and so on.
+Surprisingly, however, even a simple ``Hello, world!'' 
+application written in C does not execute the 
+same sequence of instructions.
+
+To the best of our knowledge, the sources of nondeterminism 
+in modern applications have not been studied in great detail or documented
+in a single place. This thesis synthesizes sources of nondeterminism  -- both
+obvious and obscure -- for a select group of programs, and describes the design
+and implementation of a tool that makes program execution as deterministic as possible.
+Despite its applications, such a study is novel and interesting in its own right,
+for it reveals subtle interactions 
+between applications, underlying operating systems 
+and intermediate software layers.
+
+\section{Importance of Deterministic Execution}\label{ch1:whydeterminism}
+Deterministic execution of programs can be beneficial in many
+different scenarios, and has motivated the design of Kendo,
+a system which enables deterministic multithreading
+in applications\cite{}. Our tool complements Kendo because 
+it focuses on deterministic execution of single-threaded services in Linux,
+at the granularity of individual instructions and their side-effects in
+memory.
+
+The motivations for deterministic multhreading listed in
+\cite{} apply to this thesis as well.
+
+\subsection{Mainstream Computing and Security}
+
+
+\subsection{Repeatability}
+Users expect programs to produce the same outputs, given the same
+inputs. For safety-critical systems, it may
+be even better if we can guarantee that given the same inputs,
+a program would always execute some {\em precise} 
+set of instructions, in the same order, with
+the same side-effects. Record/replay systems are not suitable for 
+achieving such strong guarantees of repeatability, given the storage
+overhead for logs and the typically enormous input space. 
+Our system, like Kendo, requires minimal storage to achieve
+single-threaded determinism. 
+
+\subsection{Debugging}
+Determinism is important for debugging, because developers
+often need to reproduce erroneous behavior in
+order to diagnose and fix it. Nondeterminism is typically
+a major issue for debugging multithreaded applications,
+and is a lesser issue for single-threaded
+applications. Our work will help developers
+easily reproduce erroneous behavior given
+the same input for single-threaded applications. 
+Record/replay systems have high overhead, so it is unlikely
+that the initial buggy execution of a program was recorded.
+Deterministic execution also precludes the need for storing
+many gigabytes of logs needed for record/replay.
+
+\subsection{Testing}
+Deterministic execution in general facilitates testing,
+because outputs and internal state can be checked at 
+certain points with respect to expected values. Our version
+of determinism allows for a particularly strong kind
+of test case that may be necessary for safety-critical 
+systems: with deterministic execution, a program 
+must execute the exact same instructions 
+across different executions, for the same inputs.
+Test cases can check for deviations from 
+the expected instruction sequences.
+
+\section{The VM {\em Bootstorm} Problem}\label{ch1:bootstorm}
+
+
+% This is an example of how you would use tgrind to include an example
+% of source code; it is commented out in this template since the code
+% example file does not exist.  To use it, you need to remove the '%' on the
+% beginning of the line, and insert your own information in the call.
+%
+%\tagrind[htbp]{code/pmn.s.tex}{Post Multiply Normalization}{opt:pmn}
+
+% This is an example of how you would use tgrind to include an example
+% of source code; it is commented out in this template since the code
+% example file does not exist.  To use it, you need to remove the '%' on the
+% beginning of the line, and insert your own information in the call.
+%
+%\tgrind[htbp]{code/be.s.tex}{Block Exponent}{opt:be}
+
+\section{Contributions}
+
+As well as the floating point optimizations described above, there are
+also integer optimizations that can be used in the $\mu$FPU.  In concert
+with the floating point optimizations, these can provide a significant
+speedup.  
+
+\subsection{Organization}
+
+Integer operations are much faster than floating point operations; if it is
+possible to replace floating point operations with fixed point operations,
+this would provide a significant increase in speed.
+
+This conversion can either take place automatically or or based on a
+specific request from the programmer.  To do this automatically, the
+compiler must either be very smart, or play fast and loose with the accuracy
+and precision of the programmer's variables.  To be ``smart'', the computer
+must track the ranges of all the floating point variables through the
+program, and then see if there are any potential candidates for conversion
+to floating point.  This technique is discussed further in
+section~\ref{range-tracking}, where it was implemented.
+
+The other way to do this is to rely on specific hints from the programmer
+that a certain value will only assume a specific range, and that only a
+specific precision is desired.  This is somewhat more taxing on the
+programmer, in that he has to know the ranges that his values will take at
+declaration time (something normally abstracted away), but it does provide
+the opportunity for fine-tuning already working code.
+
+Potential applications of this would be simulation programs, where the
+variable represents some physical quantity; the constraints of the physical
+system may provide bounds on the range the variable can take.
+\subsection{Small Constant Multiplications}
+
+One other class of optimizations that can be done is to replace
+multiplications by small integer constants into some combination of
+additions and shifts.  Addition and shifting can be significantly faster
+than multiplication.  This is done by using some combination of
+\begin{eqnarray*}
+a_i & = & a_j + a_k \\
+a_i & = & 2a_j + a_k \\
+a_i & = & 4a_j + a_k \\
+a_i & = & 8a_j + a_k \\
+a_i & = & a_j - a_k \\
+a_i & = & a_j \ll m \mbox{shift}
+\end{eqnarray*}
+instead of the multiplication.  For example, to multiply $s$ by 10 and store
+the result in $r$, you could use:
+\begin{eqnarray*}
+r & = & 4s + s\\
+r & = & r + r
+\end{eqnarray*}
+Or by 59:
+\begin{eqnarray*}
+t & = & 2s + s \\
+r & = & 2t + s \\
+r & = & 8r + t
+\end{eqnarray*}
+Similar combinations can be found for almost all of the smaller
+integers\footnote{This optimization is only an ``optimization'', of course,
+when the amount of time spent on the shifts and adds is less than the time
+that would be spent doing the multiplication.  Since the time costs of these
+operations are known to the compiler in order for it to do scheduling, it is
+easy for the compiler to determine when this optimization is worth using.}.
+\cite{magenheimer:precision}
+
+\section{Other optimizations}
+
+\subsection{Low-level parallelism}
+
+The current trend is towards duplicating hardware at the lowest level to
+provide parallelism\footnote{This can been seen in the i860; floating point
+additions and multiplications can proceed at the same time, and the RISC
+core be moving data in and out of the floating point registers and providing
+flow control at the same time the floating point units are active. \cite{byte:i860}}
+
+Conceptually, it is easy to take advantage to low-level parallelism in the
+instruction stream by simply adding more functional units to the $\mu$FPU,
+widening the instruction word to control them, and then scheduling as many
+operations to take place at one time as possible.
+
+However, simply adding more functional units can only be done so many times;
+there is only a limited amount of parallelism directly available in the
+instruction stream, and without it, much of the extra resources will go to
+waste.  One process used to make more instructions potentially schedulable
+at any given time is ``trace scheduling''.  This technique originated in the
+Bulldog compiler for the original VLIW machine, the ELI-512.
+\cite{ellis:bulldog,colwell:vliw}  In trace scheduling, code can be
+scheduled through many basic blocks at one time, following a single
+potential ``trace'' of program execution.  In this way, instructions that
+{\em might\/} be executed depending on a conditional branch further down in
+the instruction stream are scheduled, allowing an increase in the potential
+parallelism.  To account for the cases where the expected branch wasn't
+taken, correction code is inserted after the branches to undo the effects of
+any prematurely executed instructions.
+
+\subsection{Pipeline optimizations}
+
+In addition to having operations going on in parallel across functional
+units, it is also typical to have several operations in various stages of
+completion in each unit.  This pipelining allows the throughput of the
+functional units to be increased, with no increase in latency.
+
+There are several ways pipelined operations can be optimized.  On the
+hardware side, support can be added to allow data to be recirculated back
+into the beginning of the pipeline from the end, saving a trip through the
+registers.  On the software side, the compiler can utilize several tricks to
+try to fill up as many of the pipeline delay slots as possible, as
+seendescribed by Gibbons. \cite{gib86}
+
+

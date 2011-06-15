@@ -5,34 +5,28 @@
 %% \files=
 %% prompt when you run the file main.tex through LaTeX.
 \chapter{Introduction}
-\section{Overview}
-Take a single program, and execute it several times. Does the 
-program always execute the same sequence of instructions?
-If not, what can cause multiple executions of the same program
-be different? Do the results change if we run
-the same program in separate 
-{\em e.g.} two identical but distinct virtual machines,
-or two slightly different virtual machines?
+If you are reading this thesis, odds are that you own a computer or two 
+-- you have probably ``powered on'' your computer innumerable times as well. 
+Fundamentally, we try to answer: how different are the set of instructions executed
+on your machine on startup each time?
 
-One can immediately find a few obvious reasons
-for multiple executions of the same program
-to behave differently: input or data can vary;
-many programs deliberately use randomization schemes;
-instructions in multithreaded programs
-can interleave in myriad ways, and so on.
-Surprisingly, however, even a simple ``Hello, world!'' 
-application written in C does not execute the 
-same sequence of instructions.
+Take a single program, and run it several times on possibly different machines. 
+What factors explain any minor/major perturbations in the program's behavior
+across different execution instances? 
 
-To the best of our knowledge, the sources of nondeterminism 
-in modern applications have not been studied in great detail or documented
-in a single place. This thesis synthesizes sources of nondeterminism  -- both
-obvious and obscure -- for a select group of programs, and describes the design
-and implementation of a tool that makes program execution as deterministic as possible.
-Despite its applications, such a study is novel and interesting in its own right,
-for it reveals subtle interactions 
-between applications, underlying operating systems 
-and intermediate software layers.
+There has been no attempt to formulate an answer to such a fundamental question. 
+This is, on the whole, understandable: it may not even be \emph{possible} to 
+study the innumerable applications used worldwide in non-trivial detail,
+let alone synthesize any complete answer given the diversity in 
+application behavior.
+
+First and foremost, then, this thesis attempts 
+to offer novel insight into application behavior by exploring
+the sources of non-determinism for a select group
+of programs: Linux services that typically launched on boot.
+This selection is explained in \ref{ch1:whydeterminism}.
+
+
 
 \section{Importance of Deterministic Execution}\label{ch1:whydeterminism}
 Deterministic execution of programs can be beneficial in many

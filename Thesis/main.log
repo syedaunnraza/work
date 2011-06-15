@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.28)  15 JUN 2011 02:28
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.28)  15 JUN 2011 12:59
 entering extended mode
  %&-line parsing enabled.
 **main.tex
@@ -87,7 +87,7 @@ LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <14.4> not available
 Underfull \vbox (badness 4229) has occurred while \output is active []
 
  [5]
-Underfull \hbox (badness 10000) in paragraph at lines 165--170
+Underfull \hbox (badness 10000) in paragraph at lines 163--168
 
  []
 
@@ -131,43 +131,46 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
 ]
 Chapter 1.
-[13] [14]
 
-LaTeX Warning: Reference `range-tracking' on page 15 undefined on input line 12
-1.
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
-[15]
+ [13]
+[14]
+
+LaTeX Warning: Reference `range-tracking' on page 15 undefined on input line 11
+3.
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [15]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 164.
+(Font)              <7> on input line 156.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 164.
+(Font)              <5> on input line 156.
 
 
 LaTeX Warning: Citation `magenheimer:precision' on page 16 undefined on input l
-ine 165.
+ine 157.
+
+
+LaTeX Warning: Citation `byte:i860' on page 16 undefined on input line 167.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [16]
 
-LaTeX Warning: Citation `byte:i860' on page 17 undefined on input line 175.
-
-
-LaTeX Warning: Citation `ellis:bulldog' on page 17 undefined on input line 188.
+LaTeX Warning: Citation `ellis:bulldog' on page 17 undefined on input line 180.
 
 
 
-LaTeX Warning: Citation `colwell:vliw' on page 17 undefined on input line 188.
+LaTeX Warning: Citation `colwell:vliw' on page 17 undefined on input line 180.
 
 
-Underfull \vbox (badness 4556) has occurred while \output is active []
+LaTeX Warning: Citation `gib86' on page 17 undefined on input line 201.
 
- [17]
-
-LaTeX Warning: Citation `gib86' on page 18 undefined on input line 209.
-
-) [18]
+[17]) [18]
 \openout2 = `chap2.aux'.
 
 
@@ -206,7 +209,7 @@ LaTeX Warning: There were undefined references.
 Here is how much of TeX's memory you used:
  544 strings out of 495061
  5776 string characters out of 1182621
- 54511 words of memory out of 3000000
+ 55511 words of memory out of 3000000
  3722 multiletter control sequences out of 15000+50000
  10071 words of font info for 35 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
@@ -222,7 +225,7 @@ re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-texl
 ive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/a
 msfonts/cm/cmti12.pfb>
-Output written on main.pdf (22 pages, 166655 bytes).
+Output written on main.pdf (22 pages, 166079 bytes).
 PDF statistics:
  121 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

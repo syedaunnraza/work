@@ -10,6 +10,6 @@
 \contentsline {subsection}{\numberline {1.3.2}Small Constant Multiplications}{16}
 \contentsline {section}{\numberline {1.4}Other optimizations}{17}
 \contentsline {subsection}{\numberline {1.4.1}Low-level parallelism}{17}
-\contentsline {subsection}{\numberline {1.4.2}Pipeline optimizations}{18}
+\contentsline {subsection}{\numberline {1.4.2}Pipeline optimizations}{17}
 \contentsline {chapter}{\numberline {A}Tables}{19}
 \contentsline {chapter}{\numberline {B}Figures}{21}

@@ -7,25 +7,16 @@
 \chapter{Introduction}
 If you are reading this thesis, odds are that you own a computer or two 
 -- you have probably ``powered on'' your computer innumerable times as well. 
-Fundamentally, we try to answer: how different are the set of instructions executed
-on your machine on startup each time?
+Here is a simple question: how different are the set of instructions executed
+on your machine at startup each time? What 
+explains any differences?
 
-Take a single program, and run it several times on possibly different machines. 
-What factors explain any minor/major perturbations in the program's behavior
-across different execution instances? 
+This thesis explores this fundamental -- and yet surprisingly
+unanswered -- question by studying the sources of nondeterminism 
+in several Linux services that are typically launched 
+when a computer boots up. 
 
-There has been no attempt to formulate an answer to such a fundamental question. 
-This is, on the whole, understandable: it may not even be \emph{possible} to 
-study the innumerable applications used worldwide in non-trivial detail,
-let alone synthesize any complete answer given the diversity in 
-application behavior.
-
-First and foremost, then, this thesis attempts 
-to offer novel insight into application behavior by exploring
-the sources of non-determinism for a select group
-of programs: Linux services that typically launched on boot.
-This selection is explained in \ref{ch1:whydeterminism}.
-
+Our choice 
 
 
 \section{Importance of Deterministic Execution}\label{ch1:whydeterminism}

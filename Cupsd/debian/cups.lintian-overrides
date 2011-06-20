@@ -1,0 +1,4 @@
+cups: executable-is-not-world-readable usr/lib/cups/backend-available/ipp 0700 != 0755
+cups: executable-is-not-world-readable usr/lib/cups/backend-available/lpd 0700 != 0755
+cups: package-contains-empty-directory usr/share/ppd/custom/
+cups: package-contains-empty-directory usr/lib/cups/backend/

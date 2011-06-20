@@ -1,0 +1,190 @@
+#!/bin/sh
+
+# CUPS (Common Unix Printing System) filter for DVI files
+
+## Copyright (C) 2004 Matthew Swift <swift@alum.mit.edu>
+##
+## This program is free software; you can redistribute it and/or
+## modify it under the terms of the GNU General Public License
+## as published by the Free Software Foundation; either version 2
+## of the License, or (at your option) any later version.
+##
+## This program is distributed in the hope that it will be useful,
+## but WITHOUT ANY WARRANTY; without even the implied warranty of
+## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+## GNU General Public License for more details.
+##
+## You should have received a copy of the GNU General Public License along
+## with this program; if not, write to the Free Software Foundation, Inc.,
+## 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
+
+## Documentation
+#
+# This script has several advantages (some involving security and privacy) over
+# the script of the same name by Decklin Foster dated 2002 and (on the present
+# date) distributed with the Debian cups package in
+# /usr/share/doc/cups/examples/filters/dvipipetops.
+#
+# This script...
+#
+#   - works with Debian cups version 1.1.20final+cvs20040330-1.
+#   - uses the -R option to dvips for greater security.
+#   - creates a temporary file only when necessary.
+#   - is more aggressive about cleaning up its temporary file.
+#   - uses an absolute pathname for dvips, for greater security.
+#   - avoids a security problem when $TMPDIR contains a space.
+#   - is better documented.
+#   - gives better diagnostic output to CUPS.
+#
+# See http://localhost:631/spm.html#WRITING_FILTERS for information.
+# Note that the documentation as of this date is conflicting and misleading on
+# the subject of arguments passed to filters.
+
+## History
+# initial version: 1.0 [28 April 2004]
+
+# TODO
+#   add/remove trapped signals; are they portable?
+#   are there bashisms?  if so, should they be removed, or should bash be invoked explicitly?
+#   should we heed the "copies" argument?  my interpretation of the spec quoted
+#     below is that we should not.
+#   something interesting to do with page accounting?
+#   is including $prog in the diagnostic output redundant?
+
+## Variables you may want to tweak.
+
+# on error, exit with this status.
+CUPS_DVIPS_ERREXIT=2
+# absolute pathname to dvips executable
+CUPS_DVIPS=/usr/bin/dvips
+
+# If you want to give options to dvips that should not go into the normal
+# config.ps, include them here.  A good method would be to include, e.g.,
+# "-Pcups" and put all your configuration into cups.ps in the right place for
+# your dvips (e.g., /etc/texmf/dvips for a standard Debian TeX installation).
+# Note that CUPS passes information in the environment and the command line
+# that can be used here to determine the options, if you wanted.
+##
+# additional options to give to dvips
+CUPS_DVIPS_OPTS=""
+
+# Load configuration from default file.
+. /etc/default/cups
+
+## I do not expect you to want to change anything below here,
+## except possibly to (dis)include the debugging statements.
+#############################################################
+
+prog=$(basename "$0")
+# This statement needs bash I think.
+echo "DEBUG: $prog: \"$0\" has been called with these arguments:" >&2
+count=1
+for x; do
+    echo "DEBUG: $prog: arg $((count++)): \"$x\"" >&2
+done
+echo "DEBUG: $prog: \$CUPS_DVIPS_OPTIONS=$CUPS_DVIPS_OPTIONS" >&2
+
+#### echo "         $prog: test debug without prefix" >&2
+#### echo "DEBUG:   $prog: test debug with prefix"    >&2
+#### echo "INFO:    $prog: test info"                 >&2
+#### echo "WARNING: $prog: test warning"              >&2
+#### echo "ERROR:   $prog: test error"                >&2
+#### echo "PAGE:    $prog: test page"                 >&2
+
+# Get rid of the irrelevant command line arguments.
+if ! shift 5; then
+    echo "ERROR: $prog: expected 5 or 6 arguments and received <5" >&2
+    exit $CUPS_DVIPS_ERREXIT
+elif [ $# -gt 1 ]; then
+    echo "ERROR: $prog: expected 5 or 6 arguments and received >6" >&2
+    exit $CUPS_DVIPS_ERREXIT
+elif [ $# -eq 1 ]; then
+    file=$1
+else
+    # Dvips needs seekable input, so if input is on stdin, we need to save it
+    # to a temporary file.
+
+    # tempfile(1) is in the debianutils Debian package (28 April 2004) and is
+    # recommended over mktemp(1).
+    if ! file=$(/bin/tempfile); then
+        echo "ERROR: $prog: invocation of /bin/tempfile failed" >&2
+        exit $CUPS_DVIPS_ERREXIT
+    fi
+    #  1) SIGHUP       2) SIGINT       3) SIGQUIT      4) SIGILL
+    #  5) SIGTRAP      6) SIGABRT      7) SIGBUS       8) SIGFPE
+    #  9) SIGKILL     10) SIGUSR1     11) SIGSEGV     12) SIGUSR2
+    # 13) SIGPIPE     14) SIGALRM     15) SIGTERM     17) SIGCHLD
+    # etc.
+    trap "rm -f \"$file\" 2>/dev/null" EXIT 1 2 3 9 15
+    # Be sure that no prior commands use up the script's stdin.  Duplicate stdin if necessary.
+    cat - >"$file"
+fi    
+# Dvips options:
+#   -q   be quiet        (not used: output is always sent to CUPS;
+#                         CUPS variables LogLevel etc. control what
+#                         is actually logged and where.)
+#   -R   run securely    (recommended)
+#   -f   run as a filter (necessary)
+##
+
+# If the INFO: level output is not actually going to be logged, we are wasting
+# a time generating it.  While in this script, the wasted time is negligible,
+# it does to me a very reasonable wish that CUPS provide the LogLevel to
+# filters via an environment variable.  For example, we could choose whether to
+# give debugging options to dvips or not.
+##
+# Make the shell's fd3 point to the shell's stdout.
+exec 3>&1
+# Make the error text of dvips go to the command's stdout and thus through the
+# pipe to the {}-subshell; make the normal text of dvips go to the shell's
+# stdout (fd3); make the {}-subshell's normal output go to the shell's
+# stderr (fd2 as usual).  I think it's good form to close fd3 for the dvips and
+# {}-subshell commands, but this may be unnecessary.
+"$CUPS_DVIPS" -R -f $CUPS_DVIPS_OPTS <"$file" 2>&1 1>&3- | \
+    { while read -r -a line; do echo "INFO: $prog: ${line[*]}" >&2; done 3>&-; }
+# Close fd3 for the shell.
+exec 3>&-
+
+exit
+
+#######
+#NOTES#
+#######
+
+# MSS as of this date, arguments passed to filters seem to be, starting with $1:
+#
+# job user title copies options [filename]
+#
+# Remainder from official documentation:
+#
+# job      The numeric job ID for the job being printed
+# user     The string from the originating-user-name attribute
+# title    The string from the job-name attribute
+# copies   The numeric value from the number-copies attribute
+# options  String representations of the job template attributes, separated by
+#          spaces. Boolean attributes are provided as "name" for true values and
+#          "noname" for false values. All other attributes are provided as
+#          "name=value" for single-valued attributes and
+#          "name=value1,value2,...,valueN" for set attributes
+# filename The request file
+
+# The filename argument is provided to only the first filter in the chain.
+
+# The copies argument specifies the number of copies to produce of the input
+# file. In general, you should only generate copies if the filename argument is
+# supplied. The only exception to this are filters that produce
+# device-independent PostScript output (without any printer commands from the
+# printer's PPD file), since the PostScript filter pstops is responsible for
+# copy generation.
+
+# The type of message is determined by an initial prefix sent on each line:
+# DEBUG: - a debug message
+# INFO: - an informational message
+# WARNING: - a warning message
+# ERROR: - an error message
+# PAGE: - a page accounting message
+
+# If the line of text does not begin with any of the above prefixes, it is
+# treated as a debug message. Text following the prefix is copied to the
+# printer-state-message attribute for the printer, and also added to the
+# error_log unless it is an informational or page accounting message.

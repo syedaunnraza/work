@@ -1,0 +1,12 @@
+var/run/cups
+usr/share/doc/cups
+usr/share/cups/drivers
+etc/default
+etc/cups/ssl
+usr/lib/cups/backend
+usr/lib/cups/backend-available
+var/cache/cups/ppd
+usr/share/ppd/cups-included
+usr/share/ppd/custom
+usr/lib/cups/driver
+usr/local/share/ppd

@@ -1,0 +1,88 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 44_fixconfdirperms.dpatch by Kenshi Muto <kmuto@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad cups-1.3.0~rc2~/man/lppasswd.man cups-1.3.0~rc2/man/lppasswd.man
+--- cups-1.3.0~rc2~/man/lppasswd.man	2007-07-11 22:46:42.000000000 +0100
++++ cups-1.3.0~rc2/man/lppasswd.man	2007-08-02 16:30:14.000000000 +0100
+@@ -50,6 +50,7 @@
+ that could grant super-user privileges to unprivileged users,
+ paranoid system administrators may wish to disable or change the
+ ownership of the program to an unprivileged account.
++(So Debian installs \fIlppasswd\fR command with setuid to lp)
+ .SH SEE ALSO
+ \fIlp(1)\fR, \fIlpr(1)\fR,
+ .br
+diff -urNad cups-1.3.0~rc2~/scheduler/conf.c cups-1.3.0~rc2/scheduler/conf.c
+--- cups-1.3.0~rc2~/scheduler/conf.c	2007-07-30 17:47:10.000000000 +0100
++++ cups-1.3.0~rc2/scheduler/conf.c	2007-08-02 16:30:54.000000000 +0100
+@@ -683,22 +683,10 @@
+ 
+       cupsdLogMessage(CUPSD_LOG_NOTICE,
+                       "Group and SystemGroup cannot use the same groups!");
+-      cupsdLogMessage(CUPSD_LOG_INFO, "Resetting Group to \"nobody\"...");
++      cupsdLogMessage(CUPSD_LOG_INFO, "Resetting Group to \"root\"...");
+ 
+-      group = getgrnam("nobody");
+       endgrent();
+-
+-      if (group != NULL)
+-	Group = group->gr_gid;
+-      else
+-      {
+-       /*
+-	* Use the (historical) NFS nobody group ID (-2 as a 16-bit twos-
+-	* complement number...)
+-	*/
+-
+-	Group = 65534;
+-      }
++      Group = 0;
+     }
+   }
+ 
+@@ -752,21 +740,10 @@
+   if (ServerCertificate[0] != '/')
+     cupsdSetStringf(&ServerCertificate, "%s/%s", ServerRoot, ServerCertificate);
+ 
+-  if (!strncmp(ServerRoot, ServerCertificate, strlen(ServerRoot)))
+-  {
+-    chown(ServerCertificate, RunUser, Group);
+-    chmod(ServerCertificate, 0600);
+-  }
+-
+ #  if defined(HAVE_LIBSSL) || defined(HAVE_GNUTLS)
+   if (ServerKey[0] != '/')
+     cupsdSetStringf(&ServerKey, "%s/%s", ServerRoot, ServerKey);
+ 
+-  if (!strncmp(ServerRoot, ServerKey, strlen(ServerRoot)))
+-  {
+-    chown(ServerKey, RunUser, Group);
+-    chmod(ServerKey, 0600);
+-  }
+ #  endif /* HAVE_LIBSSL || HAVE_GNUTLS */
+ #endif /* HAVE_SSL */
+ 
+@@ -781,7 +758,7 @@
+ 			    Group, 1, 1) < 0 ||
+       cupsdCheckPermissions(StateDir, NULL, 0755, RunUser,
+ 			    Group, 1, 1) < 0 ||
+-      cupsdCheckPermissions(StateDir, "certs", RunUser ? 0711 : 0511, User,
++      cupsdCheckPermissions(StateDir, "certs", 0711, 0,
+ 			    SystemGroupIDs[0], 1, 1) < 0 ||
+       cupsdCheckPermissions(ServerRoot, NULL, 0755, RunUser, 
+ 			    Group, 1, 0) < 0 ||
+@@ -789,8 +766,10 @@
+ 			    Group, 1, 1) < 0 ||
+       cupsdCheckPermissions(ServerRoot, "ssl", 0700, RunUser,
+ 			    Group, 1, 0) < 0 ||
++      /* Never alter permissions of central conffile
+       cupsdCheckPermissions(ServerRoot, "cupsd.conf", ConfigFilePerm, RunUser,
+ 			    Group, 0, 0) < 0 ||
++      */
+       cupsdCheckPermissions(ServerRoot, "classes.conf", 0600, RunUser,
+ 			    Group, 0, 0) < 0 ||
+       cupsdCheckPermissions(ServerRoot, "printers.conf", 0600, RunUser,

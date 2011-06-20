@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<!-- SECTION: Man Pages -->
+<head>
+	<style type='text/css'><!--
+	h1, h2, h3, p { font-family: sans-serif; text-align: justify; }
+	tt, pre a:link, pre a:visited, tt a:link, tt a:visited { font-weight: bold; color: #7f0000; }
+	pre { font-weight: bold; color: #7f0000; margin-left: 2em; }
+	h1.title, h2.title, h3.title { border-bottom: solid 2px #000000; }
+	--></style>
+	<title>cupsctl(8)</title>
+</head>
+<body>
+<h2><a name='NAME'>Name</a></h2>
+cupsctl - configure cupsd.conf options
+<h2><a name='SYNOPSIS'>Synopsis</a></h2>
+<b>cupsctl
+</b>[ -E ] [-U
+<i>username
+</i>] [ -h
+<i>server[:port]
+</i>] [ --[no-]debug-logging ] [ --[no-]remote-admin ] [ --[no-]remote-any ]
+[ --[no-]remote-printers ] [ --[no-]share-printers ] [ --[no-]user-cancel-any ]
+[
+<i>name=value
+</i>]
+<h2><a name='DESCRIPTION'>Description</a></h2>
+<i>cupsctl</i> updates or queries the <b>cupsd.conf</b> file for a server. When
+no changes are requested, the current configuration values are written to the
+standard output in the format "name=value", one per line.
+<h2><a name='OPTIONS'>Options</a></h2>
+The following options are recognized:
+<dl>
+<dt>-E
+</dt>
+<dd>Enables encryption on the connection to the scheduler.
+</dd>
+<dt>-U <i>username</i>
+</dt>
+<dd>Specifies an alternate username to use when authenticating with the scheduler.
+</dd>
+<dt>-h <i>server[:port]</i>
+</dt>
+<dd>Specifies the server address.
+</dd>
+<dt>--[no-]debug-logging
+</dt>
+<dd>Enables or disables debug logging in the <b>error_log</b> file.
+</dd>
+<dt>--[no-]remote-admin
+</dt>
+<dd>Enables or disables remote administration.
+</dd>
+<dt>--[no-]remote-any
+</dt>
+<dd>Enables or disables printing from any address, e.g. the Internet.
+</dd>
+<dt>--[no-]remote-printers
+</dt>
+<dd>Enables or disables the display of remote printers shared via the CUPS, LDAP,
+or SLP protocols.
+</dd>
+<dt>--[no-]share-printers
+</dt>
+<dd>Enables or disables sharing of local printers with other computers.
+</dd>
+<dt>--[no-]user-cancel-any
+</dt>
+<dd>Allows or prevents users from canceling jobs owned by others.
+</dd>
+</dl>
+<h2><a name='EXAMPLES'>Examples</a></h2>
+Display the current settings:
+<pre>
+    cupsctl
+</pre>
+<p>Enable debug logging:
+<pre>
+    cupsctl --debug-logging
+</pre>
+<p>Get the current debug logging state:
+<pre>
+    cupsctl | grep '^_debug_logging' | awk -F= '{print $2}'
+</pre>
+<p>Disable printer sharing:
+<pre>
+    cupsctl --no-shared-printers
+</pre>
+<p>Enable printing using the file: pseudo-device:
+<pre>
+    cupsctl FileDevice=Yes
+</pre>
+<h2><a name='SEE_ALSO'>See Also</a></h2>
+<a href='man-cupsd.conf.html?TOPIC=Man+Pages'>cupsd.conf(5)</a>, <a href='man-cupsd.html?TOPIC=Man+Pages'>cupsd(8)</a>,
+<br>
+<a href='http://localhost:631/help'>http://localhost:631/help</a>
+<h2><a name='COPYRIGHT'>Copyright</a></h2>
+Copyright 2007 by Apple Inc.
+
+</body>
+</html>

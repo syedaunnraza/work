@@ -1,0 +1,34 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 70_reactivate_recommended_driver.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad cups-1.3.0~rc2~/scheduler/cups-driverd.c cups-1.3.0~rc2/scheduler/cups-driverd.c
+--- cups-1.3.0~rc2~/scheduler/cups-driverd.c	2007-07-11 22:46:42.000000000 +0100
++++ cups-1.3.0~rc2/scheduler/cups-driverd.c	2007-08-01 15:23:01.000000000 +0100
+@@ -180,7 +180,6 @@
+ 	int        type)		/* I - Driver type */
+ {
+   ppd_info_t	*ppd;			/* PPD */
+-  char		*recommended;		/* Foomatic driver string */
+ 
+ 
+  /*
+@@ -238,15 +237,6 @@
+   strlcpy(ppd->record.device_id, device_id, sizeof(ppd->record.device_id));
+ 
+  /*
+-  * Strip confusing (and often wrong) "recommended" suffix added by
+-  * Foomatic drivers...
+-  */
+-
+-  if ((recommended = strstr(ppd->record.make_and_model,
+-                            " (recommended)")) != NULL)
+-    *recommended = '\0';
+-
+- /*
+   * Return the new PPD pointer...
+   */
+ 

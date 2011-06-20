@@ -1,0 +1,18 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 14_dont_force_ssl.dpatch by  <martin.pitt@ubuntu.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad cups-1.2-ubuntu~/conf/cupsd.conf.in cups-1.2-ubuntu/conf/cupsd.conf.in
+--- cups-1.2-ubuntu~/conf/cupsd.conf.in	2006-04-25 20:05:27.000000000 +0200
++++ cups-1.2-ubuntu/conf/cupsd.conf.in	2006-04-25 20:09:04.000000000 +0200
+@@ -33,7 +33,6 @@
+ 
+ # Restrict access to the admin pages...
+ <Location /admin>
+-@ENCRYPTION_REQUIRED@
+   Order allow,deny
+   Allow localhost
+ </Location>

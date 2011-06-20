@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">
+<html>
+<!-- SECTION: Man Pages -->
+<head>
+	<style type='text/css'><!--
+	h1, h2, h3, p { font-family: sans-serif; text-align: justify; }
+	tt, pre a:link, pre a:visited, tt a:link, tt a:visited { font-weight: bold; color: #7f0000; }
+	pre { font-weight: bold; color: #7f0000; margin-left: 2em; }
+	h1.title, h2.title, h3.title { border-bottom: solid 2px #000000; }
+	--></style>
+	<title>snmp.conf(5)</title>
+</head>
+<body>
+<h2><a name='NAME'>Name</a></h2>
+snmp.conf - snmp configuration file for cups
+<h2><a name='DESCRIPTION'>Description</a></h2>
+The <i>snmp.conf</i> file configures the CUPS SNMP printer
+discovery backend and is  normally located in the <i>/etc/cups</i>
+directory. Each line in the file can be a configuration
+directive, a blank line, or a comment. Comment lines start with
+the # character.
+<p>The SNMP backend uses the SNMPv1 protocol to discover network
+printers, collecting information from the Host MIB along with
+intelligent port probes to determine the correct device URI and
+make and model for each printer. Future versions of CUPS will
+likely support the new Port Monitor MIB as well.
+<h2><a name='DIRECTIVES'>Directives</a></h2>
+The following directives are understood by the SNMP backend.
+Consult the on-line help for detailed descriptions:
+<dl>
+<dt>Address @IF(<i>name</i>)
+</dt>
+<dt>Address @LOCAL
+</dt>
+<dt>Address <i>address</i>
+</dt>
+<dd>Sends SNMP broadcast queries to the specified address(es). The
+default address is "@LOCAL" which broadcasts to all LAN
+interfaces.
+</dd>
+<dt>Community <i>name</i>
+</dt>
+<dd>Specifies a SNMP community to query. The default community is
+"public".
+</dd>
+<dt>DebugLevel <i>N</i>
+</dt>
+<dd>Sets the debug logging level to <i>N</i>; 0 disables debug
+logging, 1 enables basic logging, 2 displays SNMP values, and 3
+displays raw hex data.
+</dd>
+<dt>HostNameLookups on
+</dt>
+<dt>HostNameLookups off
+</dt>
+<dd>Specifies whether the addresses of printers should be converted
+to hostnames or left as numeric IP addresses. The default is
+"off".
+</dd>
+<dt>MaxRunTime <i>seconds</i>
+</dt>
+<dd>Specifies the maximum number of seconds that the SNMP backend
+will scan the network for printers.
+</dd>
+</dl>
+<h2><a name='SEE_ALSO'>See Also</a></h2>
+<a href='http://localhost:631/help'>http://localhost:631/help</a>
+<h2><a name='COPYRIGHT'>Copyright</a></h2>
+Copyright 2007 by Apple Inc.
+
+</body>
+</html>

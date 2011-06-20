@@ -1,0 +1,114 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 47_pid.dpatch by Kenshi Muto <kmuto@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Forwarded upstream: http://www.cups.org/str.php?L2465
+
+@DPATCH@
+diff -urNad trunk~/scheduler/conf.c trunk/scheduler/conf.c
+--- trunk~/scheduler/conf.c	2008-03-16 14:26:26.000000000 +0100
++++ trunk/scheduler/conf.c	2008-03-16 14:26:26.000000000 +0100
+@@ -168,7 +168,8 @@
+ #endif /* HAVE_AUTHORIZATION_H */
+   { "TempDir",			&TempDir,		CUPSD_VARTYPE_PATHNAME },
+   { "Timeout",			&Timeout,		CUPSD_VARTYPE_INTEGER },
+-  { "UseNetworkDefault",	&UseNetworkDefault,	CUPSD_VARTYPE_BOOLEAN }
++  { "UseNetworkDefault",	&UseNetworkDefault,	CUPSD_VARTYPE_BOOLEAN },
++  { "PidFile",			&PidFile,		CUPSD_VARTYPE_STRING }
+ };
+ #define NUM_VARS	(sizeof(variables) / sizeof(variables[0]))
+ 
+@@ -414,6 +415,7 @@
+   cupsdSetString(&RemoteRoot, "remroot");
+   cupsdSetString(&ServerHeader, "CUPS/1.2");
+   cupsdSetString(&StateDir, CUPS_STATEDIR);
++  cupsdSetString(&PidFile, "/var/run/cups/cupsd.pid");
+ #ifdef HAVE_GSSAPI
+   cupsdSetString(&GSSServiceName, CUPS_DEFAULT_GSSSERVICENAME);
+ #endif /* HAVE_GSSAPI */
+diff -urNad trunk~/scheduler/conf.h trunk/scheduler/conf.h
+--- trunk~/scheduler/conf.h	2008-03-16 14:21:55.000000000 +0100
++++ trunk/scheduler/conf.h	2008-03-16 14:26:26.000000000 +0100
+@@ -189,6 +189,7 @@
+ 					/* Server key file */
+ #  endif /* HAVE_LIBSSL || HAVE_GNUTLS */
+ #endif /* HAVE_SSL */
++VAR char		*PidFile	VALUE(NULL); /* Debian CUPS pid file */
+ 
+ #ifdef HAVE_LAUNCHD
+ VAR int			LaunchdTimeout		VALUE(DEFAULT_TIMEOUT);
+diff -urNad trunk~/scheduler/main.c trunk/scheduler/main.c
+--- trunk~/scheduler/main.c	2008-03-16 14:21:55.000000000 +0100
++++ trunk/scheduler/main.c	2008-03-16 14:26:26.000000000 +0100
+@@ -89,6 +89,8 @@
+ static void		sigterm_handler(int sig);
+ static long		select_timeout(int fds);
+ static void		usage(int status);
++int			write_pid(void);
++int			remove_pid(void);
+ 
+ 
+ /*
+@@ -595,6 +597,11 @@
+   }
+ #endif /* __sgi */
+ 
++  if (write_pid() == 0) {
++    cupsdLogMessage(CUPSD_LOG_ERROR, "Unable to write pid file");
++    return (1);
++  }
++
+  /*
+   * Initialize authentication certificates...
+   */
+@@ -1145,9 +1152,39 @@
+ 
+   cupsdStopSelect();
+ 
++  remove_pid();
++
+   return (!stop_scheduler);
+ }
+ 
++/* 'write_pid()' - Write PID file.
++   'remove_pid()' - Delete PID file.
++*/
++int
++write_pid()
++{
++  FILE *f;
++  int fd;
++  int pid;
++  if (((fd = open(PidFile, O_RDWR|O_CREAT, 0644)) == -1)
++      || ((f = fdopen(fd, "r+")) == NULL) ) {
++    return 0;
++  }
++  pid = getpid();
++  if (!fprintf(f, "%d\n", pid)) {
++    close(fd);
++    return 0;
++  }
++  fflush(f);
++  close(fd);
++
++  return pid;
++}
++
++int remove_pid() {
++  return unlink(PidFile);
++}
++
+ 
+ /*
+  * 'cupsdClosePipe()' - Close a pipe as necessary.
+diff -urNad trunk~/test/run-stp-tests.sh trunk/test/run-stp-tests.sh
+--- trunk~/test/run-stp-tests.sh	2007-07-11 23:46:42.000000000 +0200
++++ trunk/test/run-stp-tests.sh	2008-03-16 14:26:48.000000000 +0100
+@@ -302,6 +302,7 @@
+ DocumentRoot $root/doc
+ RequestRoot /tmp/cups-$user/spool
+ TempDir /tmp/cups-$user/spool/temp
++PidFile /tmp/cups-$user/cupsd.pid
+ MaxLogSize 0
+ AccessLog /tmp/cups-$user/log/access_log
+ ErrorLog /tmp/cups-$user/log/error_log

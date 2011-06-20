@@ -1,0 +1,28 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 07_removecvstag.dpatch by Kenshi Muto <kmuto@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: Forwarded upstream: http://www.cups.org/str.php?L2369
+
+@DPATCH@
+diff -urNad cups-1.2~/conf/Makefile cups-1.2/conf/Makefile
+--- cups-1.2~/conf/Makefile	2006-04-25 12:16:07.000000000 +0200
++++ cups-1.2/conf/Makefile	2006-04-25 12:17:11.000000000 +0200
+@@ -65,6 +65,8 @@
+ 			chgrp $(CUPS_GROUP) $(SERVERROOT)/$$file.N || true; \
+ 		else \
+ 			$(INSTALL_CONFIG) $$file $(SERVERROOT) ; \
++			grep -v "\$$Id:" $(SERVERROOT)/$$file > $(SERVERROOT)/$$file.n ; \
++			mv $(SERVERROOT)/$$file.n $(SERVERROOT)/$$file ; \
+ 			chgrp $(CUPS_GROUP) $(SERVERROOT)/$$file || true; \
+ 		fi ; \
+ 	done
+@@ -75,6 +77,8 @@
+ 			$(MV) $(SERVERROOT)/$$file $(SERVERROOT)/$$file.O ; \
+ 		fi ; \
+ 		$(INSTALL_DATA) $$file $(SERVERROOT) ; \
++		grep -v "\$$Id:" $(SERVERROOT)/$$file > $(SERVERROOT)/$$file.n ; \
++		mv $(SERVERROOT)/$$file.n $(SERVERROOT)/$$file ; \
+ 	done
+ 	-if test x$(PAMDIR) != x; then \
+ 		$(INSTALL_DIR) -m 755 $(BUILDROOT)$(PAMDIR); \

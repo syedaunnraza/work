@@ -1,0 +1,279 @@
+Source: cups
+Priority: optional
+Section: net
+Maintainer: Debian CUPS Maintainers <pkg-cups-devel@lists.alioth.debian.org>
+Standards-Version: 3.7.3
+Build-Depends: libpam0g-dev, libtiff4-dev, libjpeg62-dev, zlib1g-dev,
+ libpng12-dev, libslp-dev, libgnutls-dev, libpaper-dev, libldap2-dev,
+ debhelper (>= 5.0), po-debconf, cdbs (>= 0.4.27), sharutils, 
+ dpatch (>= 1.11), libdbus-1-dev, libkrb5-dev | heimdal-dev,
+ libavahi-compat-libdnssd-dev, poppler-utils | xpdf-utils, lsb-release,
+ po4a (>= 0.31)
+Uploaders: Kenshi Muto <kmuto@debian.org>, 
+ Martin Pitt <mpitt@debian.org>, Roger Leigh <rleigh@debian.org>, 
+ Martin-Éric Racine <q-funk@iki.fi>, Masayuki Hatta (mhatta) <mhatta@debian.org>,
+ Jeff Licquia <licquia@debian.org>
+Vcs-Bzr: bzr+ssh://bzr.debian.org/pkg-cups/cups/lenny
+Vcs-Browser: http://bazaar.launchpad.net/~pitti/cups/debian-lenny
+
+Package: libcups2
+Priority: optional
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Suggests: cups-common
+Conflicts:  libcupsys2 (<< 1.3.7-6)
+Replaces: libcupsys2 (<< 1.3.7-6)
+Provides: libcupsys2
+Description: Common UNIX Printing System(tm) - libs
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides the base shared libraries for CUPS.
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: libcupsimage2
+Priority: optional
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: Common UNIX Printing System(tm) - image libs
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides the image libraries for handling the CUPS
+ raster format.
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: cups
+Priority: optional
+Section: net
+Architecture: any
+Depends: ${shlibs:Depends}, debconf (>= 1.2.9) | debconf-2.0,
+ poppler-utils | xpdf-utils, perl-modules, procps, 
+ ghostscript, lsb-base (>= 3), cups-common,  
+ ssl-cert (>= 1.0.11), adduser
+Recommends: cups-client, smbclient (>= 3.0.9), foomatic-filters, avahi-utils
+Suggests: cups-bsd, cups-driver-gutenprint, foomatic-db-engine, foomatic-db,
+ hplip, xpdf-korean | xpdf-japanese | xpdf-chinese-traditional | xpdf-chinese-simplified, 
+ cups-pdf
+Replaces: cupsys-bsd (<< 1.3.7-5), cupsys (<< 1.3.7-6)
+Conflicts: cupsys-bsd (<< 1.3.7-5), cupsys (<< 1.3.7-6)
+Provides: cupsys
+Description: Common UNIX Printing System(tm) - server
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides the CUPS scheduler/daemon and related files.
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: cups-client
+Priority: optional
+Section: net
+Architecture: any
+Depends: ${shlibs:Depends}, cups-common, adduser
+Suggests: cups, kdeprint, gtklp, cups-pt, xpp, cups-bsd
+Conflicts: lprng, cupsys-client (<< 1.3.7-6)
+Replaces: cupsys-client (<< 1.3.7-6)
+Provides: cupsys-client
+Description: Common UNIX Printing System(tm) - client programs (SysV)
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides the System V style print client programs.
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: libcups2-dev
+Priority: optional
+Section: libdevel
+Architecture: any
+Depends: libcups2 (= ${binary:Version}), libgnutls-dev, libkrb5-dev | heimdal-dev
+Conflicts: libcupsys2-dev (<< 1.3.7-6)
+Replaces: libcupsys2-dev (<< 1.3.7-6)
+Provides: libcupsys2-dev
+Description: Common UNIX Printing System(tm) - development files
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides the files necessary for developing CUPS-aware
+ applications and CUPS drivers, as well as examples how to communicate
+ with cups from different programming languages (Perl, Java, and
+ PHP).
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: libcupsimage2-dev
+Priority: optional
+Section: libdevel
+Architecture: any
+Depends: libcupsimage2 (= ${binary:Version}), libcups2-dev (= ${binary:Version}), 
+ libpng-dev, libtiff4-dev, libjpeg62-dev, zlib1g-dev
+Description: Common UNIX Printing System(tm) - image development files
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides the files necessary for developing applications
+ that use the CUPS raster image format.
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: cups-bsd
+Priority: extra
+Section: net
+Architecture: any
+Depends: ${shlibs:Depends}, cups-client (= ${binary:Version}),
+ debconf | debconf-2.0, update-inetd, cups-common
+Recommends: cups
+Conflicts: lpr, lprng, cupsys-bsd (<< 1.3.7-6)
+Replaces: lpr, cupsys-bsd (<< 1.3.7-6)
+Provides: lpr, cupsys-bsd
+Description: Common UNIX Printing System(tm) - BSD commands
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpr, lpd and the like.  It supports the
+ Internet Printing Protocol (IPP), and has its own filtering driver
+ model for handling various document types.
+ .
+ This package provides the BSD commands for interacting with CUPS.  It
+ is provided separately to allow CUPS to coexist with other printing
+ systems (to a small degree).
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: cups-common
+Priority: optional
+Section: net
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: cupsys-common (<< 1.3.7-6)
+Replaces: cupsys-common (<< 1.3.7-6)
+Provides: cupsys-common
+Description: Common UNIX Printing System(tm) - common files
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides common files for CUPS server and client packages.
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: cups-dbg
+Priority: extra
+Section: libdevel
+Architecture: any
+Depends: cups (= ${binary:Version})
+Conflicts: cupsys-dbg (<< 1.3.7-6)
+Replaces: cupsys-dbg (<< 1.3.7-6)
+Description: Common UNIX Printing System(tm) - debugging symbols
+ The Common UNIX Printing System (or CUPS(tm)) is a printing system and 
+ general replacement for lpd and the like.  It supports the Internet 
+ Printing Protocol (IPP), and has its own filtering driver model for 
+ handling various document types.
+ .
+ This package provides the debugging symbols of CUPS.
+ .
+ The terms "Common UNIX Printing System" and "CUPS" are trademarks of
+ Easy Software Products (www.easysw.com), and refer to the original
+ source packages from which these packages are made.
+
+Package: cupsys
+Priority: extra
+Section: oldlibs
+Architecture: all
+Depends: cups
+Description: Common UNIX Printing System (transitional package)
+ This is a dummy package to ease transition to new package name.
+  .
+  It can be safely removed from your system.
+
+Package: cupsys-client
+Priority: extra
+Section: oldlibs
+Architecture: all
+Depends: cups-client
+Description: Common UNIX Printing System (transitional package)
+ This is a dummy package to ease transition to new package name.
+  .
+  It can be safely removed from your system.
+
+Package: cupsys-common
+Priority: extra
+Section: oldlibs
+Architecture: all
+Depends: cups-common
+Description: Common UNIX Printing System (transitional package)
+ This is a dummy package to ease transition to new package name.
+  .
+  It can be safely removed from your system.
+
+Package: cupsys-bsd
+Priority: extra
+Section: oldlibs
+Architecture: all
+Depends: cups-bsd
+Description: Common UNIX Printing System (transitional package)
+ This is a dummy package to ease transition to new package name.
+  .
+  It can be safely removed from your system.
+
+Package: cupsys-dbg
+Priority: extra
+Section: oldlibs
+Architecture: all
+Depends: cups-dbg
+Description: Common UNIX Printing System (transitional package)
+ This is a dummy package to ease transition to new package name.
+  .
+  It can be safely removed from your system.
+
+Package: libcupsys2
+Priority: extra
+Section: oldlibs
+Architecture: all
+Depends: libcups2
+Description: Common UNIX Printing System (transitional package)
+ This is a dummy package to ease transition to new package name.
+  .
+  It can be safely removed from your system.
+
+Package: libcupsys2-dev
+Priority: extra
+Section: oldlibs
+Architecture: all
+Depends: libcups2-dev
+Description: Common UNIX Printing System (transitional package)
+ This is a dummy package to ease transition to new package name.
+  .
+  It can be safely removed from your system.

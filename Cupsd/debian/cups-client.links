@@ -1,0 +1,7 @@
+usr/sbin/accept usr/sbin/cupsaccept
+usr/sbin/accept usr/sbin/cupsreject
+usr/sbin/accept usr/bin/cupsenable
+usr/sbin/accept usr/bin/cupsdisable
+usr/share/man/man8/accept.8.gz usr/share/man/man8/cupsaccept.8.gz
+usr/share/man/man8/accept.8.gz usr/share/man/man8/cupsreject.8.gz
+usr/share/man/man8/cupsenable.8.gz usr/share/man/man8/cupsdisable.8.gz

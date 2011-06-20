@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# $Id: pstopdf,v 1.3 2003/02/15 15:21:00 gurubert Exp $
+#
+# This is a Postscript to PDF filter for CUPS
+#
+# (C) 2003 Robert Sander <robert.sander@epigenomics.com>
+#
+# Released under GPL
+#
+# NO WARRANTY AT ALL
+#
+
+set -e
+
+PSTOPDF=/usr/bin/ps2pdf13
+OPTIONS="-r150 -dAutoRotatePages=/None -dAutoFilterColorImages=false -dColorImageFilter=/FlateEncode -dNOPLATFONTS"
+
+echo "INFO: pstopdf argv[$#] = $@" >&2
+
+if [ $# -lt 5 -o $# -gt 6 ]; then
+
+  echo "ERROR: $0 job-id user title copies options [file]" >&2
+  exit 1
+
+fi
+
+jobid="$1"
+outfile=$(mktemp "${TMPDIR:-/tmp}/$jobid.pstopdf.out.XXXXXX")
+trap 'rm -f "$outfile"' 0 1 2 13 15
+
+infile="${6:--}"
+
+$PSTOPDF $OPTIONS "$infile" "$outfile" >&2
+
+cat "$outfile"
+

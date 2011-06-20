@@ -1,18 +1,18 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.28)  15 JUN 2011 12:59
+This is pdfTeXk, Version 3.141592-1.40.3 (Web2C 7.5.6) (format=pdflatex 2011.4.28)  15 JUN 2011 17:37
 entering extended mode
  %&-line parsing enabled.
 **main.tex
 (./main.tex
-LaTeX2e <2009/09/24>
-Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+LaTeX2e <2005/12/01>
+Babel <v3.8h> and hyphenation patterns for english, usenglishmax, dumylang, noh
 yphenation, loaded.
 (./mitthesis.cls
 Document Class: mitthesis 1999/10/20
 \vithesis=\count79
 (/usr/share/texmf-texlive/tex/latex/base/report.cls
-Document Class: report 2007/10/19 v1.4h Standard LaTeX document class
+Document Class: report 2005/09/16 v1.4f Standard LaTeX document class
 (/usr/share/texmf-texlive/tex/latex/base/size12.clo
-File: size12.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+File: size12.clo 2005/09/16 v1.4f Standard LaTeX file (size option)
 )
 \c@part=\count80
 \c@chapter=\count81
@@ -132,43 +132,43 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 ]
 Chapter 1.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 4156) has occurred while \output is active []
 
  [13]
 [14]
 
 LaTeX Warning: Reference `range-tracking' on page 15 undefined on input line 11
-3.
+2.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [15]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 156.
+(Font)              <7> on input line 155.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 156.
+(Font)              <5> on input line 155.
 
 
 LaTeX Warning: Citation `magenheimer:precision' on page 16 undefined on input l
-ine 157.
+ine 156.
 
 
-LaTeX Warning: Citation `byte:i860' on page 16 undefined on input line 167.
+LaTeX Warning: Citation `byte:i860' on page 16 undefined on input line 166.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [16]
 
-LaTeX Warning: Citation `ellis:bulldog' on page 17 undefined on input line 180.
+LaTeX Warning: Citation `ellis:bulldog' on page 17 undefined on input line 179.
 
 
 
-LaTeX Warning: Citation `colwell:vliw' on page 17 undefined on input line 180.
+LaTeX Warning: Citation `colwell:vliw' on page 17 undefined on input line 179.
 
 
-LaTeX Warning: Citation `gib86' on page 17 undefined on input line 201.
+LaTeX Warning: Citation `gib86' on page 17 undefined on input line 200.
 
 [17]) [18]
 \openout2 = `chap2.aux'.
@@ -207,27 +207,26 @@ LaTeX Warning: There were undefined references.
 
  ) 
 Here is how much of TeX's memory you used:
- 544 strings out of 495061
- 5776 string characters out of 1182621
- 55511 words of memory out of 3000000
- 3722 multiletter control sequences out of 15000+50000
- 10071 words of font info for 35 fonts, out of 3000000 for 9000
+ 544 strings out of 95086
+ 5782 string characters out of 1183255
+ 53433 words of memory out of 1500000
+ 3717 multiletter control sequences out of 10000+50000
+ 10071 words of font info for 35 fonts, out of 1200000 for 2000
  28 hyphenation exceptions out of 8191
- 28i,8n,25p,166b,243s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
-re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-te
-xlive/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/share/texmf-texlive/fon
-ts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-texlive/fonts/type1/pu
-blic/amsfonts/cm/cmmi8.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfont
-s/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr12.p
-fb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/sha
-re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-texl
-ive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/typ
-e1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/a
-msfonts/cm/cmti12.pfb>
-Output written on main.pdf (22 pages, 166079 bytes).
+ 28i,8n,25p,166b,243s stack positions out of 5000i,500n,6000p,200000b,5000s
+</usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmbx10.pfb></usr/share/texmf
+-texlive/fonts/type1/bluesky/cm/cmbx12.pfb></usr/share/texmf-texlive/fonts/type
+1/bluesky/cm/cmbxti10.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmmi
+12.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmmi8.pfb></usr/share/t
+exmf-texlive/fonts/type1/bluesky/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/t
+ype1/bluesky/cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmr1
+7.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmr7.pfb></usr/share/tex
+mf-texlive/fonts/type1/bluesky/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/type
+1/bluesky/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/bluesky/cm/cmti12
+.pfb>
+Output written on main.pdf (22 pages, 93960 bytes).
 PDF statistics:
  121 PDF objects out of 1000 (max. 8388607)
- 0 named destinations out of 1000 (max. 500000)
+ 0 named destinations out of 1000 (max. 131072)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

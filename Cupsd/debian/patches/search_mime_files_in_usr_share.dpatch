@@ -1,0 +1,41 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## search_mime_files_in_usr_share.dpatch by  <martin.pitt@ubuntu.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: http://www.cups.org/str.php?L2719
+
+@DPATCH@
+diff -urNad trunk~/scheduler/conf.c trunk/scheduler/conf.c
+--- trunk~/scheduler/conf.c	2008-03-16 14:22:22.000000000 +0100
++++ trunk/scheduler/conf.c	2008-03-16 14:23:33.000000000 +0100
+@@ -342,6 +342,7 @@
+   cups_file_t	*fp;			/* Configuration file */
+   int		status;			/* Return status */
+   char		temp[1024],		/* Temporary buffer */
++		temp2[1024],		/* Temporary buffer */
+ 		*slash;			/* Directory separator */
+   cups_lang_t	*language;		/* Language */
+   struct passwd	*user;			/* Default user */
+@@ -1073,11 +1074,21 @@
+ 
+    /*
+     * Read the MIME type and conversion database...
++    * Files are read from DataDir/mime by default, and can be overridden in
++    * ServerRoot.
+     */
+ 
+     snprintf(temp, sizeof(temp), "%s/filter", ServerBin);
+ 
+-    MimeDatabase = mimeLoad(ServerRoot, temp);
++    snprintf(temp2, sizeof(temp2), "%s/mime", DataDir);
++    MimeDatabase = mimeLoad(temp2, temp);
++    if (!MimeDatabase)
++    {
++      cupsdLogMessage(CUPSD_LOG_INFO,
++                      "Unable to load MIME database from \'%s\'!", temp2);
++    }
++
++    MimeDatabase = mimeMerge(MimeDatabase, ServerRoot, temp);
+ 
+     if (!MimeDatabase)
+     {

@@ -1,0 +1,34 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## pdftops-fixes.dpatch by  <mpitt@debian.org>
+##
+## DP: Fix behavioural change in patch from STR #2780 which broke the test
+## DP: suite: When a job is cancelled, do not report a failure in the exit code
+## DP: of pdftops. (http://www.cups.org/str.php?L2808)
+
+@DPATCH@
+diff -urNad trunk~/filter/pdftops.c trunk/filter/pdftops.c
+--- trunk~/filter/pdftops.c	2008-04-21 19:33:00.000000000 +0200
++++ trunk/filter/pdftops.c	2008-04-21 19:34:57.000000000 +0200
+@@ -270,20 +270,18 @@
+     * Parent comes here...
+     */
+ 
+-    while ((pdfwaitpid = wait(&pdfstatus)) < 0 && errno == EINTR)
++    while ((pdfwaitpid = wait(&pdfstatus)) < 0 && errno == EINTR);
+     {
+      /*
+       * Wait until we get a valid process ID or the job is canceled...
+       */
+ 
+-      if (job_canceled)
+-	break;
+     }
+ 
+     if (pdfwaitpid != pdfpid)
+     {
+       kill(pdfpid, SIGTERM);
+-      pdfstatus = 1;
++      pdfstatus = job_canceled ? 0 : 1;
+     }
+     else if (pdfstatus)
+     {

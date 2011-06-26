@@ -1,0 +1,275 @@
+#!/usr/bin/perl
+# The above Perl path may vary on your system; fix it!!! -*- perl -*-
+
+# dnssd - Search for network printers with the avahi-browse command
+#         (Zeroconf, DNS-SD)
+
+# Printer discovery CUPS backend (like the SNMP backend)
+# See also http://qa.mandriva.com/show_bug.cgi?id=21812
+
+# Copyright 2007 Till Kamppeter <till.kamppeter@gmail.com>
+#
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; either version 2 of the License, or (at your
+#  option) any later version.
+#
+#  This program is distributed in the hope that it will be useful, but
+#  WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+#  Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307,
+#  USA.
+
+# Usage: 
+#
+# cp dnssd /usr/lib/cups/backend/
+# chmod 755 /usr/lib/cups/backend/dnssd
+# killall -HUP cupsd (or "/etc/init.d/cups restart", CUPS 1.1.x only)
+# lpinfo -v (or use any printer setup tool)
+#
+# /usr/lib/cups/backend/dnssd <IP address>
+#    Shows only info for printer with given IP
+
+use strict;
+
+$0 =~ m!^(.*)/([^/]+)\s*$!;
+my $progname = ($2 || $0 || "dnssd");
+my $progpath = ($1 || "/usr/lib/cups/backend");
+
+if (@ARGV > 1) {
+    die "This backend is only for printer discovery, not for actual printing.\n";
+}
+
+my $ipfilter = $ARGV[0] if $ARGV[0];
+
+my $avahicmd = "avahi-browse -k -t -v -r -a 2> /dev/null";
+
+# IPs which are for computers, consider their printer entries as queues
+# set up with the local printing system (CUPS, LPD, Windows/Samba SMB, ...)
+my @computerips = ();
+my $output;
+my $hosts;
+my ($interface, $nettype, $ip, $host, $make, $model, $description, $cmd, $makemodel, $deviceid, $protocol, $port, $uriext, $uri);
+
+open (AVAHI, "$avahicmd |") or exit 0;
+while (my $line = <AVAHI>) {
+    chomp ($line);
+    if ($line =~ /^\s*=\s+(\S+)\s+(\S+)\s+(.*?)\s+(\S+)\s+(\S+)\s*$/) {
+	# New item
+	$interface = $1;
+	$nettype = $2;
+	my $itemname = $3;
+	my $protocolinfo = $4;
+	next if $nettype !~ /^IPv4$/i;
+        if ($protocolinfo =~ /_workstation/) {
+	    $protocol = "computer";
+	} elsif ($protocolinfo =~ /_pdl-datastream/) {
+	    $protocol = "socket";
+	} elsif ($protocolinfo =~ /_printer/) {
+	    $protocol = "lpd";
+	} elsif ($protocolinfo =~ /_ipp/) {
+	    $protocol = "ipp";
+	}
+    } elsif ($line =~ /^\s*hostname\s*=\s*\[([^\]]+)\]\s*$/) {
+	$host = $1;
+	$host =~ s/\.local\.?$//;
+    } elsif ($line =~ /^\s*address\s*=\s*\[([^\]]+)\]\s*$/) {
+	$ip = $1;
+	if ($protocol eq "computer") {
+	    push (@computerips, $ip);
+	    $protocol = "";
+	}
+    } elsif ($line =~ /^\s*port\s*=\s*\[([^\]]+)\]\s*$/) {
+	$port = $1;
+    } elsif ($line =~ /^\s*txt\s*=\s*\[(.+)\]\s*$/) {
+	my $info = $1;
+	if ($protocol && (!defined($ipfilter) || ($ipfilter eq $ip))) {
+	    my ($ty, $product, $pdls, $usb_MFG, $usb_MDL, $usb_DES, $usb_CMD) = 
+		("", "", "", "", "", "", "");
+	    while ($info =~ s/^\s*\"([^\"]+)\"\s*//) {
+		my $infoitem = $1;
+		if ($infoitem =~ /^([^=]*)=(.*)$/) {
+		    my $field = $1;
+		    my $content = $2;
+		    if ($field eq "ty") {
+			$ty = $content;
+		    } elsif ($field eq "product") {
+			$product = $content;
+			$product =~ s/^\((.*)\)$/$1/;
+		    } elsif ($field eq "usb_MFG") {
+			$usb_MFG = $content;
+		    } elsif ($field eq "usb_MDL") {
+			$usb_MDL = $content;
+		    } elsif ($field eq "usb_DES") {
+			$usb_DES = $content;
+		    } elsif ($field eq "usb_CMD") {
+			$usb_CMD = $content;
+		    } elsif ($field eq "rp") {
+			$uriext = $content;
+		    } elsif ($field eq "pdl") {
+			while ($content =~ s/^\s*([^\,]+?)\s*\,\s*//) {
+			    my $i = $1;
+			    if ($i =~ m!\b(postscript|ps)\b!i) {
+				$pdls .= "POSTSCRIPT,";
+			    } elsif ($i =~ m!\b(pdf)\b!i) {
+				$pdls .= "PDF,";
+			    } elsif ($i =~ m!\b(pcl6|pclxl|pxl)\b!i) {
+				$pdls .= "PCLXL,";
+			    } elsif ($i =~ m!\b(pcl[345][ce]?|pcl)\b!i) {
+				$pdls .= "PCL,";
+			    }
+			}
+			$pdls =~ s/\,$//;
+		    }
+		}
+	    }
+	    $usb_MDL ||= $ty;
+	    $usb_DES ||= $product;
+	    if ($usb_MFG) {
+		$make = $usb_MFG;
+	    } elsif ($usb_DES =~ /^KONICA\s*MINOLTA\b/i) { 
+		$make = "KONICA MINOLTA";
+	    } elsif ($usb_DES) {
+		$usb_DES =~ /^\s*(\S*)\b/;
+		$make = $1;
+	    }
+	    $model = $usb_MDL;
+	    if (!$model) {
+		$usb_DES =~ /^\s*\S*\s*(.*)$/;
+		$model = $1;
+	    }
+	    $usb_CMD ||= $pdls;
+	    my $extra;
+	    if ($protocol eq "socket") {
+		if ($port eq "9100") {
+		    $uri = "socket://$ip";
+		} else {
+		    $uri = "socket://$ip:$port";
+		}
+		$extra = "Port $port";
+	    } elsif ($protocol eq "lpd") {
+		$uri = "lpd://$ip" . ($uriext ? "/$uriext" : "");
+		$extra = ($uriext ? "Queue: $uriext" : "Default queue");
+	    } elsif ($protocol eq "ipp") {
+		$uri = "ipp://$ip:$port" . ($uriext ? "/$uriext" : "");
+		$extra = ($uriext ? "Queue: $uriext" : "Default queue");
+	    }
+	    if ($make && $model) {
+		$make =~ s/Hewlett.?Packard/HP/i;
+		$make =~ s/Lexmark.?International/Lexmark/i;
+		$model =~ s/Hewlett.?Packard/HP/i;
+		$model =~ s/Lexmark.?International/Lexmark/i;
+		while ($model =~ s/^\s*$make\s*//i) {};
+		$makemodel = "$make $model";
+	    } elsif ($usb_DES) {
+		$makemodel = $usb_DES;
+	    } else {
+		$makemodel = "Unknown";
+	    }
+	    $deviceid = ($usb_MFG ? "MFG:$usb_MFG;" : "") .
+		($usb_MDL ? "MDL:$usb_MDL;" : "") .
+		($usb_DES ? "DES:$usb_DES;" : "") .
+		($usb_CMD ? "CMD:$usb_CMD;" : "");
+	    $deviceid .= "CLS:PRINTER;" if $deviceid;
+	    $hosts->{$ip} = $host if $host;
+	    $output->{$ip}{$protocol}{$uriext} =
+		"network $uri \"$makemodel\" \"$makemodel $ip ($extra)\" \"$deviceid\"\n";
+	    ($interface, $nettype, $ip, $host, $make, $model, $description, $cmd, $makemodel, $deviceid, $protocol, $port, $uriext, $uri) =
+		("", "", "", "", "", "", "", "", "", "", "", "", "", "");
+	}
+    }
+}
+
+my $localqueues = {};
+my $queue = undef;
+if (open LPSTAT, "LC_ALL=C lpstat -l -p -v |") {
+    while (my $line = <LPSTAT>) {
+	chomp $line;
+	if ($line =~ /^printer\s+(\S+)/i) {
+	    $queue = $1;
+	    $localqueues->{$queue} = {};
+	} elsif ($queue) {
+	    if ($line =~ /^\s+Connection:\s+remote/i) {
+		$localqueues->{$queue}{remote} = 1;
+	    } elsif ($line =~ /^\s+Interface:\s+(\S+)/i) {
+		$localqueues->{$queue}{interface} = $1;
+	    } elsif ($line =~ /^device\s+for\s+(\S+)\s*:\s*(\S+)/i) {
+		$localqueues->{$1}{uri} = $2;
+	    }
+	}
+    }
+    close LPSTAT
+}
+
+my @localips = ();
+if (open IFCONFIG, "LC_ALL=C /sbin/ifconfig |") {
+    while (my $line = <IFCONFIG>) {
+	chomp $line;
+	if ($line =~ /^\s*inet\s+addr:\s*(\S+)/i) {
+	    push (@localips, $1);
+	}
+    }
+    close IFCONFIG;
+}
+
+foreach my $ip (keys(%{$output})) {
+    # Do not list print queues of the local machine
+    next if member($ip, @localips);
+    if ($output->{$ip}{"socket"}) {
+	foreach my $uriext (keys(%{$output->{$ip}{"socket"}})) {
+	    if (keys(%{$output->{$ip}{"socket"}}) == 1) {
+		$output->{$ip}{"socket"}{$uriext} =~
+		    s/^(\s*\S*\s*\S*\s*\"[^\"]*\"\s*\"[^\"\(]*?)\s*\([^\)]*\)\s*(\"\s*.*)$/$1$2/;
+	    }
+	    print $output->{$ip}{"socket"}{$uriext};
+	}
+    } elsif ($output->{$ip}{"lpd"}) {
+	foreach my $uriext (keys(%{$output->{$ip}{"lpd"}})) {
+	    if (keys(%{$output->{$ip}{"lpd"}}) == 1) {
+		$output->{$ip}{"lpd"}{$uriext} =~
+		    s/^(\s*\S*\s*\S*\s*\"[^\"]*\"\s*\"[^\"\(]*?)\s*\([^\)]*\)\s*(\"\s*.*)$/$1$2/;
+	    }
+	    print $output->{$ip}{"lpd"}{$uriext};
+	}
+    } elsif ($output->{$ip}{"ipp"}) {
+	foreach my $uriext (keys(%{$output->{$ip}{"ipp"}})) {
+	    if ($uriext =~ /^(printers|classes)\/(\S+)$/) {
+		# Queue from a CUPS server. We should suppress it if it
+		# is a queue received via CUPS broadcast
+		$queue=$2;
+		if (defined($localqueues->{"$queue\@$ip"})) {
+		    $queue = "$queue\@$ip";
+		} elsif (defined($localqueues->{"$queue\@$hosts->{$ip}"})) {
+		    $queue = "$queue\@$hosts->{$ip}";
+		}
+		if (defined($localqueues->{$queue})) {
+		    if ($localqueues->{$queue}{remote} &&
+			($localqueues->{$queue}{uri} =~
+			 /^ipp:\/\/([^\/:]+)(:\d+|)\/(\S+)/)) {
+			my $host = $1;
+			my $ue = $3;
+			if ($host !~ /\d+\.\d+\.\d+\.\d+/) {
+			    $host =
+				join(".", unpack("C4", gethostbyname($host)));
+			}
+			next if ($host eq $ip) && ($ue eq $uriext);
+		    }
+		}
+	    }
+	    if (keys(%{$output->{$ip}{"ipp"}}) == 1) {
+		$output->{$ip}{"ipp"}{$uriext} =~
+		    s/^(\s*\S*\s*\S*\s*\"[^\"]*\"\s*\"[^\"]*?)\s*\([^\)]*\)\s*(\"\s*.*)$/$1$2/;
+	    }
+	    print $output->{$ip}{"ipp"}{$uriext};
+	}
+    }
+}
+
+exit 0;
+
+# member( $a, @b ) returns 1 if $a is in @b, 0 otherwise.
+sub member { my $e = shift; foreach (@_) { $e eq $_ and return 1 } 0 };

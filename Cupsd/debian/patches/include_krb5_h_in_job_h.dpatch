@@ -1,0 +1,21 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 90_include_krb5_h_in_job_h.patch.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad cups-1.3.0~/scheduler/job.h cups-1.3.0/scheduler/job.h
+--- cups-1.3.0~/scheduler/job.h	2007-08-01 20:02:47.000000000 +0100
++++ cups-1.3.0/scheduler/job.h	2007-08-13 22:53:14.000000000 +0100
+@@ -13,6 +13,10 @@
+  *   file is missing or damaged, see the license at "http://www.cups.org/".
+  */
+ 
++#ifdef HAVE_GSSAPI
++#include <krb5.h>
++#endif /* HAVE_GSSAPI */
++
+ /*
+  * Job request structure...
+  */

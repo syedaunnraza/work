@@ -1,0 +1,32 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## ppd-poll-with-client-conf.dpatch by  <till.kamppeter@gmail.com>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: If an external server is used via client.conf and the DNS is
+## DP: inconsistent (ex: DNS gives "noname" for many IPs, reverse DNS
+## DP: gives one of these IPs for "noname") local PPDs can get polled
+## DP: for print queues instead of the PPDs of the external server
+## DP: (CUPS STR #2763, http://www.cups.org/str.php?L2763)
+
+@DPATCH@
+diff -urNad cups-1.3.6~/cups/util.c cups-1.3.6/cups/util.c
+--- cups-1.3.6~/cups/util.c	2008-01-17 00:42:35.000000000 +0100
++++ cups-1.3.6/cups/util.c	2008-03-20 17:44:46.000000000 +0100
+@@ -812,11 +812,13 @@
+     http2 = http;
+   else if ((http2 = httpConnectEncrypt(hostname, port,
+                                        cupsEncryption())) == NULL)
+-  {
+-    DEBUG_puts("Unable to connect to server!");
++    if ((http2 = httpConnectEncrypt(http_hostname, http_port,
++				    cupsEncryption())) == NULL)
++    {
++      DEBUG_puts("Unable to connect to server!");
+ 
+-    return (NULL);
+-  }
++      return (NULL);
++    }
+ 
+  /*
+   * Get a temp file...

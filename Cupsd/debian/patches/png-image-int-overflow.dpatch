@@ -1,0 +1,28 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## png-image-int-overflow.dpatch by Martin Pitt <mpitt@debian.org>
+##
+## DP: Fix integer overflow in the PNG image reader.
+## DP: (Debian #507183, STR #2974)
+
+@DPATCH@
+diff -urNad trunk~/filter/image-png.c trunk/filter/image-png.c
+--- trunk~/filter/image-png.c	2008-07-12 00:48:49.000000000 +0200
++++ trunk/filter/image-png.c	2008-12-01 08:32:01.000000000 +0100
+@@ -178,7 +178,7 @@
+     {
+       bufsize = img->xsize * img->ysize;
+ 
+-      if ((bufsize / img->ysize) != img->xsize)
++      if ((bufsize / img->xsize) != img->ysize)
+       {
+ 	fprintf(stderr, "DEBUG: PNG image dimensions (%ux%u) too large!\n",
+ 		(unsigned)width, (unsigned)height);
+@@ -190,7 +190,7 @@
+     {
+       bufsize = img->xsize * img->ysize * 3;
+ 
+-      if ((bufsize / (img->ysize * 3)) != img->xsize)
++      if ((bufsize / (img->xsize * 3)) != img->ysize)
+       {
+ 	fprintf(stderr, "DEBUG: PNG image dimensions (%ux%u) too large!\n",
+ 		(unsigned)width, (unsigned)height);

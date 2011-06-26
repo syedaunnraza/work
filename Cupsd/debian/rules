@@ -1,0 +1,91 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# GNU copyright 1997 to 1999 by Joey Hess.
+#
+# Modified to make a template file for a multi-binary package with separated
+# build-arch and build-indep targets  by Bill Allombert 2001
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+# This has to be exported to make some magic below work.
+#export DH_OPTIONS
+
+include /usr/share/cdbs/1/rules/debhelper.mk
+include /usr/share/cdbs/1/class/autotools.mk
+include /usr/share/cdbs/1/rules/dpatch.mk
+
+unpatch: deapply-dpatches
+
+# workaround for http://bugs.debian.org/469517
+ifneq ($(findstring $(DEB_BUILD_ARCH), arm armel),)
+  CFLAGS += -fno-stack-protector
+endif
+
+DEB_CONFIGURE_EXTRA_FLAGS := --with-optim=$(DEB_OPTFLAGS) --libdir=/usr/lib --mandir=/usr/share/man --with-docdir=/usr/share/cups/doc-root --localedir=/usr/share/cups/locale --enable-slp --enable-libpaper --enable-ssl --enable-gnutls --disable-openssl --enable-threads --enable-static --enable-dbus --enable-gssapi --disable-pdftops --disable-launchd --with-cups-group=lp --with-system-groups=lpadmin --with-printcap=/var/run/cups/printcap --with-log-file-perm=0640 CFLAGS="$(CFLAGS)"
+DEB_MAKE_INSTALL_TARGET := install BUILDROOT=$(DEB_DESTDIR)
+DEB_INSTALL_CHANGELOGS_ALL := CHANGES.txt
+DEB_DH_INSTALLINIT_ARGS := -u'start 20 2 3 4 5 . stop 80 1 .'
+DEB_DH_STRIP_ARGS := --dbg-package=cups-dbg
+DEB_DH_FIXPERMS_ARGS := -Xusr/lib/cups/backend-available
+DEB_DH_COMPRESS_ARGS := -Xusr/share/doc/libcups2-dev/examples/scripting
+DEB_DH_INSTALL_SOURCEDIR := debian/tmp
+ifneq ($(findstring $(DEB_BUILD_ARCH), arm m68k),)
+DEB_MAKE_CHECK_TARGET := check || true
+else
+DEB_MAKE_CHECK_TARGET := check
+endif
+LDFLAGS := -Wl,--as-needed
+
+common-post-build-arch::
+	# Fix permissions of filters/backends installed from debian/local/
+	chmod 755 debian/local/filters/*
+	chmod 755 debian/local/backends/*
+
+clean::
+	rm -f man/client.conf.man packaging/cups.list
+	rm -f conf/mime.convs conf/snmp.conf init/org.cups.cups-lpd.plist
+
+common-install-prehook-impl::
+	(cd fonts && $(MAKE) install BUILDROOT=$(DEB_DESTDIR))
+
+binary-post-install/cups::
+	(cd $(DEB_DESTDIR)/../cups/usr/share/doc/cups && ln -sf ../../cups/doc-root online-docs)
+
+	# Install PPDs into /usr/share/ppd/cups-included/<Manufacturer>, see
+	# http://wiki.debian.org/PpdFileStructureSpecification
+	for i in $(DEB_DESTDIR)/../cups/usr/share/cups/model/*.ppd; do \
+	  m=$$(sed -n -e '/^\*Manufacturer:/s/.*"\([^"]*\)".*/\1/p' $$i); \
+	  mkdir -p "$(DEB_DESTDIR)/../cups/usr/share/ppd/cups-included/$$m"; \
+	  mv $$i "$(DEB_DESTDIR)/../cups/usr/share/ppd/cups-included/$$m/"; \
+	done
+	rmdir $(DEB_DESTDIR)/../cups/usr/share/cups/model
+
+	dh_usrlocal
+
+	# Install DBUS configuration file so that job progress is reported to
+	# the system-config-printer applet
+	install -D -m 644 packaging/cups-dbus.conf $(DEB_DESTDIR)/../cups/etc/dbus-1/system.d/cups.conf
+
+	# install AppArmor profile on Ubuntu
+	if [ "`lsb_release -is 2>/dev/null`" = "Ubuntu" ]; then \
+	   install -D -m 644 debian/local/apparmor-profile debian/$(cdbs_curpkg)/etc/apparmor.d/usr.sbin.cupsd; \
+	fi
+
+	# Make the serial backend run as root, since /dev/ttyS* are
+	# root:dialout and thus not accessible as user lp
+	chmod go-rx debian/$(cdbs_curpkg)/usr/lib/cups/backend-available/serial
+
+binary-post-install/libcupsimage2-dev::
+	rm -r debian/libcupsimage2-dev/usr/share/doc/libcupsimage2-dev
+	ln -s libcupsimage2 debian/libcupsimage2-dev/usr/share/doc/libcupsimage2-dev
+binary-post-install/cups-bsd::
+	rm -r debian/cups-bsd/usr/share/doc/cups-bsd
+	ln -s libcups2 debian/cups-bsd/usr/share/doc/cups-bsd
+binary-post-install/libcups2-dev::
+	rm -f debian/$(cdbs_curpkg)/usr/share/doc/$(cdbs_curpkg)/examples/scripting/php/*.o
+	rm -f debian/$(cdbs_curpkg)/usr/share/doc/$(cdbs_curpkg)/examples/scripting/php/*.so
+binary-post-install/cups-client::
+	rm -r debian/cups-client/usr/share/doc/cups-client
+	ln -s libcups2 debian/cups-client/usr/share/doc/cups-client

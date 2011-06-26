@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## 12_quiesce_ipp_logging.dpatch by  <mpitt@debian.org>
+##
+## All lines beginning with `## DP:' are a description of the patch.
+## DP: No description.
+
+@DPATCH@
+diff -urNad cups-1.2.2~/scheduler/log.c cups-1.2.2/scheduler/log.c
+--- cups-1.2.2~/scheduler/log.c	2006-08-13 04:49:19.000000000 +0000
++++ cups-1.2.2/scheduler/log.c	2006-08-13 05:17:06.000000000 +0000
+@@ -354,6 +354,12 @@
+ 		  "STATUS"
+ 		};
+ 
++  /* Do not flood the log with CUPS-Get-Printers requests */
++  if (con->request && code == HTTP_OK && (
++	con->request->request.op.operation_id == CUPS_GET_PRINTERS ||
++	con->request->request.op.operation_id == CUPS_GET_DEFAULT ||
++	con->request->request.op.operation_id == IPP_GET_PRINTER_ATTRIBUTES))
++      return (1);
+ 
+ #ifdef HAVE_VSYSLOG
+  /*

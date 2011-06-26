@@ -1,0 +1,23 @@
+#! /bin/sh /usr/share/dpatch/dpatch-run
+## runloop-backchannel-eof-spin.dpatch by Martin Pitt <mpitt@debian.org>
+##
+## DP: Fix backend runloop spin on backchannel EOF (select() returns "ready for
+## DP: read" on EOF). This completely broke printing with e. g. HPJetDirect.
+## DP: (http://bugs.debian.org/489045, STR #3001)
+@DPATCH@
+--- trunk/backend/runloop.c   (revision 8127)
++++ trunk/backend/runloop.c   (working copy)
+@@ -283,6 +283,12 @@
+                CUPS_LLCAST bc_bytes);
+         cupsBackChannelWrite(bc_buffer, bc_bytes, 1.0);
+       }
++      else if (bc_bytes < 0 && errno != EAGAIN && errno != EINTR)
++      {
++        fprintf(stderr, "DEBUG: Error reading back-channel data: %s\n",
++               strerror(errno));
++       use_bc = 0;
++      }
+     }
+ 
+    /*
+

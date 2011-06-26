@@ -1,23 +1,80 @@
 #include "pin.H"
 #include "instlib.H"
 #include "portability.H"
+
+using namespace INSTLIB;
+
 #include <vector>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
 #include <elf.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <sys/time.h>
+#include <sys/times.h>
+#include <sys/socket.h>
+#include <map>
+#include <algorithm>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <linux/if_link.h>
 
-using namespace INSTLIB;
+#include "syscalls_printer_mult.h"
+#include "syscall_utils.h"
+
+#define DEBUG 1
+
+#include <errno.h>
 
 /* ===================================================================== */
 /* Commandline Switches */
 /* ===================================================================== */
 
 // Important Options
+KNOB<string> KnobSysFile(KNOB_MODE_WRITEONCE, "pintool",
+			    "sysfile", "systracer.out", "syscalls output file");
+KNOB<BOOL>   KnobTraceSys(KNOB_MODE_WRITEONCE,  "pintool",
+		       "sys", "1", "determinize sys calls");
+
+// Syscalls
+
+// --------------------------------------------------------
+
 KNOB<BOOL>   KnobFixPid(KNOB_MODE_WRITEONCE,  "pintool",
 		       "pid", "0", "determinize pid");
+KNOB<BOOL>   KnobFixStat(KNOB_MODE_WRITEONCE,  "pintool",
+			 "stat", "0", "determinize stat");
+KNOB<BOOL>   KnobFixNetInit(KNOB_MODE_WRITEONCE,  "pintool",
+			    "netinit", "0", "determinize netlink/socket");
+KNOB<BOOL>   KnobFixTime(KNOB_MODE_WRITEONCE,  "pintool",
+			 "time", "0", "determinize time");
+KNOB<BOOL> KnobEpoll(KNOB_MODE_WRITEONCE, "pintool",
+			    "epoll", "0", "order epolls");
+KNOB<BOOL> KnobDevRandom(KNOB_MODE_WRITEONCE, "pintool",
+			   "devrand", "0", "trace file");
+KNOB<BOOL> KnobFixFork(KNOB_MODE_WRITEONCE, "pintool",
+			 "fix_fork", "0", "trace file");
+KNOB<BOOL> KnobFixPorts(KNOB_MODE_WRITEONCE, "pintool",
+			"ports", "0", "fix ephemeral ports");
+// --------------------------------------------------------
+
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool",
 			    "o", "trace.log", "trace file");
+
+KNOB<string> KnobTimeFile(KNOB_MODE_WRITEONCE, "pintool",
+			    "timefile", "time.out", "trace file");
+KNOB<string> KnobDayFile(KNOB_MODE_WRITEONCE, "pintool",
+			    "dayfile", "day.out", "trace file");
+KNOB<string> KnobEpollFile(KNOB_MODE_WRITEONCE, "pintool",
+			    "epollfile", "epoll.out", "epoll trace file");
+
+KNOB<BOOL> KnobLeader(KNOB_MODE_WRITEONCE, "pintool",
+		      "leader", "1", "trace file");
+
 KNOB<BOOL>   KnobSymbols(KNOB_MODE_WRITEONCE, "pintool",
 			 "symbols", "0", "include symbol information");
 KNOB<BOOL>   KnobRdtsc(KNOB_MODE_WRITEONCE,  "pintool",
@@ -34,10 +91,9 @@ KNOB<BOOL>   KnobFixPointerGuard(KNOB_MODE_WRITEONCE,  "pintool",
 
 KNOB<BOOL>   KnobOptBB(KNOB_MODE_WRITEONCE,  "pintool",
 		       "optbb", "0", "one instr per bb or not");
-
 KNOB<string> KnobMemoryFile(KNOB_MODE_WRITEONCE, "pintool",
 			    "fmem", "/dev/null", "memory dump file");
-// Less Frequently Used Options
+// Less Frequently Uosed Options
 KNOB<BOOL>   KnobPid(KNOB_MODE_WRITEONCE, "pintool",
 		     "i", "0", "append pid to output");
 KNOB<THREADID>   KnobWatchThread(KNOB_MODE_WRITEONCE, "pintool",
@@ -59,6 +115,7 @@ KNOB<BOOL>   KnobSilent(KNOB_MODE_WRITEONCE, "pintool",
 KNOB<BOOL> KnobEarlyOut(KNOB_MODE_WRITEONCE, "pintool", "early_out", "0" , 
 			"Exit after tracing the first region.");
 
+
 /* ===================================================================== */
 /* Global Variables */
 /* ===================================================================== */
@@ -67,65 +124,68 @@ KNOB<BOOL> KnobEarlyOut(KNOB_MODE_WRITEONCE, "pintool", "early_out", "0" ,
 LOCALVAR INT32 firstInstruction = 1;
 LOCALVAR std::ofstream outmem;
 
+LOCALVAR BOOL forked = 0;
+
 // trace output stream
 LOCALVAR std::ofstream out;
+LOCALVAR std::ofstream sysout;
 
-typedef UINT64 COUNTER;
-LOCALVAR INT32 enabled = 0;
-LOCALVAR FILTER filter;
-LOCALVAR ICOUNT icount;
+// timing output stream
+LOCALVAR std::ofstream timing_out;
+LOCALVAR std::ifstream timing_in;
+LOCALVAR std::ofstream gettimeofday_out;
+LOCALVAR std::ifstream gettimeofday_in;
 
+// epoll events stream
+LOCALVAR std::ifstream epoll_in;
+LOCALVAR std::ofstream epoll_out;
+
+GLOBALVAR vector<struct epoll_event*> e;
+LOCALVAR struct epoll_event* next;
+
+// set this for every program separately
 LOCALVAR ADDRINT AT_RANDOM_ADDRESS = 0xbffff49b;
 
+// system call related stuff
 LOCALVAR BOOL outstanding_syscall = false;
 LOCALVAR ADDRINT last_syscall_number = 0;
 
 LOCALVAR BOOL canary_done = false;
 LOCALVAR BOOL guard_done = false;
 
-LOCALVAR string fillers[] = 
-  {
-    "                                       ",
-    "                                      ", 
-    "                                     ",
-    "                                    ",
-    "                                   ",
-    "                                  ",
-    "                                 ",
-    "                                ",
-    "                               ",
-    "                              ",
-    "                             ",
-    "                            ",
-    "                           ",
-    "                          ",
-    "                         ",
-    "                        ",
-    "                       ",
-    "                      ",
-    "                     ",
-    "                    ",
-    "                   ",
-    "                  ",
-    "                 ",
-    "                ",
-    "               ",
-    "              ",
-    "             ",
-    "            ",
-    "           ",
-    "          ",
-    "         ",
-    "        ",
-    "       ",
-    "      ",
-    "     ",
-    "    ",
-    "   ",
-    "  ",
-    " ",
-    ""
-  };
+// fd for dev_urandom
+LOCALVAR vector<ADDRINT> urandom_fds;
+
+// fd for /etc/ files
+LOCALVAR vector<ADDRINT> stat_fds;
+
+// my own pid
+LOCALVAR int my_original_pid = -1;
+LOCALVAR int my_simulated_pid = 0x7003;
+
+// child pids
+LOCALVAR map<int,int> pid_child_trans_table;
+int next_child_pid = 30000;
+
+
+// socket
+LOCALVAR map<int,int> socket_translation_table;
+int next_socket_fd = 60000;
+
+// stored times
+LOCALVAR time_t root_dir_time = (time_t)0;
+LOCALVAR time_t job_cache_time = (time_t)0;
+
+// instructions executed
+LOCALVAR UINT64 instrs = 0;
+
+typedef UINT64 COUNTER;
+LOCALVAR INT32 enabled = 0;
+LOCALVAR FILTER filter;
+LOCALVAR ICOUNT icount;
+
+// Netlink Sockets
+LOCALVAR vector<ADDRINT> netlink_sockets;
 
 LOCALFUN BOOL Emit(THREADID threadid)
 {
@@ -143,9 +203,64 @@ LOCALFUN VOID Flush()
     out << flush;
 }
 
+
 /* ===================================================================== */
 
 /* ===================================================================== */
+
+LOCALFUN VOID log_epoll(struct epoll_event *events)
+{
+  epoll_out << "<epoll_begin>" << endl;
+  epoll_out << "events[0].events=" << dec << events[0].events << endl;
+  epoll_out << "events[0].data.ptr=" << dec << (ADDRINT)events[0].data.ptr << endl; 
+  epoll_out << "<epoll_end>" << endl;
+}
+
+struct epoll_event* extract_next_epoll_event()
+{
+  struct epoll_event *next = new struct epoll_event;
+  
+  ADDRINT val_buf = 0;
+  char str[255];
+  string tmp;
+  
+  // <epoll_begin>
+  epoll_in.getline(str, 255);  
+  tmp = string(str);
+  
+  if (tmp.find("<epoll_begin>") == string::npos)
+    cerr << "error: expected \"<epoll_begin>\" , saw:" << tmp << endl;  
+ 
+  // events[0].events=#
+  epoll_in.getline(str, 255);  
+  tmp = string(str);
+  if (tmp.find("events[0].events=") == string::npos)
+    cerr << "error: expected \"events[0].events=#\", saw:" << tmp << endl;  
+  tmp = tmp.substr(tmp.find("=") + 1);
+  istringstream s6(tmp);
+  s6 >> val_buf;
+  next->events = val_buf;
+
+
+  // events[0].data.ptr=#
+  epoll_in.getline(str, 255);  
+  tmp = string(str);
+  if (tmp.find("events[0].data.ptr=") == string::npos)
+    cerr << "error: expected \"events[0].data.ptr=#\", saw:" << tmp << endl;  
+  tmp = tmp.substr(tmp.find("=") + 1);
+  istringstream s7(tmp);
+  s7 >> val_buf;
+  next->data.ptr = (void*)val_buf;
+  
+  // <epoll_end>
+  epoll_in.getline(str, 255);  
+  tmp = string(str);
+  if (tmp.find("<epoll_end>") == string::npos)
+    cerr << "error: expected \"<epoll_end>\", saw:" << tmp << endl;  
+  
+  return next;
+}
+
 
 /*
 // keep this in case this later needed for debugging
@@ -168,13 +283,17 @@ static void print_gs_stuff(ADDRINT baseAddr)
 static void overwrite_AT_RANDOM()
 {
   *((int*)AT_RANDOM_ADDRESS) = 0x12345678;
+#if DEBUG
   cout << "AT_RANDOM[0] i.e. libc canary src =  0x12345678" << endl;
+#endif
 }
 
 static void overwrite_AT_RANDOM_4()
 {
   *(((int*)AT_RANDOM_ADDRESS)+1) = 0x87654321;
+#if DEBUG
   cout << "AT_RANDOM[1] i.e. stack guard src =  0x87654321" << endl;
+#endif
 }
 
 INT32 Usage()
@@ -240,7 +359,10 @@ VOID EmitNoValues(THREADID threadid, string * str)
 {
   if (!Emit(threadid))
     return;
-  
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
   out
     << *str
     << endl;
@@ -252,6 +374,9 @@ VOID Emit1Values(THREADID threadid, string * str, string * reg1str,
 		 ADDRINT reg1val)
 {
   if (!Emit(threadid))
+    return;
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
     return;
   
   out
@@ -267,6 +392,10 @@ VOID Emit2Values(THREADID threadid, string * str, string * reg1str,
 {
   if (!Emit(threadid))
     return;
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+ 
   
   out
     << *str << " $ "
@@ -282,6 +411,9 @@ VOID Emit3Values(THREADID threadid, string * str, string * reg1str,
 		 ADDRINT reg2val, string * reg3str, ADDRINT reg3val)
 {
   if (!Emit(threadid))
+    return;
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
     return;
   
   out
@@ -301,6 +433,9 @@ VOID Emit4Values(THREADID threadid, string * str, string * reg1str,
 		 ADDRINT reg4val)
 {
   if (!Emit(threadid))
+    return;
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
     return;
   
   out
@@ -330,6 +465,10 @@ VOID EmitXMM(THREADID threadid, UINT32 regno, PIN_REGISTER* xmm)
 {
   if (!Emit(threadid))
         return;
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
   out << "\t\t\tXMM" << dec << regno << " := " << setfill('0') << hex;
   out.unsetf(ios::showbase);
   for(int i=0;i<16;i++) {
@@ -353,7 +492,18 @@ VOID AddXMMEmit(INS ins, IPOINT point, REG xmm_dst)
 
 VOID PrintRdtsc(string & traceString)
 {
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
   out << traceString << endl;
+}
+
+VOID CountInstruction()
+{
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
+  instrs++;
 }
 
 VOID AddEmit(INS ins, IPOINT point, 
@@ -416,6 +566,9 @@ VOID EmitWrite(THREADID threadid, UINT32 size)
 {
     if (!Emit(threadid))
         return;
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
     
     out << "\tWrite ";
     
@@ -445,7 +598,7 @@ VOID EmitWrite(THREADID threadid, UINT32 size)
         
       case 4:
         {
-            UINT32 x;
+	  UINT32 x;
             PIN_SafeCopy(&x, static_cast<UINT32*>(ea), 4);
             out << "*(UINT32*)" << ea << " = " << x << endl;
         }
@@ -473,6 +626,9 @@ VOID EmitRead(THREADID threadid, VOID * ea, UINT32 size)
 {
     if (!Emit(threadid))
         return;
+    
+    if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+      return;
 
     out << "\tRead ";
 
@@ -502,7 +658,22 @@ VOID EmitRead(THREADID threadid, VOID * ea, UINT32 size)
         {
             UINT32 x;
             PIN_SafeCopy(&x,static_cast<UINT32*>(ea),4);
-            out << x << " = *(UINT32*)" << ea << endl;
+
+	    /*
+	    if (ea == (VOID*)0xb6030718)
+	      {
+		if (x != (UINT32)my_simulated_pid && my_simulated_pid != -1)
+		  {
+		    *(int*)ea = my_simulated_pid;
+		    x = (UINT32)my_simulated_pid;
+		  }
+
+		out << x << " = <after intervention> *(UINT32*)" << ea << endl;
+	      }
+	    else {	    */
+	    out << x << " = *(UINT32*)" << ea << endl;
+	    //}
+
         }
         break;
         
@@ -536,14 +707,17 @@ VOID Indent()
 
 VOID EmitICount()
 {
-    out << setw(10) << dec << icount.Count() << hex << " ";
+  out << setw(10) << dec << icount.Count() << hex << " ";
 }
 
 VOID EmitDirectCall(THREADID threadid, string * str, INT32 tailCall, ADDRINT arg0, ADDRINT arg1)
 {
     if (!Emit(threadid))
         return;
-    
+
+    if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+      return;
+  
     EmitICount();
 
     if (tailCall)
@@ -598,6 +772,10 @@ VOID EmitIndirectCall(THREADID threadid, string * str, ADDRINT target,
 {
     if (!Emit(threadid))
         return;
+
+    if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
     
     EmitICount();
     Indent();
@@ -621,6 +799,11 @@ VOID EmitReturn(THREADID threadid, string * str, ADDRINT ret0)
     if (!Emit(threadid))
         return;
     
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
+
+
     EmitICount();
     indent--;
     if (indent < 0)
@@ -715,6 +898,10 @@ VOID CallTrace(TRACE trace, INS ins)
 /* ===================================================================== */ 
 VOID PrintImageMemory(IMG img) 
 {
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
+
   outmem << "----------------------------" << endl;
   outmem << "Image: " << IMG_Name(img) << endl;
   outmem << "Image ID:  " << IMG_Id(img) << endl;
@@ -779,28 +966,951 @@ VOID PrintImageMemory(IMG img)
 VOID SysBegin(THREADID threadIndex, CONTEXT *ctxt, 
 	      SYSCALL_STANDARD std, VOID *v)
 {
+  if (!KnobTraceSys)
+    {
+      return;
+    }
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+
+
   if (outstanding_syscall)
     cout << "***WARNING***: [SysBegin] Interruptable " 
 	 << "System Call Situation" << endl;
-  
+
   last_syscall_number = PIN_GetSyscallNumber(ctxt, std);
   outstanding_syscall = true;
+
+  // epoll_wait()
+  if (KnobEpoll && last_syscall_number == 256)
+    {
+      if (KnobLeader)
+	{
+	  // cerr << "SysBegin (epoll) leader is about to make call" << endl;
+      
+	  // int max_events = PIN_GetSyscallArgument(ctxt, std, 2);
+	  // int timeout = PIN_GetSyscallArgument(ctxt, std, 3);
+	  
+	  // cout << "\t" << "changing max_events -> 1 rather than " << max_events << endl;
+	  // cout << "\t" << "changing time_out -> -1 rather than " << timeout << endl;
+	  
+	  PIN_SetSyscallArgument(ctxt, std, 2, 1);
+	  PIN_SetSyscallArgument(ctxt, std, 3, -1);
+	}
+      else 
+	{
+	  // epoll_out << "SysBegin (epoll) follower is about to make call:" << endl;
+	  
+	  // int max_events = PIN_GetSyscallArgument(ctxt, std, 2);
+	  // int timeout = PIN_GetSyscallArgument(ctxt, std, 3);
+	  
+	  int handled = 0;
+
+	  next = extract_next_epoll_event();
+	  
+	  /*
+	  epoll_out << "\t Expected Event (next):" << endl;
+	  epoll_out << "\t\t next->events = " << next->events << endl;
+	  epoll_out << "\t\t next->data.ptr = " << next->data.ptr << endl << endl;
+	  
+	  epoll_out << "\t Going Through Pending Events (# = " << e.size() << "):" << endl; 
+	  */
+
+	  size_t i;
+	  for (i = 0; i < e.size(); i++)
+	    {
+	      struct epoll_event* v =  e[i];	     
+	      // epoll_out << "\t\t e[" << i << "] = {events=" << v->events << ",data.ptr=" << v->data.ptr << "}" << endl;
+	      if (v->events == next->events
+		  && v->data.ptr == next->data.ptr)
+		{
+		  // epoll_out << "SysBegin (epoll) the next event has been already received (skipping call)" << endl;
+		  PIN_SetSyscallArgument(ctxt, std, 2, -1);
+		  handled = 1;
+		  break;
+		}
+	    }
+	  
+	  if (! handled )
+	    {
+	      // epoll_out << "SysBegin (epoll) the next event has not been received (making call)" << endl;
+	      PIN_SetSyscallArgument(ctxt, std, 2, 1);
+	      PIN_SetSyscallArgument(ctxt, std, 3, -1);
+	      // cout << "\t" << "changing max_events -> 1 rather than " << max_events << endl;
+	      // cout << "\t" << "changing time_out -> -1 rather than " << timeout << endl;
+	    }
+	}
+    }
+
+  // HandleSysBegin(threadIndex, ctxt, std, v, out);
+  HandleSysBegin(threadIndex, ctxt, std, v, sysout);
+
+}
+
+VOID FixSockets(THREADID threadIndex, CONTEXT *ctxt, 
+		SYSCALL_STANDARD std, VOID *v)
+{
+  
 }
 
 VOID SysEnd(THREADID threadIndex, CONTEXT *ctxt, 
 	    SYSCALL_STANDARD std, VOID *v)
 
 {
+  if (!KnobTraceSys)
+    return;
+
+  if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
+    return;
+  
   if (!outstanding_syscall)
         cout << "***WARNING***: [SysEnd] No outstanding " 
 	 << "System Call Situation" << endl;
-  
-  if (last_syscall_number == 0x102)
+
+  if (KnobEpoll && last_syscall_number == 256)
     {
-      PIN_SetContextReg(ctxt, REG_EAX, 0x7003);
-      cout << "Changing Pid to 0x" << hex << 0x7003 << endl;
-      out << "Changing Pid to 0x" << hex << 0x7003 << endl;
+      int epfd = PIN_GetSyscallArgument(ctxt, std, 0);
+      struct epoll_event * events = (struct epoll_event*)PIN_GetSyscallArgument(ctxt, std, 1);
+      int ret_val = PIN_GetSyscallReturn(ctxt, std);
+  
+      if (KnobLeader)
+	{
+	  // cout << "SysBegin (epoll) leader is logging call (ret_val =" << ret_val << ")" << endl;
+	  // cout << "SysBegin (epoll) leader is logging call (event[0].events=" << events[0].events << ",event[0].data.ptr="
+	  //      << events[0].data.ptr << endl;
+	  log_epoll(events);
+	}
+      else
+	{
+	  // epoll_out << "SysEnd (epoll) follower returned from call (ret_val =" << ret_val << ")" << endl;
+	  if (ret_val == -1)
+	    {
+	      // epoll_out << "\t SysEnd (epoll) follower is handling skipped call...\n" << endl;
+	      
+	      // we skipped a system call earlier
+	      size_t i;
+	      int handled = 0;
+
+	      epoll_out << "\t Going Through Pending Events (# = " << e.size() << "):" << endl; 
+
+	      for (i = 0; i < e.size(); i++)
+		{
+		  struct epoll_event* v = e[i];
+		  epoll_out << "\t\t e[" << i << "] = {events=" << (v->events) << ",data.ptr=" << (v->data.ptr) << "}" << endl;
+		  if (v->events == next->events
+		      && v->data.ptr == next->data.ptr)
+		    {
+		      handled = 1;
+		      epoll_out << "SysEnd (epoll) follower has found a matching event, and is using it" << endl;
+
+		      PIN_SetContextReg(ctxt, REG_GAX, 1);
+		      events[0].events = next->events;
+		      events[0].data.ptr = next->data.ptr;
+
+		      delete next;
+		      next = (struct epoll_event*)NULL;
+
+		      delete v;
+		      e.erase(e.begin()+i);
+
+		      break;
+		    }
+		}
+
+	      if (!handled)
+		{
+		  // epoll_out << "ERROR : SysEnd (epoll) follower has NOT found a matching event" << endl;
+		  cerr << "ERROR : SysEnd (epoll) follower has NOT found a matching event" << endl;
+		}
+	    }
+	  else 
+	    {
+	      if (ret_val == 0)
+		{
+		  // epoll_out << "error: SysEnd (epoll) follower has ret_val = 0" << endl;
+		  cerr << "error: SysEnd (epoll) follower has ret_val = 0" << endl;
+		}
+
+	      // we made a system call, and received the expected event
+	      if (events[0].events == next->events
+		    && events[0].data.ptr == next->data.ptr)
+		{
+		  // epoll_out << "SysEnd (epoll) follower got expected event!" << endl;
+		  delete next;
+		  next = (struct epoll_event*)NULL;
+		}
+	      else 
+		{
+		  // keep trying till you get the damn event
+		  struct epoll_event * rcvd = new struct epoll_event;
+		  rcvd->events = events[0].events;
+		  rcvd->data.ptr = events[0].data.ptr;
+		  e.push_back(rcvd);
+		  
+		  // epoll_out << "\t SysEnd (epoll) follower got unexpected event, trying again ... " << endl;
+		  // epoll_out << "\t\t rcvd->events=" << rcvd->events << ", rcvd->data.ptr=" << rcvd->data.ptr << endl;
+		  
+		  int done = 0;
+		  while (! done )
+		    {
+		      // epoll_out << "\t SysEnd (epoll) follower making nested epoll_wait call ..." << endl;
+		      int nfds = epoll_wait(epfd, events, 1, -1);
+
+		      if (nfds != 1)
+			cerr << "\t ERROR: SysEnd (epoll) follower got: " << nfds << endl;
+		      // else
+		      // epoll_out << "\t\t SysEnd (epoll) follower got: " << nfds << endl;
+		      		      
+		      if (events[0].events == next->events
+			  && events[0].data.ptr == next->data.ptr)
+			{
+			  // epoll_out << "\t SysEnd (epoll) got expected event!" << endl;
+			  delete next;
+			  next = (struct epoll_event*)NULL;
+			  // epoll_out << "SysEnd (epoll) got expected event in nested call" << endl;
+			  done = 1;
+			}
+		      else 
+			{
+
+			  struct epoll_event * rcvd = new struct epoll_event;
+			  rcvd->events = events[0].events;
+			  rcvd->data.ptr = events[0].data.ptr;
+			  e.push_back(rcvd);
+			  // epoll_out << "\t SysEnd (epoll) got unexpected event in nested call..." << endl;
+			  // epoll_out << "\t\t rcvd->events=" << rcvd->events <<  ",rcvd->data.ptr=" << rcvd->data.ptr << endl;
+			}
+		      
+		      sleep(1);
+		    }
+		}
+	    }
+	}
     }
+  
+  // SET TID ADDRESS
+  else if (last_syscall_number == 258)
+    {
+      if (KnobFixPid)
+	{
+	  my_original_pid = PIN_GetSyscallReturn(ctxt, std);
+	  cout << dec << "Changing Pid " << my_original_pid << " to " << my_simulated_pid << endl;
+	  PIN_SetContextReg(ctxt, REG_GAX, my_simulated_pid);
+	} 
+    }
+  // FSTAT64 SYSTEM CALL
+  else if (last_syscall_number == 197)
+    {
+
+      ADDRINT arg1 = PIN_GetSyscallArgument(ctxt, std, 0);
+      ADDRINT arg2 = PIN_GetSyscallArgument(ctxt, std, 1);
+      cout << "FSTAT_64 (fd=" << dec << arg1 <<  ", buf=0x"<< hex << arg2 << ")" << endl;
+      if (KnobFixStat)
+	{
+	  struct stat64* buf = (struct stat64*) arg2;
+	  if (find(stat_fds.begin(), stat_fds.end(), arg1) != stat_fds.end())
+	    {
+	      cout << "fixing a time!" << endl;
+	      buf->st_atime = (time_t)0x4df153d6;	  
+	    }
+	}      
+    }
+  // STAT64 / LSTAT64 SYSTEM CALLS
+  else if (last_syscall_number == 195 || last_syscall_number == 196)
+    {
+      ADDRINT arg1 = PIN_GetSyscallArgument(ctxt, std, 0);
+      ADDRINT arg2 = PIN_GetSyscallArgument(ctxt, std, 1);
+      string  path = string((char*)arg1);
+      
+      cout << "STAT_64 (path=" << string((char*)arg1) << ", buf=0x" << hex << arg2 << ")" << endl;
+      struct stat64* buf = (struct stat64*) arg2;
+      
+      if (KnobFixStat)
+	{
+	  if (path.find("var/spool/cups") != string::npos)
+	    {
+	      root_dir_time = buf->st_mtime;
+	      if (root_dir_time > job_cache_time)
+		{
+		  buf->st_mtime=(time_t)2;
+		}
+	      else
+		{
+		  buf->st_mtime=(time_t)0;
+		}
+	    }
+	  else if (path.find("var/cache/cups/job.cache") 
+		   != string::npos)
+	    {
+	      job_cache_time = buf->st_mtime;
+	      buf->st_mtime = (time_t)1;
+	    }
+	  else if (path.find("etc/resolv.conf"))
+	    {
+	      buf->st_atime = (time_t)0x4df153d6;
+	      buf->st_ctime = (time_t)0x4df153c4;
+	    }
+	}
+    }
+  // TIME SYSTEM CALL
+  else if (last_syscall_number == 0xd && KnobFixTime)
+    {
+      ADDRINT return_value = PIN_GetSyscallReturn(ctxt, std);
+      //ADDRINT argument = PIN_GetSyscallArgument(ctxt, std, 0)
+      if(KnobLeader)
+	{
+	  timing_out << hex << return_value << endl;
+	  // cout << return_value << endl;
+	}
+      else
+	{
+	  ADDRINT new_value = 0;
+	  char str[255];
+	  timing_in.getline(str, 255);
+	  
+	  istringstream s(str);
+	  s >> hex >> new_value;
+	  PIN_SetContextReg(ctxt, REG_GAX, new_value);
+	  // cout << new_value << endl;	
+	}
+    }
+  // GETTIMEOFDAY SYSTEM CALL
+  else if (last_syscall_number == 0x4e && KnobFixTime)
+    {
+      ADDRINT arg1 = PIN_GetSyscallArgument(ctxt, std, 0);
+      ADDRINT arg2 = PIN_GetSyscallArgument(ctxt, std, 1);
+      ADDRINT v1 = 0;
+      ADDRINT v2 = 0;
+      ADDRINT v3 = 0;
+      ADDRINT v4 = 0;
+      if(KnobLeader)
+	{
+	  timeval* tv = (timeval*)arg1;
+	  if (tv != NULL)
+	    {
+	      v1 = tv->tv_sec;
+	      v2 = tv->tv_usec;
+	      gettimeofday_out << hex << tv->tv_sec << endl;
+	      gettimeofday_out << hex << tv->tv_usec << endl;
+	    }
+	  else
+	    {
+	      v1 = 0;
+	      v2 = 0;
+	      gettimeofday_out << hex << 0 << endl;
+	      gettimeofday_out << hex << 0 << endl;
+	    }
+	  
+	  if (arg2 != 0)
+	    {
+	      v3 = *(int*)arg2;
+	      v4 = *(((int*)arg2)+1);;
+	      gettimeofday_out << *(int*)arg2 << endl;
+	      gettimeofday_out << *(((int*)arg2)+1) << endl;
+	    }
+	  else
+	    {
+	      v3 = 0;
+	      v4 = 0;
+	      gettimeofday_out << 0 << endl;
+	      gettimeofday_out << 0 << endl;
+	    }
+	}
+      else
+	{
+	  char str[255];
+	  
+	  gettimeofday_in.getline(str, 255);
+	  istringstream s1(str);
+	  s1 >> hex >> v1;
+
+	  gettimeofday_in.getline(str, 255);
+	  istringstream s2(str);
+	  s2 >> hex >> v2;
+	  
+	  gettimeofday_in.getline(str, 255);
+	  istringstream s3(str);
+	  s3 >> hex >> v3;
+
+	  gettimeofday_in.getline(str, 255);
+	  istringstream s4(str);
+	  s4 >> hex >> v4;
+
+	  if (arg1 != 0)
+	    {
+	      timeval* tv = (timeval*)arg1;
+	      tv->tv_sec = v1;
+	      tv->tv_usec = v2;
+	    }
+	  
+	  if (arg2 != 0)
+	    {
+	      *(int*)arg2 = v3;
+	      *(((int*)arg2)+1) = v4;
+	    }
+	}
+    }
+  // OPEN SYSTEM CALL 
+  else if (last_syscall_number == 0x5)
+    {
+      ADDRINT arg1 = PIN_GetSyscallArgument(ctxt, std, 0);
+      string  path = string((char*)arg1);
+      
+      if (KnobDevRandom)
+	{
+	  if (path.find("urandom") != string::npos)
+	    {
+	      ADDRINT ret_val = PIN_GetSyscallReturn(ctxt, std);
+	      urandom_fds.push_back(ret_val);
+	      cout << "Added fd = " << dec << ret_val << " into dev/urandom/ intercepted." << endl; 
+	    }
+	}
+
+      if(KnobFixStat)
+	{
+	  if (//path.find("etc/host.conf") != string::npos
+	      //|| path.find("etc/hosts") != string::npos
+	      //|| path.find("etc/services") != string::npos
+	      //||
+	      path.find("etc/gai.conf") != string::npos)
+	    {
+	      ADDRINT ret_val = PIN_GetSyscallReturn(ctxt, std);
+	      stat_fds.push_back(ret_val);
+	      cout << "Added fd = " << dec << ret_val << " into stat intercepted." << endl; 
+	    }
+	}
+      
+    }
+  // READ SYSTEM CALL
+  else if (last_syscall_number == 0x3)
+    {
+      if (KnobDevRandom && !urandom_fds.empty())
+	{
+	  ADDRINT read_fd = PIN_GetSyscallArgument(ctxt, std, 0);
+	  if (find(urandom_fds.begin(), urandom_fds.end(), read_fd) != urandom_fds.end())
+	    {
+	      ADDRINT bufferarg = PIN_GetSyscallArgument(ctxt, std, 1);
+	      ADDRINT count = PIN_GetSyscallArgument(ctxt, std, 2);
+	      char* buf = (char*)bufferarg;
+	      for (uint i = 0; i < count; i++)
+		{
+		  buf[i] = 0x1;
+		}
+	    }
+	}
+    }
+  // CLOSE SYSTEM CALL
+  else if (last_syscall_number == 0x6)
+    {
+
+      ADDRINT close_fd = PIN_GetSyscallArgument(ctxt, std, 0);
+      if (KnobDevRandom && !urandom_fds.empty())
+	{
+	  if (find(urandom_fds.begin(), urandom_fds.end(), close_fd) != urandom_fds.end())
+	    {
+	      urandom_fds.erase(find(urandom_fds.begin(), urandom_fds.end(), close_fd));
+	    }
+	}
+      
+      if(KnobFixStat)
+	{
+	  if (find(stat_fds.begin(), stat_fds.end(), close_fd) != stat_fds.end())
+	    {
+	      stat_fds.erase(find(stat_fds.begin(), stat_fds.end(), close_fd));
+	    }
+	}
+
+      if(KnobFixNetInit)
+	{
+	  if (find(netlink_sockets.begin(), netlink_sockets.end(), close_fd) != netlink_sockets.end())
+	    {
+	      netlink_sockets.erase(find(netlink_sockets.begin(), netlink_sockets.end(), close_fd));
+	    }
+	}
+    }
+  else if (last_syscall_number == 0xE0)
+    {
+      // GET_TID
+      ADDRINT ret_val = PIN_GetSyscallReturn(ctxt, std);
+      cout << "GET_TID() -> 0x" << hex << ret_val << endl;
+    }
+  else if (last_syscall_number == 0x14)
+    {
+      if (KnobFixPid)
+	{
+	  // GET PID
+	  ADDRINT ret_val = PIN_GetSyscallReturn(ctxt, std);
+	  if (my_original_pid == -1)
+	    my_original_pid = ret_val;
+	  
+	  cout << "GET_PID() -> 0x" << hex << ret_val << endl;
+	  cout << "Changing Pid to 0x" << hex << my_simulated_pid << endl;
+	  out << "Changing Pid to 0x" << hex << my_simulated_pid << endl;
+	  PIN_SetContextReg(ctxt, REG_GAX, my_simulated_pid);
+	}
+    }
+
+  else if (last_syscall_number == 0x40)
+    {
+      // GET PPID
+      ADDRINT ret_val = PIN_GetSyscallReturn(ctxt, std);
+      cout << "GET_PPID() -> 0x" << hex << ret_val << endl;
+    }
+  else if (last_syscall_number == 320)
+    {
+      // UTIMENSAT
+      ADDRINT arg1 = PIN_GetSyscallArgument(ctxt, std, 1);
+      cout << "UTIMESAT(" << string((char*)arg1) << ")" << endl;
+    }
+  else if (last_syscall_number == 120)
+    {
+      // CLONE()
+      if (KnobFixPid)
+	{
+	  ADDRINT ret_val = PIN_GetSyscallReturn(ctxt, std);
+	  pid_child_trans_table[ret_val] = next_child_pid++;
+	  cout << "clone(): 0x" << hex << ret_val << "-->" << pid_child_trans_table[ret_val] << endl;
+	  PIN_SetContextReg(ctxt, REG_GAX, pid_child_trans_table[ret_val]);
+	}
+    }
+  else if (last_syscall_number == 43)
+    {
+      if(KnobFixTime)
+	{
+	  // TIMES
+	  ADDRINT arg1 = PIN_GetSyscallArgument(ctxt, std, 1);
+	  struct tms* t = (struct tms *)arg1;
+	  cout << "TIMES[0]:" << t->tms_utime << endl;
+	  cout << "TIMES[1]:" << t->tms_stime << endl;
+	  cout << "TIMES[2]:" << t->tms_cutime << endl;
+	  cout << "TIMES[3]:" << t->tms_cstime << endl;
+	  
+	  cout << "TIMES : " << hex << PIN_GetSyscallReturn(ctxt, std) << " -> " << hex << 0x67F011AE << endl;
+	  PIN_SetContextReg(ctxt, REG_GAX, 0x67F011AE);
+	}
+    }
+  else if (last_syscall_number == 102)
+    {
+      // SOCKET CALL
+      ADDRINT call_number = PIN_GetSyscallArgument(ctxt, std, 0);
+
+      cout << "SOCKET CALL ( " << call_number << " i.e. " << (call_number < 16 ? socketcalls[call_number] : string("")) <<  " )" << 
+	endl;
+
+
+      if (call_number == 5)
+	{
+	  ADDRINT args = PIN_GetSyscallArgument(ctxt, std, 1);
+	  struct sockaddr* my_addr = *(struct sockaddr **)(args + sizeof(int));
+	  if (my_addr != (struct sockaddr*)NULL)
+	    {
+	      sa_family_t sa_family = my_addr->sa_family;
+	      switch ( sa_family )
+		{
+		case AF_INET:
+		  {
+		    struct sockaddr_in *in = (struct sockaddr_in*) my_addr;
+		    in->sin_port = htons(next_socket_fd++);
+		  }
+		  break;
+		case AF_INET6:
+		  {
+		    struct sockaddr_in6 *in = (struct sockaddr_in6*) my_addr;
+		    in->sin6_port = htons(next_socket_fd++);
+		  }
+		  break;
+		default:
+		  cerr << "WTF" << endl;
+		  break;
+		}
+	    }
+	}
+      
+      // send to
+      if (call_number == 11)
+	{
+	  ADDRINT args = PIN_GetSyscallArgument(ctxt, std, 1);
+	  int s = *(int*)args;
+	  void *buf = *(void **)(args + sizeof(int)); 
+	  int len = *(int *) (args + sizeof(int) + sizeof(void*));
+	  int flags = *(int *) (args + sizeof(int) + sizeof(void*) + sizeof(int));
+	  struct sockaddr * to = *(struct sockaddr **)(args + sizeof(int) + sizeof(void*) + sizeof(int) + sizeof(int));
+	  socklen_t tolen = *(socklen_t *)(args + sizeof(int) + sizeof(void*) + 2*sizeof(int) + sizeof(struct sockaddr*));
+	  
+	  cout << "sendto( s = " << s << "# buf=" << buf << " # len=" << len << " # flags=" << flags << " # to=" << to 
+	       << "# tolen=" << tolen << " )" << endl;
+	}
+
+      // recv msg
+      if (call_number == 17)
+	{
+	  ADDRINT args = PIN_GetSyscallArgument(ctxt, std, 1);
+	  int s = *(int*)args;
+	  void *_msg = *(void **)(args + sizeof(int)); 
+	  int flags = *(int *) (args + sizeof(int) + sizeof(void*));
+	  size_t read_len = PIN_GetSyscallReturn(ctxt, std);
+
+	  cout << "recvmsg ( s= " << s << "# _msg=" << _msg << "# flags=" << flags << ") - >" << 
+	    read_len << endl;
+
+	  if (KnobFixNetInit)
+	    {
+	      netlink_sockets.push_back(s);
+
+	      if (find(netlink_sockets.begin(), netlink_sockets.end(), s) != netlink_sockets.end())
+		{
+		  struct msghdr * pmsg = (struct msghdr*)_msg;
+		  char *buf = (char*)pmsg->msg_iov->iov_base;
+		  size_t len = pmsg->msg_iov->iov_len;
+
+		  sysout << "[NETLINK:]" << endl;
+		  sysout << "buf = " << (size_t)buf << " len = " << len << endl;
+		  sysout << " about to enter loop" << endl;
+		  
+		  struct nlmsghdr *nh;
+		  for (nh = (struct nlmsghdr*) buf;
+		       NLMSG_OK(nh, (size_t)read_len);
+		       nh = (struct nlmsghdr*) NLMSG_NEXT(nh, read_len))
+		    {
+		      sysout << "nh = " << nh << endl;
+		      sysout << "pid in message = " << dec << nh->nlmsg_pid  << endl;
+		      sysout << "seqno in message = " << nh->nlmsg_seq << endl;		      
+		      if (nh->nlmsg_pid == (uint)my_original_pid)
+			{
+			  sysout << "changing pid in message to : " << my_simulated_pid << endl;
+			  nh->nlmsg_pid = my_simulated_pid;
+			}
+		      else
+			{
+			  continue;
+			}
+
+		      if (nh->nlmsg_type == NLMSG_DONE)
+			break;		/* ok */
+		      
+		      if (nh->nlmsg_type == RTM_NEWLINK)
+			{
+			  /* A RTM_NEWLINK message can have IFLA_STATS data. We need to
+			     know the size before creating the list to allocate enough
+			     memory.  */
+			  sysout << "[RTM_NEWLINK]: "<< endl;
+
+			  struct ifinfomsg *ifim = (struct ifinfomsg *) NLMSG_DATA (nh);
+
+			  sysout << "\t[IFINFOMSG]: " << endl;
+			  sysout << "\t\t ifi_family: " << ifim->ifi_family << endl;
+			  sysout << "\t\t ifi_type: " << ifim->ifi_type << endl;
+			  sysout << "\t\t ifi_index: " << ifim->ifi_index << endl;
+			  sysout << "\t\t ifi_flags: " << ifim->ifi_flags << endl;
+			  sysout << "\t\t ifi_change: " << ifim->ifi_change << endl;
+
+			  struct rtattr *rta = IFLA_RTA (ifim);
+			  size_t rtasize = IFLA_PAYLOAD (nh);
+			  
+			  while (RTA_OK (rta, rtasize))
+			    {
+			      size_t rta_payload = RTA_PAYLOAD (rta);
+			      char *rta_data = (char*) RTA_DATA (rta);
+			      switch (rta->rta_type)
+				{
+				case IFLA_ADDRESS:
+				  {
+				    sysout << "\t [IFLA_ADDRESS]: "<< endl;
+				    size_t k;
+				    for (k = 0; k < rta_payload; k++)
+				      {
+					sysout << "\t\t\t rta_data[" << k << "] = " << rta_data[k] << endl;
+				      }
+				  }
+				  break;
+				  
+				case IFLA_BROADCAST:
+				  {
+				    sysout << "\t [IFLA_BROADCAST]: "<< endl;
+				    size_t k;
+				    for (k = 0; k < rta_payload; k++)
+				      {
+					sysout << "\t\t\t rta_data[" << k << "] = " << rta_data[k] << endl;
+				      }
+				  }				   
+				  break;
+				  
+				case IFLA_IFNAME:	/* Name of Interface */
+				  {
+				    sysout << "\t [IFLA_IFNAME]: "<< endl;
+				    sysout << "\t\t\t name = " << string(rta_data) << endl;
+
+				  }
+				  break;
+				  
+				case IFLA_STATS:	/* Statistics of Interface */
+				  {  
+				    sysout << "\t [IFLA_STATS]: "<< endl;
+				    size_t k;
+				    for (k = 0; k < rta_payload; k++)
+				      {
+					sysout << "\t\t\t rta_data[" << k << "] = " << rta_data[k] << endl;
+				      }
+				    
+				    // struct net_device_stats st;
+				    struct rtnl_link_stats st;
+				    size_t c = PIN_SafeCopy(&st, (void*)rta_payload, 
+							    sizeof(struct rtnl_link_stats));;    
+
+				    sysout << "\t\t\t (" << c << " bytes copied)" << endl;
+				    sysout << "\t\t\t st.rx_packets=" << st.rx_packets << endl;
+				    sysout << "\t\t\t st.tx_packets=" << st.tx_packets << endl;
+				    sysout << "\t\t\t st.rx_bytes=" << st.rx_bytes << endl;
+				    sysout << "\t\t\t st.tx_bytes=" << st.tx_bytes << endl;
+
+				    sysout << "\t\t\t st.rx_errors=" << st.rx_errors << endl;
+				    sysout << "\t\t\t st.tx_errors=" << st.tx_errors << endl;
+				    sysout << "\t\t\t st.rx_dropped=" << st.rx_dropped << endl;
+				    sysout << "\t\t\t st.tx_dropped=" << st.tx_dropped << endl;
+
+				    sysout << "\t\t\t st.multicast=" << st.multicast << endl;
+				    sysout << "\t\t\t st.collisions=" << st.collisions << endl;
+
+				    sysout << "\t\t\t st.rx_length_errors=" << st.rx_length_errors << endl;
+				    sysout << "\t\t\t st.rx_over_errors=" << st.rx_over_errors << endl;
+				    sysout << "\t\t\t st.rx_crc_errors=" << st.rx_crc_errors << endl;
+				    sysout << "\t\t\t st.rx_frame_errors=" << st.rx_frame_errors << endl;
+				    sysout << "\t\t\t st.rx_fifo_errors=" << st.rx_fifo_errors << endl;
+				    sysout << "\t\t\t st.tx_missed_errors=" << st.rx_missed_errors << endl;				    
+
+				    sysout << "\t\t\t st.tx_aborted_errors=" << st.tx_aborted_errors << endl;
+				    sysout << "\t\t\t st.tx_carrier_errors=" << st.tx_carrier_errors << endl;
+				    sysout << "\t\t\t st.tx_fifo_errors=" << st.tx_fifo_errors << endl;
+				    sysout << "\t\t\t st.tx_heartbeat_errors=" << st.tx_heartbeat_errors << endl;
+				    sysout << "\t\t\t st.tx_window_errors=" << st.tx_window_errors << endl;
+
+				    sysout << "\t\t\t st.rx_compressed=" << st.tx_compressed << endl;
+				    sysout << "\t\t\t st.tx_compressed=" << st.rx_compressed << endl;
+
+				    for (k = 0; k < rta_payload; k++)
+				      {
+					sysout << "\t\t\t rta_data[" << k << "] = " << 0x1 << endl;
+				      }
+
+				  }
+				  break;
+				case IFLA_UNSPEC:
+				  break;
+				case IFLA_MTU:
+				  break;
+				case IFLA_LINK:
+				  break;
+				case IFLA_QDISC:
+				  break;
+				default:
+				  break;
+				}
+
+			      rta = RTA_NEXT (rta, rtasize);			     
+			    }
+			}
+		      else if (nh->nlmsg_type == RTM_NEWADDR)
+			{
+			  sysout << "[RTM_NEWADDR]: "<< endl;
+			  struct ifaddrmsg *ifam = (struct ifaddrmsg *) NLMSG_DATA (nh);
+			  
+			  struct rtattr *rta = IFA_RTA (ifam);
+			  size_t rtasize = IFA_PAYLOAD (nh);
+
+			  while(RTA_OK(rta, rtasize))
+			    {
+			      char *rta_data = (char*) RTA_DATA (rta);
+			      size_t rta_payload = RTA_PAYLOAD (rta);
+			      
+			      switch (rta->rta_type)
+				{
+				case IFA_ADDRESS:
+				  {
+				    sysout << "\t [IFLA_ADDRESS]: "<< endl;
+				    switch(ifam->ifa_family)
+				      {
+				      case AF_INET:
+					if (rta_payload == 4)
+					  {
+					    sysout << "\t\t [AF_INET]: "<< endl;
+					    print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					  }
+					break;
+				      case AF_INET6:
+					if (rta_payload == 16)
+					  {
+					    sysout << "\t\t [AF_INET6]: "<< endl;
+					    print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					  }
+					break;
+				      default:
+					print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					break;
+				      }
+				  }
+				  break;
+				case IFA_LOCAL:
+				  {
+				    sysout << "\t [IFLA_LOCAL]: "<< endl;
+				    switch(ifam->ifa_family)
+				      {
+				      case AF_INET:
+					if (rta_payload == 4)
+					  {
+					    sysout << "\t\t [AF_INET]: "<< endl;
+					    print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					  }
+					break;
+				      case AF_INET6:
+					if (rta_payload == 16)
+					  {
+					    sysout << "\t\t [AF_INET6]: "<< endl;
+					    print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					  }
+					break;
+				      default:
+					print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					break;
+				      }
+				  }
+				  break;
+
+				case IFA_BROADCAST:
+				  {
+				    sysout << "\t [IFLA_LOCAL]: "<< endl;
+				    switch(ifam->ifa_family)
+				      {
+				      case AF_INET:
+					if (rta_payload == 4)
+					  {
+					    sysout << "\t\t [AF_INET]: "<< endl;
+					    print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					  }
+					break;
+				      case AF_INET6:
+					if (rta_payload == 16)
+					  {
+					    sysout << "\t\t [AF_INET6]: "<< endl;
+					    print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					  }
+					break;
+				      default:
+					print_sockaddr((struct sockaddr*)rta_data, sysout); 
+					break;
+				      }
+				  }
+				  break;
+				case IFA_LABEL:
+				  {
+				    sysout << "\t [IFLA_LABEL]: "<< endl;
+				    sysout << "\t " << string(rta_data) << endl;
+				  }
+				  break;
+				default:
+				  break;
+				}
+			      rta = RTA_NEXT(rta, rtasize);
+			    }
+			}
+		    }
+		  cout << " done with loop" << endl;
+		}
+	    }
+	}
+      // getsockname
+      if (call_number == 6)
+	{
+	  ADDRINT args = PIN_GetSyscallArgument(ctxt, std, 1);
+	  int s = *(int*)args;
+	  struct sockaddr *name = *(struct sockaddr **)(((int*)args)+1);
+	  socklen_t* namelen = *(socklen_t**)(args + sizeof(int) + sizeof(struct sockaddr*));
+ 
+	  cout << "getsockname ( s = " << dec << s << ", " << "name = " << name << ")" << endl;
+	  unsigned short f = name->sa_family;
+	  string family;
+
+	  int handled = 0;
+	  
+	  if (f == AF_INET)
+	    {
+	      family = "AF_INET";
+	    }
+	  else if (f == AF_INET6)
+	    {
+	      family = "AF_INET6";
+	      struct sockaddr_in6 *in6 =  (struct sockaddr_in6*)name;
+	      if (KnobFixNetInit)
+		{	      
+		  cout << "thinking about changing ipv6 port " << ntohs(in6->sin6_port) <<  " / " << in6->sin6_port << " to some random #: " << 33748 << endl; 
+		  in6->sin6_port = 33748;
+		  cout << "changed it " << endl;
+		}
+	      handled = 1;
+	    }
+	  else if (f == AF_UNIX)
+	    {
+	      family = "AF_INET6";
+	    }
+	  else if (f == AF_APPLETALK)
+	    {
+	      family = "AF_APPLETALK";
+	    }
+	  else if (f == AF_PACKET)
+	    {
+	      family = "AF_PACKET";
+	    }
+	  else if (f == AF_UNIX)
+	    {
+	      family = "AF_UNIX";
+	    }
+	  else if (f == AF_NETLINK)
+	    {
+	      netlink_sockets.push_back(s);
+
+	      family = "AF_NETLINK";
+	      struct sockaddr_nl *nl =  (struct sockaddr_nl*)name;
+	      cout << "{family=" << family << ", pad=" << nl->nl_pad << ", pid=" << nl->nl_pid << ", groups=" << 
+		nl->nl_groups << "}" << endl;
+	      handled = 1;
+	      if (KnobFixNetInit)
+		{	      
+		  cout << "changing pid in AF_NETLINK packet to " << my_simulated_pid << endl;
+		  nl->nl_pid = my_simulated_pid;
+		}
+	    }
+	  else if (f == AF_X25)
+	    {
+	      family = "AF_X25";
+	    }
+	  else 
+	    {
+	      family = "?";
+	    }
+	  
+	  if (!handled)
+	    {
+	      cout << "name[family]=" << family << ", name[family#] = " << f << ", name[data]=<";
+	      for (int i = 0; i < 14; i++)
+		{
+		  cout << (int)name->sa_data[i] << " ";
+		}
+	      cout << ">, namelen = " << *namelen << endl;
+	    }
+	}
+    }
+  else if (last_syscall_number == 25 || last_syscall_number == 30 || last_syscall_number == 35 || last_syscall_number == 79 || last_syscall_number == 104 || last_syscall_number == 105
+	   || last_syscall_number == 124 || last_syscall_number == 177 || (last_syscall_number >= 259 && last_syscall_number <= 267) || last_syscall_number == 271 || last_syscall_number == 299
+	   || last_syscall_number == 322 || last_syscall_number == 325 || last_syscall_number == 326 || last_syscall_number == 279 || last_syscall_number == 280)
+    {
+      cout << "Warning: TIME RELATED SYSCALL" << endl;
+    }
+
+
+  cout << "System Call End: " << syscalls[last_syscall_number] << " () ->" << PIN_GetSyscallReturn(ctxt, std) << endl;
+
+  // HandleSysEnd(threadIndex, ctxt, std, v, out);
+  HandleSysEnd(threadIndex, ctxt, std, v, sysout);
   outstanding_syscall = false;
   return;
 }
@@ -814,6 +1924,11 @@ VOID InstructionTrace(TRACE trace, INS ins)
   ADDRINT addr = INS_Address(ins);
   string s = StringFromAddrint(addr);
   string dis = INS_Disassemble(ins);
+
+  // count instructions
+  INS_InsertCall(ins, IPOINT_BEFORE, 
+		 (AFUNPTR)CountInstruction,
+		 IARG_END);
 
   if (KnobMem && firstInstruction) 
     {
@@ -849,17 +1964,17 @@ VOID InstructionTrace(TRACE trace, INS ins)
 		       IPOINT_BEFORE,
 		       AFUNPTR(SendToRax),
 		       IARG_RETURN_REGS,
-		       REG_EAX,
+		       REG_GAX,
 		       IARG_END);
 	
 	INS_InsertCall(ins,
 		       IPOINT_BEFORE,
 		       AFUNPTR(SendToRdx),
 		       IARG_RETURN_REGS,
-		       REG_EDX,
+		       REG_GDX,
 		       IARG_END);
 	
-	s += "\t <----rdtsc replaced---->";
+	s += "\t {----rdtsc replaced----}";
 	
 	INS_InsertCall(ins, IPOINT_BEFORE, AFUNPTR(PrintRdtsc), 
 		       IARG_PTR, new string(s),
@@ -885,7 +2000,7 @@ VOID InstructionTrace(TRACE trace, INS ins)
     string function = "";
     if (KnobPrintFunc) 
       {
-	function = RTN_FindNameByAddress(addr) + "\r\n"; 
+	function = RTN_FindNameByAddress(addr) + "\t"; 
       }	
     
     //string traceString = "";
@@ -896,10 +2011,10 @@ VOID InstructionTrace(TRACE trace, INS ins)
     //  }
 
     //traceString = function + astring + traceString;
-    string traceString = s + "  " + dis;
+    string traceString = function + s + "  " + dis;
     if (traceString.length() < 50 && (traceString.length() >= 10))
       {
-	traceString += fillers[traceString.length() - 10];
+	traceString += " ";
       }
 
     INT32 regCount = 0;
@@ -932,7 +2047,6 @@ VOID InstructionTrace(TRACE trace, INS ins)
 #endif
 
     }
-
 #if defined(TARGET_IPF)
     if (INS_IsCall(ins) || INS_IsRet(ins) || INS_Category(ins) == CATEGORY_ALLOC)
     {
@@ -1046,6 +2160,7 @@ VOID Fini(int, VOID * v)
     out << "# $eof" <<  endl;
 
     out.close();
+    // CloseOutputFile();
 }
     
 /* ===================================================================== */
@@ -1061,8 +2176,17 @@ static void OnSig(THREADID threadIndex,
     {
         ADDRINT address = PIN_GetContextReg(ctxtFrom, REG_INST_PTR);
         out << "SIG signal=" << sig << " on thread " << threadIndex
-            << " at address " << hex << address << dec << " ";
+            << " at address " << hex << address << dec << " #instrs = " << instrs << " ";
+        cout << "SIG signal=" << sig << " on thread " << threadIndex
+            << " at address " << hex << address << dec << " #instrs = " << instrs << " ";
     }
+    else
+      {
+	out << "SIG signal=" << sig << " on thread " << threadIndex
+	    << " #instrs = " << instrs << " ";
+	cout << "SIG signal=" << sig << " on thread " << threadIndex
+	    << " #instrs = " << instrs << " ";
+      }
 
     switch (reason)
     {
@@ -1094,6 +2218,19 @@ static void OnSig(THREADID threadIndex,
     out << std::endl;
 }
 
+VOID ForkParent(THREADID tid, const CONTEXT *ctxt, VOID* v)
+{
+  cout << "PARENT HERE " << tid << "," << PIN_GetPid() << endl;
+  cerr << "PARENT HERE " << tid << "," << PIN_GetPid() << endl;
+  forked = 1;
+}
+
+VOID ForkChild(THREADID tid, const CONTEXT *ctxt, VOID* v)
+{
+  cout << "Child HERE " << tid << "," << PIN_GetPid() << endl;
+  cerr << "Child HERE " << tid << "," << PIN_GetPid() << endl;
+  forked = 1;
+}
 /* ===================================================================== */
 
 LOCALVAR CONTROL control;
@@ -1101,51 +2238,94 @@ LOCALVAR SKIPPER skipper;
 
 /* ===================================================================== */
 
+/* 
+BOOL FollowChild(CHILD_PROCESS childProcess, VOID*val)
+{
+  return TRUE;
+}
+*/
+
 int main(int argc, CHAR *argv[], CHAR* envp[])
 {
     PIN_InitSymbols();
-    
+
+    /*
+    // PRINT ARGUMENTS 
+    int i = 0;
+    for (; i < argc; i++)
+      {
+	cerr << "argv[" << i << "] = string(\"" << string(argv[i]) << "\").c_str();"  << endl;
+      }
+    */
+
     if( PIN_Init(argc,argv) )
     {
         return Usage();
     }
     
+    my_original_pid = PIN_GetPid();
+
     string filename =  KnobOutputFile.Value();
     string memfilename = KnobMemoryFile.Value();
+    string timefilename = KnobTimeFile.Value();
+    string dayfilename = KnobDayFile.Value();
+    string sysoutfile = KnobSysFile.Value();
+    string epollfilename = KnobEpollFile.Value();
 
-    if( KnobPid )
-    {
+    if (KnobPid)
       filename += "." + decstr( getpid_portable() );
-    }
     
-    // Do this before we activate controllers 
+    // SetOutputFile(sysoutfile);
+    // SetOutputFile(outfile);
+    
+    sysout.open(sysoutfile.c_str());
+    
+
     out.open(filename.c_str());
     out << hex << right;
     out.setf(ios::showbase);
-
+    
     outmem.open(memfilename.c_str());
     outmem << hex << right;
     outmem.setf(ios::showbase);
+
+    
+    if (KnobLeader)
+      {
+	timing_out.open(timefilename.c_str());
+	gettimeofday_out.open(dayfilename.c_str());
+	epoll_out.open(epollfilename.c_str());
+      }
+    else
+      {
+	timing_in.open(timefilename.c_str());
+	gettimeofday_in.open(dayfilename.c_str());
+	epoll_in.open(epollfilename.c_str());
+	// epoll_out.open((epollfilename  + string("_follower")).c_str());
+      }
     
     control.CheckKnobs(Handler, 0);
     skipper.CheckKnobs(0);
     
     TRACE_AddInstrumentFunction(Trace, 0);
     PIN_AddContextChangeFunction(OnSig, 0);
-  
-    if (KnobFixPid)
-      {
-	PIN_AddSyscallEntryFunction(SysBegin, 0);
-	PIN_AddSyscallExitFunction(SysEnd, 0);
-      }
+     
+    PIN_AddForkFunction(FPOINT_AFTER_IN_PARENT, ForkParent, 0);
+    PIN_AddForkFunction(FPOINT_AFTER_IN_CHILD, ForkChild, 0);
     
+    PIN_AddSyscallEntryFunction(SysBegin, 0);
+    PIN_AddSyscallExitFunction(SysEnd, 0);
+       
+    // Ignoring this because of PIN errors 
+    // PIN_AddFollowChildProcessFunction(FollowChild, 0);
+
     PIN_AddFiniFunction(Fini, 0);
+
 
     filter.Activate();
     icount.Activate();
     
     // Never returns
-
     PIN_StartProgram();
     
     return 0;

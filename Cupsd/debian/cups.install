@@ -1,0 +1,58 @@
+var/
+etc/cups/cupsd.conf
+etc/cups/cupsd.conf.default
+etc/cups/snmp.conf
+etc/cups/ppd
+etc/cups/mime.*
+usr/lib/cups/backend/* usr/lib/cups/backend-available
+usr/lib/cups/cgi-bin
+usr/lib/cups/monitor
+usr/lib/cups/daemon/
+usr/lib/cups/filter/
+usr/lib/cups/notifier
+usr/sbin/cupsd
+usr/sbin/cupsfilter
+usr/share/cups/banners
+usr/share/cups/data
+usr/share/cups/doc-root
+usr/share/cups/fonts
+usr/share/cups/model
+usr/share/cups/templates
+usr/share/man/man7/backend.7.gz
+usr/share/man/*/man7/backend.7.gz
+usr/share/man/man7/filter.7.gz
+usr/share/man/*/man7/filter.7.gz
+usr/share/man/man5/classes.conf.5.gz
+usr/share/man/*/man5/classes.conf.5.gz
+usr/share/man/man5/cupsd.conf.5.gz
+usr/share/man/*/man5/cupsd.conf.5.gz
+usr/share/man/man5/cups-snmp.conf.5.gz
+usr/share/man/*/man5/cups-snmp.conf.5.gz
+usr/share/man/man5/mailto.conf.5.gz
+usr/share/man/*/man5/mailto.conf.5.gz
+usr/share/man/man5/subscriptions.conf.5.gz
+usr/share/man/*/man5/subscriptions.conf.5.gz
+usr/share/man/man5/mime.convs.5.gz
+usr/share/man/*/man5/mime.convs.5.gz
+usr/share/man/man5/mime.types.5.gz
+usr/share/man/*/man5/mime.types.5.gz
+usr/share/man/man5/printers.conf.5.gz
+usr/share/man/*/man5/printers.conf.5.gz
+usr/share/man/man8/cups-polld.8.gz
+usr/share/man/*/man8/cups-polld.8.gz
+usr/share/man/man8/cupsd.8.gz
+usr/share/man/*/man8/cupsd.8.gz
+usr/share/man/man8/cups-deviced.8.gz
+usr/share/man/*/man8/cups-deviced.8.gz
+usr/share/man/man8/cups-driverd.8.gz
+usr/share/man/*/man8/cups-driverd.8.gz
+usr/share/man/man8/cupsfilter.8.gz
+usr/share/man/*/man8/cupsfilter.8.gz
+../presubj usr/share/bug/cups/
+../local/backends/* usr/lib/cups/backend-available/
+../local/filters/* usr/lib/cups/filter/
+../local/*.ppd usr/share/ppd/cups-included/
+../local/*.types etc/cups/
+../local/*.convs etc/cups/
+../local/pdftops.conf etc/cups/
+../local/acroread.conf etc/cups/

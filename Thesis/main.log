@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.28)  15 JUN 2011 12:59
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.28)  15 JUN 2011 13:01
 entering extended mode
  %&-line parsing enabled.
 **main.tex
@@ -132,43 +132,43 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 ]
 Chapter 1.
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
+Underfull \vbox (badness 4156) has occurred while \output is active []
 
  [13]
 [14]
 
 LaTeX Warning: Reference `range-tracking' on page 15 undefined on input line 11
-3.
+2.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [15]
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 156.
+(Font)              <7> on input line 155.
 LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <5> on input line 156.
+(Font)              <5> on input line 155.
 
 
 LaTeX Warning: Citation `magenheimer:precision' on page 16 undefined on input l
-ine 157.
+ine 156.
 
 
-LaTeX Warning: Citation `byte:i860' on page 16 undefined on input line 167.
+LaTeX Warning: Citation `byte:i860' on page 16 undefined on input line 166.
 
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [16]
 
-LaTeX Warning: Citation `ellis:bulldog' on page 17 undefined on input line 180.
+LaTeX Warning: Citation `ellis:bulldog' on page 17 undefined on input line 179.
 
 
 
-LaTeX Warning: Citation `colwell:vliw' on page 17 undefined on input line 180.
+LaTeX Warning: Citation `colwell:vliw' on page 17 undefined on input line 179.
 
 
-LaTeX Warning: Citation `gib86' on page 17 undefined on input line 201.
+LaTeX Warning: Citation `gib86' on page 17 undefined on input line 200.
 
 [17]) [18]
 \openout2 = `chap2.aux'.
@@ -225,7 +225,7 @@ re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texmf-texl
 ive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/a
 msfonts/cm/cmti12.pfb>
-Output written on main.pdf (22 pages, 166079 bytes).
+Output written on main.pdf (22 pages, 166088 bytes).
 PDF statistics:
  121 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

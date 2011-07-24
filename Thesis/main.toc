@@ -1,15 +1,16 @@
 \contentsline {chapter}{\numberline {1}Introduction}{13}
-\contentsline {section}{\numberline {1.1}Importance of Deterministic Execution}{13}
-\contentsline {subsection}{\numberline {1.1.1}Mainstream Computing and Security}{14}
-\contentsline {subsection}{\numberline {1.1.2}Repeatability}{14}
-\contentsline {subsection}{\numberline {1.1.3}Debugging}{14}
-\contentsline {subsection}{\numberline {1.1.4}Testing}{14}
-\contentsline {section}{\numberline {1.2}The VM {\em Bootstorm} Problem}{15}
-\contentsline {section}{\numberline {1.3}Contributions}{15}
-\contentsline {subsection}{\numberline {1.3.1}Organization}{15}
-\contentsline {subsection}{\numberline {1.3.2}Small Constant Multiplications}{16}
-\contentsline {section}{\numberline {1.4}Other optimizations}{17}
-\contentsline {subsection}{\numberline {1.4.1}Low-level parallelism}{17}
-\contentsline {subsection}{\numberline {1.4.2}Pipeline optimizations}{17}
+\contentsline {section}{\numberline {1.1}Motivation}{13}
+\contentsline {section}{\numberline {1.2}Importance of Deterministic Execution}{13}
+\contentsline {subsection}{\numberline {1.2.1}Mainstream Computing and Security}{14}
+\contentsline {subsection}{\numberline {1.2.2}Repeatability}{14}
+\contentsline {subsection}{\numberline {1.2.3}Debugging}{14}
+\contentsline {subsection}{\numberline {1.2.4}Testing}{14}
+\contentsline {section}{\numberline {1.3}The VM {\em Bootstorm} Problem}{15}
+\contentsline {section}{\numberline {1.4}Contributions}{15}
+\contentsline {subsection}{\numberline {1.4.1}Organization}{15}
+\contentsline {subsection}{\numberline {1.4.2}Small Constant Multiplications}{16}
+\contentsline {section}{\numberline {1.5}Other optimizations}{17}
+\contentsline {subsection}{\numberline {1.5.1}Low-level parallelism}{17}
+\contentsline {subsection}{\numberline {1.5.2}Pipeline optimizations}{17}
 \contentsline {chapter}{\numberline {A}Tables}{19}
 \contentsline {chapter}{\numberline {B}Figures}{21}

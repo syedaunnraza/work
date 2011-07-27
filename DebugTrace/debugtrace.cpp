@@ -27,6 +27,7 @@ using namespace INSTLIB;
 #include "syscall_utils.h"
 
 #define DEBUG 1
+#define DEBUG_MEMORY 1
 
 #include <errno.h>
 
@@ -43,7 +44,8 @@ KNOB<BOOL>   KnobTraceSys(KNOB_MODE_WRITEONCE,  "pintool",
 // Syscalls
 
 // --------------------------------------------------------
-
+KNOB<string> KnobAtRandomAddress(KNOB_MODE_WRITEONCE,  "pintool",
+				 "atraddr", "0", "at random addr");
 KNOB<BOOL>   KnobFixPid(KNOB_MODE_WRITEONCE,  "pintool",
 		       "pid", "0", "determinize pid");
 KNOB<BOOL>   KnobFixStat(KNOB_MODE_WRITEONCE,  "pintool",
@@ -60,13 +62,20 @@ KNOB<BOOL> KnobFixFork(KNOB_MODE_WRITEONCE, "pintool",
 			 "fix_fork", "0", "trace file");
 KNOB<BOOL> KnobFixPorts(KNOB_MODE_WRITEONCE, "pintool",
 			"ports", "0", "fix ephemeral ports");
+KNOB<BOOL> KnobFixSignals(KNOB_MODE_WRITEONCE, "pintool",
+			  "sig", "0", "fix signals");
 // --------------------------------------------------------
 
 KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE, "pintool",
 			    "o", "trace.log", "trace file");
-
 KNOB<string> KnobTimeFile(KNOB_MODE_WRITEONCE, "pintool",
 			    "timefile", "time.out", "trace file");
+KNOB<string> KnobClockFile(KNOB_MODE_WRITEONCE, "pintool",
+			   "clockfile", "clock.out", "clock trace file");
+
+KNOB<string> KnobSignalFile(KNOB_MODE_WRITEONCE, "pintool",
+			   "signalfile", "signal.out", "signal trace file");
+
 KNOB<string> KnobDayFile(KNOB_MODE_WRITEONCE, "pintool",
 			    "dayfile", "day.out", "trace file");
 KNOB<string> KnobEpollFile(KNOB_MODE_WRITEONCE, "pintool",
@@ -79,6 +88,10 @@ KNOB<BOOL>   KnobSymbols(KNOB_MODE_WRITEONCE, "pintool",
 			 "symbols", "0", "include symbol information");
 KNOB<BOOL>   KnobRdtsc(KNOB_MODE_WRITEONCE,  "pintool",
 		       "rdtsc", "0", "emulate rdtsc");
+
+KNOB<BOOL>   KnobCpuid(KNOB_MODE_WRITEONCE,  "pintool",
+		       "cpuid", "0", "emulate cpuid");
+
 KNOB<BOOL>   KnobMem(KNOB_MODE_WRITEONCE,  "pintool",
 		     "dmem", "0", "dump process memory");
 KNOB<BOOL>   KnobPrintFunc(KNOB_MODE_WRITEONCE,  "pintool",
@@ -120,11 +133,26 @@ KNOB<BOOL> KnobEarlyOut(KNOB_MODE_WRITEONCE, "pintool", "early_out", "0" ,
 /* Global Variables */
 /* ===================================================================== */
 
+#if DEBUG_MEMORY
+LOCALVAR BOOL armed = 0;
+LOCALVAR string print = "A";
+LOCALVAR BOOL first_print = 0;
+#endif
+
+// -1 => starting phase of program
+LOCALVAR int next_signal = -1;
+LOCALVAR UINT64 next_instr_num = 0;
+LOCALVAR BOOL signal_eof = 0; 
+
 // the first instruction flag is used to dump memory
 LOCALVAR INT32 firstInstruction = 1;
 LOCALVAR std::ofstream outmem;
 
 LOCALVAR BOOL forked = 0;
+
+// signal output stream
+LOCALVAR std::ofstream signal_out;
+LOCALVAR std::ifstream signal_in;
 
 // trace output stream
 LOCALVAR std::ofstream out;
@@ -140,11 +168,15 @@ LOCALVAR std::ifstream gettimeofday_in;
 LOCALVAR std::ifstream epoll_in;
 LOCALVAR std::ofstream epoll_out;
 
+// clock output stream
+LOCALVAR std::ifstream clock_in;
+LOCALVAR std::ofstream clock_out;
+
 GLOBALVAR vector<struct epoll_event*> e;
 LOCALVAR struct epoll_event* next;
 
 // set this for every program separately
-LOCALVAR ADDRINT AT_RANDOM_ADDRESS = 0xbffff49b;
+LOCALVAR ADDRINT AT_RANDOM_ADDRESS; //  = 0xbffff49b;
 
 // system call related stuff
 LOCALVAR BOOL outstanding_syscall = false;
@@ -283,6 +315,8 @@ static void print_gs_stuff(ADDRINT baseAddr)
 static void overwrite_AT_RANDOM()
 {
   *((int*)AT_RANDOM_ADDRESS) = 0x12345678;
+  cerr << "AT_RANDOM[0] i.e. libc canary src =  0x12345678" << endl;
+
 #if DEBUG
   cout << "AT_RANDOM[0] i.e. libc canary src =  0x12345678" << endl;
 #endif
@@ -291,6 +325,8 @@ static void overwrite_AT_RANDOM()
 static void overwrite_AT_RANDOM_4()
 {
   *(((int*)AT_RANDOM_ADDRESS)+1) = 0x87654321;
+  cerr << "AT_RANDOM[1] i.e. stack guard src =  0x87654321" << endl;
+
 #if DEBUG
   cout << "AT_RANDOM[1] i.e. stack guard src =  0x87654321" << endl;
 #endif
@@ -303,6 +339,17 @@ INT32 Usage()
   cerr << KNOB_BASE::StringKnobSummary();
   cerr << endl;
   return -1;
+}
+
+// Emulate Cpuid
+VOID EmulateCpuid(PIN_REGISTER *rax, PIN_REGISTER *rbx, PIN_REGISTER *rcx,
+		  PIN_REGISTER *rdx)
+{
+  rax->dword[0] = 0x1067a;
+  rbx->dword[0] = 0x10800;
+  rcx->dword[0] = 0x80082201;
+  rdx->dword[0] = 0xfebfbff;
+  return;
 }
 
 // Move 0x7eab816a into rax
@@ -498,12 +545,71 @@ VOID PrintRdtsc(string & traceString)
   out << traceString << endl;
 }
 
+LOCALFUN VOID read_next_signal()
+{
+  if (!signal_eof)
+    {
+      char str[255];
+      string tmp;
+      
+      // signal=#
+      signal_in.getline(str, 255);
+      tmp = string(str);
+
+      if (tmp.find("eof") != string::npos)
+	{
+	  signal_eof = 1;
+	  next_instr_num = 0;
+	  next_signal = 0;
+	  return;
+	}
+
+      if (tmp.find("signal=") == string::npos)
+	cerr << "error: expected \"signal=#\" , saw:" << tmp << endl;  
+
+      tmp = tmp.substr(tmp.find("=")+1);
+      istringstream s1(tmp);
+      s1 >> dec >> next_signal;
+
+      // instrs=#
+      signal_in.getline(str, 255);
+      tmp = string(str);
+      if (tmp.find("instrs=") == string::npos)
+	cerr << "error: expected \"instrs=#\" , saw:" << tmp << endl;  
+      tmp = tmp.substr(tmp.find("=")+1);
+      istringstream s2(tmp);
+      s2 >> dec >> next_instr_num;
+
+      // cerr << "\tnext_signal = " << next_signal << ", next_i = " << next_instr_num << endl;
+   } 
+}
+
 VOID CountInstruction()
 {
   if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
     return;
 
   instrs++;
+  if (KnobFixSignals)
+    {
+      if (!KnobLeader && !signal_eof)
+	{
+	  if (next_signal == -1)
+	    {
+	      read_next_signal();
+	    }
+	  if (next_instr_num == instrs)
+	    {
+	      kill(PIN_GetPid(), next_signal);
+	    }
+	  else if (next_instr_num < instrs && !signal_eof)
+	    {
+	      // cerr << "\t WARNING: next_instr = " << next_instr_num 
+	      //  << " but instrs = " << instrs << endl;
+	      kill(PIN_GetPid(), next_signal);
+	    }
+	}
+    }
 }
 
 VOID AddEmit(INS ins, IPOINT point, 
@@ -973,14 +1079,25 @@ VOID SysBegin(THREADID threadIndex, CONTEXT *ctxt,
 
   if (KnobFixFork && forked && PIN_GetPid() != my_original_pid)
     return;
-
-
+  
   if (outstanding_syscall)
     cout << "***WARNING***: [SysBegin] Interruptable " 
 	 << "System Call Situation" << endl;
 
   last_syscall_number = PIN_GetSyscallNumber(ctxt, std);
   outstanding_syscall = true;
+
+#if DEBUG_MEMORY
+  // mmap2
+  if (armed && last_syscall_number == 192)
+    {
+      string mapin_file = string("/proc/") + decstr(PIN_GetPid()) + string("/maps");
+      string mapout_file = string("./TMP/map_") + string(KnobLeader ? "L" : "F") 
+	+ string("pre") + print	+ string(".txt");
+      string command = string("cat ") + mapin_file + string(" > ") + mapout_file;
+      system(command.c_str());
+    }
+#endif
 
   // epoll_wait()
   if (KnobEpoll && last_syscall_number == 256)
@@ -1045,7 +1162,6 @@ VOID SysBegin(THREADID threadIndex, CONTEXT *ctxt,
 
   // HandleSysBegin(threadIndex, ctxt, std, v, out);
   HandleSysBegin(threadIndex, ctxt, std, v, sysout);
-
 }
 
 VOID FixSockets(THREADID threadIndex, CONTEXT *ctxt, 
@@ -1067,6 +1183,22 @@ VOID SysEnd(THREADID threadIndex, CONTEXT *ctxt,
   if (!outstanding_syscall)
         cout << "***WARNING***: [SysEnd] No outstanding " 
 	 << "System Call Situation" << endl;
+
+#if DEBUG_MEMORY
+  // mmap2
+  if (armed && last_syscall_number == 192)
+    {
+      string mapin_file = string("/proc/") + decstr(PIN_GetPid()) + string("/maps");
+      string mapout_file = string("./TMP/map_") + string((KnobLeader ? "L" : "F")) 
+	+ string("post") + print + string(".txt");
+      string command = string("cat ") + mapin_file + string(" > ") + mapout_file;
+      system(command.c_str());
+
+      print = "B";
+      armed = 0;
+      //      PIN_SetContextReg(ctxt, REG_GAX, (ADDRINT)bu)f;      
+    }
+#endif
 
   if (KnobEpoll && last_syscall_number == 256)
     {
@@ -1275,6 +1407,56 @@ VOID SysEnd(THREADID threadIndex, CONTEXT *ctxt,
 	  // cout << new_value << endl;	
 	}
     }
+  // CLOCK_GETTIME SYSTEM CALL
+  else if (last_syscall_number == 265 && KnobFixTime)
+    {
+      clockid_t clk_id = (clockid_t) PIN_GetSyscallArgument(ctxt, std, 0);
+      struct timespec *tp = (struct timespec*) PIN_GetSyscallArgument(ctxt, std, 1);
+      if (KnobLeader)
+	{
+	  clock_out << hex << clk_id << endl;
+	  if (tp != NULL)
+	    {
+	      clock_out << hex << tp->tv_sec << endl;
+	      clock_out << hex << tp->tv_nsec << endl;
+	    }
+	  else 
+	    {
+	      clock_out << hex << 0 << endl;
+	      clock_out << hex << 0 << endl;
+	    }
+	}
+      else 
+	{
+	  ADDRINT val1;
+	  ADDRINT val2;
+	  ADDRINT val3;
+	  char str[255];
+	  
+	  clock_in.getline(str, 255);
+	  istringstream s1(str);
+	  s1 >> hex >> val1;
+
+	  clock_in.getline(str, 255);
+	  istringstream s2(str);
+	  s2 >> hex >> val2;
+	  
+	  clock_in.getline(str, 255);
+	  istringstream s3(str);
+	  s3 >> hex >> val3;
+	  
+	  if ((clockid_t)val1 != clk_id)
+	    {
+	      cerr << "WARNING: CLOCK IDs don't match... (" << val1 << " vs " << clk_id << ")" << endl;
+	    }
+
+	  if (tp != NULL)
+	    {
+	      tp->tv_sec = val2;
+	      tp->tv_nsec = val3;
+	    }
+	}
+    }
   // GETTIMEOFDAY SYSTEM CALL
   else if (last_syscall_number == 0x4e && KnobFixTime)
     {
@@ -1357,6 +1539,13 @@ VOID SysEnd(THREADID threadIndex, CONTEXT *ctxt,
       ADDRINT arg1 = PIN_GetSyscallArgument(ctxt, std, 0);
       string  path = string((char*)arg1);
       
+#if DEBUG_MEMORY
+      if (path.find("proc/net/if_inet6") != string::npos)
+	{
+	  armed = 1;
+	}
+#endif
+
       if (KnobDevRandom)
 	{
 	  if (path.find("urandom") != string::npos)
@@ -1925,11 +2114,6 @@ VOID InstructionTrace(TRACE trace, INS ins)
   string s = StringFromAddrint(addr);
   string dis = INS_Disassemble(ins);
 
-  // count instructions
-  INS_InsertCall(ins, IPOINT_BEFORE, 
-		 (AFUNPTR)CountInstruction,
-		 IARG_END);
-
   if (KnobMem && firstInstruction) 
     {
       // Visit every loaded image
@@ -1949,6 +2133,18 @@ VOID InstructionTrace(TRACE trace, INS ins)
       canary_done = true;
     }
   
+#if DEBUG_MEMORY
+  if (!first_print)
+    {
+      string mapin_file = string("/proc/") + decstr(PIN_GetPid()) + string("/maps");
+      string mapout_file = string("./TMP/map_") + string(KnobLeader ? "L" : "F") 
+	+ string("start") + string(".txt");
+      string command = string("cat ") + mapin_file + string(" > ") + mapout_file;
+      system(command.c_str());
+      first_print = 1;
+    }
+#endif
+
   if (!guard_done && KnobFixPointerGuard)
     {
       INS_InsertCall(ins, IPOINT_BEFORE, 
@@ -1956,30 +2152,50 @@ VOID InstructionTrace(TRACE trace, INS ins)
 		     IARG_END);
       guard_done = true;
     }
+
+  //  eax = 0x1067a, ebx = 0x10800, ecx = 0x80082201, edx = 0xfebfbff 
+  if (KnobCpuid && dis.find("cpuid") != string::npos)
+    {
+      INS_InsertCall(ins,
+		     IPOINT_BEFORE,
+		     AFUNPTR(EmulateCpuid),
+		     IARG_REG_REFERENCE,
+		     REG_GAX,
+		     IARG_REG_REFERENCE,
+		     REG_GBX,
+		     IARG_REG_REFERENCE,
+		     REG_GCX,
+		     IARG_REG_REFERENCE,
+		     REG_GDX,
+		     IARG_END);
+      // Delete the instruction
+      INS_Delete(ins);	
+      return;
+    }
   
-    if(KnobRdtsc && INS_IsRDTSC(ins))
-      {
-	// rax = 0x7eab816a, rdx = 0x6b7
-	INS_InsertCall(ins,
-		       IPOINT_BEFORE,
-		       AFUNPTR(SendToRax),
-		       IARG_RETURN_REGS,
-		       REG_GAX,
-		       IARG_END);
-	
-	INS_InsertCall(ins,
-		       IPOINT_BEFORE,
-		       AFUNPTR(SendToRdx),
-		       IARG_RETURN_REGS,
-		       REG_GDX,
-		       IARG_END);
-	
-	s += "\t {----rdtsc replaced----}";
-	
-	INS_InsertCall(ins, IPOINT_BEFORE, AFUNPTR(PrintRdtsc), 
-		       IARG_PTR, new string(s),
-		       IARG_END);
-	/*
+  if(KnobRdtsc && INS_IsRDTSC(ins))
+    {
+      // rax = 0x7eab816a, rdx = 0x6b7
+      INS_InsertCall(ins,
+		     IPOINT_BEFORE,
+		     AFUNPTR(SendToRax),
+		     IARG_RETURN_REGS,
+		     REG_GAX,
+		     IARG_END);
+      
+      INS_InsertCall(ins,
+		     IPOINT_BEFORE,
+		     AFUNPTR(SendToRdx),
+		     IARG_RETURN_REGS,
+		     REG_GDX,
+		     IARG_END);
+      
+      s += "\t {----rdtsc replaced----}";
+      
+      INS_InsertCall(ins, IPOINT_BEFORE, AFUNPTR(PrintRdtsc), 
+		     IARG_PTR, new string(s),
+		     IARG_END);
+      /*
 	INS_InsertCall(ins, IPOINT_BEFORE, AFUNPTR(print_gs_stuff), 
 		       IARG_REG_VALUE, REG_SEG_GS_BASE,
 		       IARG_END);
@@ -1995,6 +2211,13 @@ VOID InstructionTrace(TRACE trace, INS ins)
 	INS_Delete(ins);	
 	return;
       }
+
+  // count instructions
+  INS_InsertCall(ins, IPOINT_BEFORE, 
+		 (AFUNPTR)CountInstruction,
+		 IARG_END);
+  
+
     
     // Format the string at instrumentation time
     string function = "";
@@ -2158,13 +2381,18 @@ VOID Trace(TRACE trace, VOID *v)
 VOID Fini(int, VOID * v)
 {
     out << "# $eof" <<  endl;
-
     out.close();
-    // CloseOutputFile();
+    
+    if (KnobLeader)
+      {
+	signal_out << " # $eof" << endl;
+	signal_out.close();
+      }
 }
     
 /* ===================================================================== */
 
+/*
 static void OnSig(THREADID threadIndex, 
                   CONTEXT_CHANGE_REASON reason, 
                   const CONTEXT *ctxtFrom,
@@ -2172,19 +2400,19 @@ static void OnSig(THREADID threadIndex,
                   INT32 sig, 
                   VOID *v)
 {
-    if (ctxtFrom != 0)
+  if (ctxtFrom != 0)
     {
         ADDRINT address = PIN_GetContextReg(ctxtFrom, REG_INST_PTR);
-        out << "SIG signal=" << sig << " on thread " << threadIndex
+        out << "SIG signal=" << dec << sig << " on thread " << threadIndex
             << " at address " << hex << address << dec << " #instrs = " << instrs << " ";
-        cout << "SIG signal=" << sig << " on thread " << threadIndex
+        cout << "SIG signal=" << dec << sig << " on thread " << threadIndex
             << " at address " << hex << address << dec << " #instrs = " << instrs << " ";
     }
     else
       {
-	out << "SIG signal=" << sig << " on thread " << threadIndex
+	out << "SIG signal=" << dec << sig << " on thread " << threadIndex
 	    << " #instrs = " << instrs << " ";
-	cout << "SIG signal=" << sig << " on thread " << threadIndex
+	cout << "SIG signal=" << dec << sig << " on thread " << threadIndex
 	    << " #instrs = " << instrs << " ";
       }
 
@@ -2217,6 +2445,7 @@ static void OnSig(THREADID threadIndex,
     }
     out << std::endl;
 }
+*/
 
 VOID ForkParent(THREADID tid, const CONTEXT *ctxt, VOID* v)
 {
@@ -2245,8 +2474,52 @@ BOOL FollowChild(CHILD_PROCESS childProcess, VOID*val)
 }
 */
 
+
+BOOL signal_callback(THREADID tid, INT32 sig, 
+		     CONTEXT *ctxt, BOOL hasHandler, 
+		     const EXCEPTION_INFO *pExceptInfo, 
+		     VOID *v)
+{
+  if (KnobLeader)
+    {
+      signal_out << dec << "signal=" << sig << endl;
+      signal_out << dec << "instrs=" << instrs << endl;
+      cerr << "delivering signal = " << sig << ", instrs = " << instrs << endl;
+      out << "delivering signal = " << sig << ", instrs = " << instrs << endl;
+      return TRUE;
+    }
+  else 
+    {
+      if (signal_eof)
+	{
+	  return FALSE;
+	}
+
+      if (instrs == next_instr_num && sig == next_signal)
+	{
+	  cerr << "replaying signal = " << sig << ", instrs = " << instrs << endl;
+	  out << "delivering signal = " << sig << ", instrs = " << instrs << endl;
+	  read_next_signal();
+	  return TRUE;
+	}
+      else if (next_instr_num < instrs)
+	{
+	  cerr << "replaying signal = " << sig << ", instrs = " << instrs << endl;
+	  out << "delivering signal = " << sig << ", instrs = " << instrs << endl;
+	  read_next_signal();
+	  return TRUE;
+	}
+      else
+	{
+	  return FALSE;
+	}
+    }
+}
+
+
 int main(int argc, CHAR *argv[], CHAR* envp[])
 {
+
     PIN_InitSymbols();
 
     /*
@@ -2263,6 +2536,12 @@ int main(int argc, CHAR *argv[], CHAR* envp[])
         return Usage();
     }
     
+    string t = KnobAtRandomAddress.Value();
+    t = t.substr(2);
+    istringstream s(t);
+    s >> hex >> AT_RANDOM_ADDRESS;
+    cerr << "AT_RANDOM_ADDRESS = " << hex << AT_RANDOM_ADDRESS << dec << endl;
+    
     my_original_pid = PIN_GetPid();
 
     string filename =  KnobOutputFile.Value();
@@ -2271,6 +2550,8 @@ int main(int argc, CHAR *argv[], CHAR* envp[])
     string dayfilename = KnobDayFile.Value();
     string sysoutfile = KnobSysFile.Value();
     string epollfilename = KnobEpollFile.Value();
+    string clockfilename = KnobClockFile.Value();
+    string signalfilename = KnobSignalFile.Value();
 
     if (KnobPid)
       filename += "." + decstr( getpid_portable() );
@@ -2295,20 +2576,30 @@ int main(int argc, CHAR *argv[], CHAR* envp[])
 	timing_out.open(timefilename.c_str());
 	gettimeofday_out.open(dayfilename.c_str());
 	epoll_out.open(epollfilename.c_str());
+	clock_out.open(clockfilename.c_str());
+	signal_out.open(signalfilename.c_str());
       }
     else
       {
 	timing_in.open(timefilename.c_str());
 	gettimeofday_in.open(dayfilename.c_str());
 	epoll_in.open(epollfilename.c_str());
-	// epoll_out.open((epollfilename  + string("_follower")).c_str());
+	clock_in.open(clockfilename.c_str());
+	signal_in.open(signalfilename.c_str());
       }
     
     control.CheckKnobs(Handler, 0);
     skipper.CheckKnobs(0);
+
+    if (KnobFixSignals)
+      {
+
+	PIN_InterceptSignal(14, signal_callback, (void*)NULL);
+	// PIN_InterceptSignal(0, signal_callback, (void*)NULL);
+      }
     
     TRACE_AddInstrumentFunction(Trace, 0);
-    PIN_AddContextChangeFunction(OnSig, 0);
+    // PIN_AddContextChangeFunction(OnSig, 0);
      
     PIN_AddForkFunction(FPOINT_AFTER_IN_PARENT, ForkParent, 0);
     PIN_AddForkFunction(FPOINT_AFTER_IN_CHILD, ForkChild, 0);

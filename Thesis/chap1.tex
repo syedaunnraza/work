@@ -69,6 +69,9 @@ identical VMs without throttling the hosts in a data-center.
 If the identical VMs execute mostly the same set of instructions when they boot up,
 perhaps there is a way to deduplicate \emph{execution} rather than just data?
 
+Area of inquiry: given different identical VM images, can we 
+make the boot process more deterministic? If so, 
+deduplication of execution may be a possibility.
 \section{Goal of Thesis}
 
 Data deduplication is partly effective because many VMs load

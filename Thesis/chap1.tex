@@ -6,16 +6,82 @@
 %% prompt when you run the file main.tex through LaTeX.
 \chapter{Introduction}
 \section{Motivation}
-Several companies (including Dropbox\cite{dbox} and Netflix\cite{ntflix}) have successfully
-used server virtualization in data centers to reduce operating costs, improve performance scalability 
-and simplify management. In light of the significant benefits 
-of server virtualization, many companies are now looking to apply the same technology 
-to their desktop computers.
+Server virtualization is increasingly used in data centers to 
+reduce operating costs, improve performance scalability and 
+simplify administrative tasks. One reason for the success of
+server virtualization is the marriage of isolation and resource 
+utilization: it is now possible to assign a dedicated server 
+to each application, while reducing wasted cycles by consolidating 
+many such virtual servers on a powerful host computer. Over
+the next few years, one can expect companies such as VMWare 
+to improve the cost-effectiveness of server virtualization by
+investing in technologies such as \emph{memory overcommitment} 
+that boost virtual machine density per host.
 
-Virtual Desktop Infrastructure (VDI) allows organizations to
-outsource their desktop machines
+Given the success of server virtualization, many companies are now  
+looking to use virtualization for their desktop computers.
+In a Virtual Desktop Infrastructure (VDI), desktop operating systems 
+and applications are hosted in virtual machines that reside in a data 
+center. Users access virtual desktops from a desktop PC or
+thin client using a remote display protocol, and get almost the
+same experience as if applications were loaded on their local systems.
+However, because applications are centrally managed, 
+VDI makes desktop administration and management simpler: applications
+can quickly be added, deleted, upgraded and patched. 
+In fact, because desktop VMs may require less resources than 
+server VMs, even higher VM density per host may be achievable
+through desktop virtualization.
+
+While a high VM density per host is desireable in general for
+effective resource utilization, there are several workloads in which
+it can be problematic. In particular, if there are correlated spikes
+in the CPU/memory usage of the virtual machines, a high VM density
+per host could throttle the host. This can happen if many or all
+of the virtual machines hosted by a data center boot up around
+the same time, creating a \emph{boot-storm}. Bootstorms
+are common e.g. after some software is installed or updated,
+or a patch is applied. Bootstorms are also common
+in a VDI setting because there is a narrow window of time
+in which many workers log in in the morning.
+
+Companies handle bootstorms by using deduplication of data,
+staggered boots, or simply avoid them by booting computers in
+phases, or by installing expensive/extra-provisioned hardware
+equipment. 
+
+With VDI and server virtualization gaining traction, it is
+important to fix the boot-storm problem in a way that doesn't 
+involve skirting around it. Accidental boot-storms will
+probably happen, however many precautions one may take. Furthermore,
+leaving computers on for the workforce wastes a lot of energy.
+If the workforce computers are wasting cycles staying up,
+or booting again and again, perhaps a way to deduplicate 
+execution may be exciting.
+
+\section{Goal of Thesis}
+
+Not pursuing a full solution to the bootstorm problem.
+
+Area of inquiry: given different identical VM images, can we 
+make the boot process more deterministic? If so, 
+deduplication of execution may be a possibility.
+
+1) Statistically understand non-determinism 
+in the case of linux services.
+
+2) Figure out the context in which non-determinism
+arises and find ways to control it.
+
+Motivated by boostorm problem, because not only can we
+do a deduplication of execution, we can improve
+page-sharing and improve deduplication of data as well,
+by making execution more deterministic.
+
+...but studying non-determinism is an interesting question in its
+own right, as explained in the next section.
 
 \section{Importance of Deterministic Execution}\label{ch1:whydeterminism}
+
 Deterministic execution of programs can be beneficial in many
 different scenarios, and has motivated the design of Kendo,
 a system which enables deterministic multithreading
@@ -68,7 +134,14 @@ across different executions, for the same inputs.
 Test cases can check for deviations from 
 the expected instruction sequences.
 
-\section{The VM {\em Bootstorm} Problem}\label{ch1:bootstorm}
+\section{Contributions}
+% Challenges of Determinstic Execution :: Helloworld.c
+
+
+\subsection{Thesis Organization}
+
+
+
 
 
 % This is an example of how you would use tgrind to include an example
@@ -84,115 +157,4 @@ the expected instruction sequences.
 % beginning of the line, and insert your own information in the call.
 %
 %\tgrind[htbp]{code/be.s.tex}{Block Exponent}{opt:be}
-
-\section{Contributions}
-
-As well as the floating point optimizations described above, there are
-also integer optimizations that can be used in the $\mu$FPU.  In concert
-with the floating point optimizations, these can provide a significant
-speedup.  
-
-\subsection{Organization}
-
-Integer operations are much faster than floating point operations; if it is
-possible to replace floating point operations with fixed point operations,
-this would provide a significant increase in speed.
-
-This conversion can either take place automatically or or based on a
-specific request from the programmer.  To do this automatically, the
-compiler must either be very smart, or play fast and loose with the accuracy
-and precision of the programmer's variables.  To be ``smart'', the computer
-must track the ranges of all the floating point variables through the
-program, and then see if there are any potential candidates for conversion
-to floating point.  This technique is discussed further in
-section~\ref{range-tracking}, where it was implemented.
-
-The other way to do this is to rely on specific hints from the programmer
-that a certain value will only assume a specific range, and that only a
-specific precision is desired.  This is somewhat more taxing on the
-programmer, in that he has to know the ranges that his values will take at
-declaration time (something normally abstracted away), but it does provide
-the opportunity for fine-tuning already working code.
-
-Potential applications of this would be simulation programs, where the
-variable represents some physical quantity; the constraints of the physical
-system may provide bounds on the range the variable can take.
-\subsection{Small Constant Multiplications}
-
-One other class of optimizations that can be done is to replace
-multiplications by small integer constants into some combination of
-additions and shifts.  Addition and shifting can be significantly faster
-than multiplication.  This is done by using some combination of
-\begin{eqnarray*}
-a_i & = & a_j + a_k \\
-a_i & = & 2a_j + a_k \\
-a_i & = & 4a_j + a_k \\
-a_i & = & 8a_j + a_k \\
-a_i & = & a_j - a_k \\
-a_i & = & a_j \ll m \mbox{shift}
-\end{eqnarray*}
-instead of the multiplication.  For example, to multiply $s$ by 10 and store
-the result in $r$, you could use:
-\begin{eqnarray*}
-r & = & 4s + s\\
-r & = & r + r
-\end{eqnarray*}
-Or by 59:
-\begin{eqnarray*}
-t & = & 2s + s \\
-r & = & 2t + s \\
-r & = & 8r + t
-\end{eqnarray*}
-Similar combinations can be found for almost all of the smaller
-integers\footnote{This optimization is only an ``optimization'', of course,
-when the amount of time spent on the shifts and adds is less than the time
-that would be spent doing the multiplication.  Since the time costs of these
-operations are known to the compiler in order for it to do scheduling, it is
-easy for the compiler to determine when this optimization is worth using.}.
-\cite{magenheimer:precision}
-
-\section{Other optimizations}
-
-\subsection{Low-level parallelism}
-
-The current trend is towards duplicating hardware at the lowest level to
-provide parallelism\footnote{This can been seen in the i860; floating point
-additions and multiplications can proceed at the same time, and the RISC
-core be moving data in and out of the floating point registers and providing
-flow control at the same time the floating point units are active. \cite{byte:i860}}
-
-Conceptually, it is easy to take advantage to low-level parallelism in the
-instruction stream by simply adding more functional units to the $\mu$FPU,
-widening the instruction word to control them, and then scheduling as many
-operations to take place at one time as possible.
-
-However, simply adding more functional units can only be done so many times;
-there is only a limited amount of parallelism directly available in the
-instruction stream, and without it, much of the extra resources will go to
-waste.  One process used to make more instructions potentially schedulable
-at any given time is ``trace scheduling''.  This technique originated in the
-Bulldog compiler for the original VLIW machine, the ELI-512.
-\cite{ellis:bulldog,colwell:vliw}  In trace scheduling, code can be
-scheduled through many basic blocks at one time, following a single
-potential ``trace'' of program execution.  In this way, instructions that
-{\em might\/} be executed depending on a conditional branch further down in
-the instruction stream are scheduled, allowing an increase in the potential
-parallelism.  To account for the cases where the expected branch wasn't
-taken, correction code is inserted after the branches to undo the effects of
-any prematurely executed instructions.
-
-\subsection{Pipeline optimizations}
-
-In addition to having operations going on in parallel across functional
-units, it is also typical to have several operations in various stages of
-completion in each unit.  This pipelining allows the throughput of the
-functional units to be increased, with no increase in latency.
-
-There are several ways pipelined operations can be optimized.  On the
-hardware side, support can be added to allow data to be recirculated back
-into the beginning of the pipeline from the end, saving a trip through the
-registers.  On the software side, the compiler can utilize several tricks to
-try to fill up as many of the pipeline delay slots as possible, as
-seendescribed by Gibbons. \cite{gib86}
-
 

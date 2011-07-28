@@ -29,36 +29,54 @@ However, because applications are centrally managed,
 VDI makes desktop administration and management simpler: applications
 can quickly be added, deleted, upgraded and patched. 
 In fact, because desktop VMs may require less resources than 
-server VMs, even higher VM density per host may be achievable
-through desktop virtualization.
+server VMs, even higher VM density per host (on the order of 
+hundreds) may be achievable through desktop virtualization.
 
 While a high VM density per host is desireable in general for
-effective resource utilization, there are several workloads in which
-it can be problematic. In particular, if there are correlated spikes
-in the CPU/memory usage of the virtual machines, a high VM density
-per host could throttle the host. This can happen if many or all
-of the virtual machines hosted by a data center boot up around
-the same time, creating a \emph{boot-storm}. Bootstorms
-are common e.g. after some software is installed or updated,
-or a patch is applied. Bootstorms are also common
-in a VDI setting because there is a narrow window of time
-in which many workers log in in the morning.
+effective resource utilization, it can be problematic
+in certain scenarios. In particular, correlated spikes
+in the CPU/memory usage of the virtual machines could suddenly overwhelm hosts.
+For instance, \emph{VM bootstorms} can occur after some software is installed
+or updated, requiring hundreds or thousands of VMs to reboot at the same time.
+Bootstorms can be particularly frequent in VDI because 
+most users typically show up to work at roughly the same time
+in the morning. 
 
-Companies handle bootstorms by using deduplication of data,
-staggered boots, or simply avoid them by booting computers in
-phases, or by installing expensive/extra-provisioned hardware
-equipment. 
+To avoid VM bootstorms from causing the latency of booting machines
+to be prohibitively high, data centers typically 
+use staggered updates or reboots and, in the case of VDI,
+simply leave computers turned on overnight to avoid morning
+bootstorms. Data deduplication can relieve the pressure exerted by
+concurrent reboots on the memory subsystem,
+but reduced memory latency in turn can overwhelm the CPU,
+fibre channel, bus infrastructure or controller resources of
+the hosts. Data-centers often have to invest in expensive 
+or extra-provisioned hardware to cope with bootstorms. 
 
-With VDI and server virtualization gaining traction, it is
-important to fix the boot-storm problem in a way that doesn't 
-involve skirting around it. Accidental boot-storms will
-probably happen, however many precautions one may take. Furthermore,
-leaving computers on for the workforce wastes a lot of energy.
-If the workforce computers are wasting cycles staying up,
-or booting again and again, perhaps a way to deduplicate 
-execution may be exciting.
+With server virtualization and VDI gaining traction, it is
+important to address the bootstorm problem in a way that does not 
+involve simply skirting around it. For instance, staggered boots may not be 
+possible if an urgent security update must be propagated to
+all running VMs at once. Accidental boot-storms can happen too, 
+however many precautions one may take. Furthermore,
+in the case of VDI, leaving computers turned on overnight for the workforce
+simply is a waste of clock cycles and energy. 
+
+Data deduplication is partly effective because many VMs load
+the same data from disk when they boot up.  There is a need 
+for a systematic way to boot hundreds of potentially
+identical VMs without throttling the hosts in a data-center.
+If the identical VMs execute mostly the same set of instructions when they boot up,
+perhaps there is a way to deduplicate \emph{execution} rather than just data?
 
 \section{Goal of Thesis}
+
+Data deduplication is partly effective because many VMs load
+the same data from disk when they boot up.  There is a need 
+for a systematic way to boot hundreds of potentially
+identical VMs without throttling the hosts in a data-center.
+If the identical VMs execute mostly the same set of instructions when they boot up,
+perhaps there is a way to deduplicate \emph{execution} rather than just data?
 
 Not pursuing a full solution to the bootstorm problem.
 

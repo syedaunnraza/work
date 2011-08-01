@@ -6,64 +6,69 @@
 %% prompt when you run the file main.tex through LaTeX.
 \chapter{Introduction}
 \section{Motivation}
-Server virtualization is increasingly used in data centers to 
-reduce operating costs, improve performance scalability and 
-simplify administrative tasks. One reason for the success of
-server virtualization is the marriage of isolation and resource 
-utilization: it is now possible to assign a dedicated server 
-to each application, while reducing wasted cycles by consolidating 
-many such virtual servers on a powerful host computer. Over
-the next few years, one can expect companies such as VMWare 
-to improve the cost-effectiveness of server virtualization by
-investing in technologies such as \emph{memory overcommitment} 
-that boost virtual machine density per host.
+Data centers increasingly use server virtualization to
+reduce operating costs, simplify administrative tasks and improve 
+performance scalability. Through virtualization, it is
+possible to maximize isolation and resource utilization at the same time:
+each application is typically assigned a dedicated server, 
+while several virtual servers are consolidated on powerful host machines
+to reduce wasted cycles. The use of techniques such as memory overcommitment (including 
+\emph{transparent page sharing, ballooning} and \emph{hypervisor swapping}) \cite{waldspurger2002memory} 
+has further improved the consolidation ratios and cost-effectiveness 
+of server virtualization, and augurs well for the future of the technology.
 
-Given the success of server virtualization, many companies are now  
-looking to use virtualization for their desktop computers.
-In a Virtual Desktop Infrastructure (VDI), desktop operating systems 
-and applications are hosted in virtual machines that reside in a data 
-center. Users access virtual desktops from a desktop PC or
-thin client using a remote display protocol, and get almost the
-same experience as if applications were loaded on their local systems.
-However, because applications are centrally managed, 
-VDI makes desktop administration and management simpler: applications
-can quickly be added, deleted, upgraded and patched. 
-In fact, because desktop VMs may require less resources than 
-server VMs, even higher VM density per host (on the order of 
-hundreds) may be achievable through desktop virtualization.
+Given the success of server virtualization, many companies are 
+extending the use of virtualization to their desktop computers.
+In a Virtual Desktop Infrastructure \cite{vmwarevdi} (VDI), 
+desktop operating systems and applications are hosted in 
+virtual machines that reside in a data center; 
+users access virtual desktops from desktop PCs or thin clients
+via a remote display protocol. A VDI provides simplicity 
+in administration and management: applications
+can be centrally added, deleted, upgraded and patched. 
+Furthermore, desktop virtualization promises even
+higher consolidation ratios than server virtualization
+because desktop vitual machines (VMs) typically require
+less resources than server VMs.
 
-While a high VM density per host is desireable in general for
-effective resource utilization, it can be problematic
-in certain scenarios. In particular, correlated spikes
-in the CPU/memory usage of the virtual machines could suddenly overwhelm hosts.
-For instance, \emph{VM bootstorms} can occur after some software is installed
-or updated, requiring hundreds or thousands of VMs to reboot at the same time.
-Bootstorms can be particularly frequent in VDI because 
-most users typically show up to work at roughly the same time
-in the morning. 
+Consolidation ratios (or VM density per host) in data centers
+are expected to increase in the future, not only because of
+improvements in virtualization technology, but also because
+new generations of processors support more cores and 
+more memory \cite{hansen2010lithium}. 
+While a high VM density per host is desireable in general for effective 
+resource utilization, it can be problematic in certain scenarios:
+correlated spikes in the CPU/memory usage of VMs can suddenly 
+cripple host machines. For instance, a \emph{boot storm} \cite{hansen2010lithium, 
+liao2011vmstore, meng2010tide, rajan2010vdc, vaghani2010virtual}
+can occur after some software is installed or updated, requiring hundreds 
+or thousands of identical VMs to reboot at the same time.
+Bootstorms can be particularly frequent (and troubling) in VDIs because 
+users typically show up to work at roughly the same time
+in the morning each day.
 
 To avoid VM bootstorms from causing the latency of booting machines
-to be prohibitively high, data centers typically 
-use staggered updates or reboots and, in the case of VDI,
-simply leave computers turned on overnight to avoid morning
-bootstorms. Data deduplication can relieve the pressure exerted by
-concurrent reboots on the memory subsystem,
-but reduced memory latency in turn can overwhelm the CPU,
-fibre channel, bus infrastructure or controller resources of
-the hosts. Data-centers often have to invest in expensive 
-or extra-provisioned hardware to cope with bootstorms. 
+to be prohibitively high, data centers must either 
+boot machines in a staggered fashion, or invest in expensive 
+or extra-provisioned hardware. There is anecdotal evidence
+that VDI users sometimes leave their desktop computers running
+overnight to avoid morning boot storms, which
+represents an unnecessary addition to already exorbitant
+energy requirements of data centers. Data deduplication \cite{clements2009deduplication} 
+has been proven to reduce the memory footprint of concurrently
+booting machines. However, while data deduplication reduces
+the stress on the memory subsystem, it can overwhelm the CPU, 
+fibre channel, bus infrastructure or controller resources 
+which must keep up with reduced memory latency.\cite{netappstorm}. 
 
-With server virtualization and VDI gaining traction, it is
-important to address the bootstorm problem in a way that does not 
-involve simply skirting around it. For instance, staggered boots may not be 
+With the spread of virtualization, it is important to address the
+bootstorm problem in a way that does not involve simply skirting around it. 
+For instance, staggered boots may not be 
 possible if an urgent security update must be propagated to
-all running VMs at once. Accidental boot-storms can happen too, 
-however many precautions one may take. Furthermore,
-in the case of VDI, leaving computers turned on overnight for the workforce
-simply is a waste of clock cycles and energy. 
+all running VMs at once. Data deduplication is partly effective because 
+identical VMs load the same data from disk when they boot up.  
 
-Data deduplication is partly effective because many VMs load
-the same data from disk when they boot up.  There is a need 
+There is a need 
 for a systematic way to boot hundreds of potentially
 identical VMs without throttling the hosts in a data-center.
 If the identical VMs execute mostly the same set of instructions when they boot up,

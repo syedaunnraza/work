@@ -763,6 +763,37 @@ GLOBALFUN VOID HandleSysEnd(THREADID threadIndex, CONTEXT *ctxt,
 	  }
       }
       break;
+    case 259:
+      // timer_create()
+      {
+	clockid_t clockid = (clockid_t)PIN_GetSyscallArgument(ctxt, std, 0);
+	struct sigevent *sevp = (struct sigevent *)PIN_GetSyscallArgument(ctxt, std, 1);
+	timer_t *timerid = (timer_t)PIN_GetSyscallArgument(ctxt, std, 2);
+	int ret_val = PIN_GetSyscallReturn(ctxt, std);
+	
+	pr_out << "\t" <<  "clockid = " << clockid << endl;
+	pr_out << "\t" << "sevp = " << sevp << endl;	
+	
+	if (sevp != (struct sigevent*)NULL)
+	  {
+	    pr_out << "\t\t" << "sevp->sigev_notify = " << sevp->sigev_notify << endl;
+	    pr_out << "\t\t" << "sevp->sigev_signo = " << sevp->sigev_signo << endl;
+	    pr_out << "\t\t" << "sevp->sigev_value = " << sevp->sigev_value.sival_int
+		   << endl;
+	    pr_out << "\t\t" << "sevp->not_fxn = " << sevp->sigev_notify_function << endl;
+	    pr_out << "\t\t" << "sevp->not_attr = " << sevp->sigev_notify_attributes << endl;
+	    pr_out << "\t\t" << "sevp->not_tid = " << sevp->sigev_notify_thread_id << endl;
+	  }
+
+	
+	pr_out << "\t" << "timerid = " << timerid << endl;
+	if (timerid != (timerid*)NULL)
+	  {
+	    	pr_out << "\t\t" << "*timerid = " << *timerid << endl;
+	  }
+	pr_out << "\t" << "ret_val = " << ret_val << endl;
+      }
+      break;
     case 14:
       // mknod()
       {

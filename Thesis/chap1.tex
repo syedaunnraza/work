@@ -9,9 +9,9 @@
 Data centers increasingly use server virtualization to
 reduce operating costs, simplify administrative tasks and improve 
 performance scalability. Through virtualization, it is
-possible to maximize isolation and resource utilization at the same time:
-each application is typically assigned a dedicated server, 
-while several virtual servers are consolidated on powerful host machines
+possible to achieve high resource utilization and isolation at the same time:
+each application is typically assigned a dedicated server virtual machine (VM), 
+while many VMs are consolidated on powerful host computers
 to reduce wasted cycles. The use of techniques such as memory overcommitment (including 
 \emph{transparent page sharing, ballooning} and \emph{hypervisor swapping}) \cite{waldspurger2002memory} 
 has further improved the consolidation ratios and cost-effectiveness 
@@ -28,127 +28,132 @@ in administration and management: applications
 can be centrally added, deleted, upgraded and patched. 
 Furthermore, desktop virtualization promises even
 higher consolidation ratios than server virtualization
-because desktop vitual machines (VMs) typically require
-less resources than server VMs.
+because desktop virtual machines typically require
+less resources than server virtual machines.
 
-Consolidation ratios (or VM density per host) in data centers
+Consolidation ratios (equivalently, VM density per host) in data centers
 are expected to increase in the future, not only because of
 improvements in virtualization technology, but also because
 new generations of processors support more cores and 
 more memory \cite{hansen2010lithium}. 
-While a high VM density per host is desireable in general for effective 
-resource utilization, it can be problematic in certain scenarios:
-correlated spikes in the CPU/memory usage of VMs can suddenly 
+Because a single VM would typically utilize only a modest fraction of a 
+host's hardware resources, a high VM density per host is
+desireable in most cases for effective resource utilization. 
+However, correlated spikes in the CPU/memory usage of many VMs can suddenly 
 cripple host machines. For instance, a \emph{boot storm} \cite{hansen2010lithium, 
 liao2011vmstore, meng2010tide, rajan2010vdc, vaghani2010virtual}
 can occur after some software is installed or updated, requiring hundreds 
 or thousands of identical VMs to reboot at the same time.
-Bootstorms can be particularly frequent (and troubling) in VDIs because 
+Bootstorms can be particularly frequent in VDIs because 
 users typically show up to work at roughly the same time
-in the morning each day.
+in the morning each day. 
 
-To avoid VM bootstorms from causing the latency of booting machines
-to be prohibitively high, data centers must either 
-boot machines in a staggered fashion, or invest in expensive 
-or extra-provisioned hardware. There is anecdotal evidence
-that VDI users sometimes leave their desktop computers running
-overnight to avoid morning boot storms, which
+Concurrently booting VMs create unusually high I/O traffic,
+generate numerous disk and memory allocation requests,
+and can saturate host CPUs. 
+To avoid the prohibitively high boot latencies that  
+result from boot storms, data centers usually either 
+boot machines in a staggered fashion, or invest in specialized,
+expensive and/or extra-provisioned hardware for network/storage \cite{highperfnas, liao2011vmstore}.
+There is also anecdotal evidence that VDI users sometimes leave their desktop computers running
+overnight to avoid morning boot storms; this practice
 represents an unnecessary addition to already exorbitant
-energy requirements of data centers. Data deduplication \cite{clements2009deduplication} 
+data center energy bills \cite{qureshi2009bills}. Data deduplication \cite{clements2009deduplication},
+through which hosts reclaim/reuse disk pages common to several VMs, 
 has been proven to reduce the memory footprint of concurrently
-booting machines. However, while data deduplication reduces
-the stress on the memory subsystem, it can overwhelm the CPU, 
+booting machines. However, while data deduplication can mitigate the stress on the memory subsystem in
+a boot storm, lowered memory latency can in turn overwhelm the CPU, 
 fibre channel, bus infrastructure or controller resources 
-which must keep up with reduced memory latency.\cite{netappstorm}. 
+and simply turn them into bottlenecks instead \cite{netappstorm}. 
 
 With the spread of virtualization, it is important to address the
-bootstorm problem in a way that does not involve simply skirting around it. 
-For instance, staggered boots may not be 
-possible if an urgent security update must be propagated to
-all running VMs at once. Data deduplication is partly effective because 
-identical VMs load the same data from disk when they boot up.  
+bootstorm problem in a way that does not involve simply skirting around the
+issue. Data deduplication is partly effective because identical VMs load
+the same data from disk when they boot up. In this thesis, we pose the following question: 
+is it possible to generalize deduplication of data to deduplication of \emph{execution}?
+If many identical VMs are concurrently booting up in a data center, 
+do they execute the same set of instructions? Even if there are
+some differences in the instructions executed, are they caused by
+controllable sources of non-determinism? Ultimately, if there is a way
+to ensure that concurrently booting VMs execute mostly the same set of instructions
+and perform the same I/O requests, one way to solve the boot storm
+problem may be remarkable simple in essence: instead of booting
+$N$ identical VMs concurrently, we can boot one VM as a leader; the remaining $(N-1)$ VMs minimally
+follow the leader by executing a tiny subset of the instructions they would otherwise execute;
+we fork execution into $N$ different instances as late as possible into the boot process. This approach
+could potentially reduce pressure on the underlying host hardware,
+and thereby enable data centers to handle boot storms effectively.
 
-There is a need 
-for a systematic way to boot hundreds of potentially
-identical VMs without throttling the hosts in a data-center.
-If the identical VMs execute mostly the same set of instructions when they boot up,
-perhaps there is a way to deduplicate \emph{execution} rather than just data?
-
-Area of inquiry: given different identical VM images, can we 
-make the boot process more deterministic? If so, 
-deduplication of execution may be a possibility.
 \section{Goal of Thesis}
+This thesis aims to address the following questions:
 
-Data deduplication is partly effective because many VMs load
-the same data from disk when they boot up.  There is a need 
-for a systematic way to boot hundreds of potentially
-identical VMs without throttling the hosts in a data-center.
-If the identical VMs execute mostly the same set of instructions when they boot up,
-perhaps there is a way to deduplicate \emph{execution} rather than just data?
+\begin{enumerate}
 
-Not pursuing a full solution to the bootstorm problem.
+\item When identical VMs boot up concurrently, how similar
+are the sets of instructions executed? What is the statistical
+profile of any differences in the distinct instruction streams?
 
-Area of inquiry: given different identical VM images, can we 
-make the boot process more deterministic? If so, 
-deduplication of execution may be a possibility.
+\item What are the source(s) of any differences in
+the instruction streams of concurrently booting VMs?
+Are there ways to minimize the non-determinism in
+booting VMs?
 
-1) Statistically understand non-determinism 
-in the case of linux services.
+\end{enumerate}
 
-2) Figure out the context in which non-determinism
-arises and find ways to control it.
+The answers to these questions clearly are crucial in determining
+the feasibility of \emph{deduplication of execution} as a possible solution
+to the boot storm problem. 
 
-Motivated by boostorm problem, because not only can we
-do a deduplication of execution, we can improve
-page-sharing and improve deduplication of data as well,
-by making execution more deterministic.
+\section{Contrbutions}
+For this work, we used dynamic instrumentation frameworks such as Pin \cite{luk2005pin} and
+DynamoRio \cite{bruening2004dr} to study user-level instruction streams from a
+a few representative Linux services at boot-time. 
+Specifically, we:
 
-...but studying non-determinism is an interesting question in its
-own right, as explained in the next section.
+\begin {enumerate}
+\item show that nondeterminism in Linux services (such as \texttt{cron}, \texttt{cups} and \texttt{ntp}) 
+  is bursty and extremely rare;
+\item document the sources of non-determinism in Linux services -- both obvious and obscure --
+  and specify strategies for overcoming them in the boot storm scenario;
+\item use simple Dynamic Instrumentation techniques to show that \emph{fully} deterministic execution is achievable
+  without \emph{any} modifications to Linux or an executing service.
+\end {enumerate}
 
-\section{Importance of Deterministic Execution}\label{ch1:whydeterminism}
+Strategies to achieve deterministic execution have been studied at the operating system layer \cite{bergan2010dos} before,
+but they require modifications to Linux. Deterministic execution can be achieved in multi-threaded programs 
+using record-and-replay approaches \cite{marek2011scaling, patil2010pinplay}. Our study of non-determinism has somewhat different goals from 
+from both approaches: we wish to avoid changing existing software to ease adoption and make 
+several distinct -- and potentially semantically different -- executions \emph{overlap} as much as possible, 
+rather than replay one execution over and over. In our case, we do not know \emph{a priori} whether two executions 
+will behave similarly or not. That the behavior of system calls or signals in Linux can lead to different results or side-effects across
+multiple executions of an application is well known: what is not documented is the application \emph{context} in
+which these sources of non-determinism originate. To the best of our knowledge,this is
+the first attempt to study the statistical profile of non-determinism in Linux services.
 
-Deterministic execution of programs can be beneficial in many
-different scenarios, and has motivated the design of Kendo,
-a system which enables deterministic multithreading
-in applications\cite{}. Our tool complements Kendo because 
-it focuses on deterministic execution of single-threaded services in Linux,
+Finally, while we hope that this work ultimately provides the basis for an implementation of our
+proposed solution, we note that deterministic execution can immediately improve
+the effectiveness of existing technologies such as transparent page sharing
+and data deduplication.
+
+\section{Importance of Deterministic Execution}
+While our study of nondeterminism is driven by a specfic application,
+deterministic execution of programs can be beneficial in many
+different scenarios in its own right. Our work complements existing
+work on deterministc execution because 
+it focuses on deterministic execution of primarily single-threaded services in Linux,
 at the granularity of individual instructions and their side-effects in
-memory.
+memory. The motivations for deterministic multhreading listed in
+\cite{marek2011scaling, patil2010pinplay} apply to our work as well.
 
-The motivations for deterministic multhreading listed in
-\cite{} apply to this thesis as well.
+{\bf Mainstream Computing and Security} \newline
+If repeated executions of the same program can be
+expected to execute the same set of instructions, then
+any deviations can be used to detect security
+attacks on applications. Detection of such
+anomalous executions is the focus of \emph{mainstream computing} \cite{stephenson2010mainstream},
+and deterministic execution obviously helps in reducing false alarms.
 
-\subsection{Mainstream Computing and Security}
-
-
-\subsection{Repeatability}
-Users expect programs to produce the same outputs, given the same
-inputs. For safety-critical systems, it may
-be even better if we can guarantee that given the same inputs,
-a program would always execute some {\em precise} 
-set of instructions, in the same order, with
-the same side-effects. Record/replay systems are not suitable for 
-achieving such strong guarantees of repeatability, given the storage
-overhead for logs and the typically enormous input space. 
-Our system, like Kendo, requires minimal storage to achieve
-single-threaded determinism. 
-
-\subsection{Debugging}
-Determinism is important for debugging, because developers
-often need to reproduce erroneous behavior in
-order to diagnose and fix it. Nondeterminism is typically
-a major issue for debugging multithreaded applications,
-and is a lesser issue for single-threaded
-applications. Our work will help developers
-easily reproduce erroneous behavior given
-the same input for single-threaded applications. 
-Record/replay systems have high overhead, so it is unlikely
-that the initial buggy execution of a program was recorded.
-Deterministic execution also precludes the need for storing
-many gigabytes of logs needed for record/replay.
-
-\subsection{Testing}
+{\bf Testing} \newline
 Deterministic execution in general facilitates testing,
 because outputs and internal state can be checked at 
 certain points with respect to expected values. Our version
@@ -158,16 +163,26 @@ systems: with deterministic execution, a program
 must execute the exact same instructions 
 across different executions, for the same inputs.
 Test cases can check for deviations from 
-the expected instruction sequences.
+the expected \emph{instruction} sequences, and not
+just the expected outputs (which may mask bugs).
 
-\section{Contributions}
-% Challenges of Determinstic Execution :: Helloworld.c
+{\bf Debugging} \newline
+Erroneous behavior can be more easily reproduced
+via determininstic execution, which
+helps with debugging. Deterministic
+execution has much lower storage overhead
+than traditional record-and-replay approaches. 
 
-
-\subsection{Thesis Organization}
-
-
-
+\section{Thesis Organization}
+In what follows, Chapter 2 presents an overview of
+how we used dynamic instrumentation to measure
+and profile non-determinism in Linux services.
+Chapter 3 presents the case study of a few selected Linux services
+in detail to list the sources of non-determinism we
+found and how we overcame them. 
+Chapter 4 presents design ideas for an implemenation of deduplication of execution.
+Chapter 5 summarizes related work. Finally, Chapter 6 concludes this thesis
+and discusses future work.
 
 
 % This is an example of how you would use tgrind to include an example

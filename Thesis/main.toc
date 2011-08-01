@@ -1,12 +1,8 @@
 \contentsline {chapter}{\numberline {1}Introduction}{13}
 \contentsline {section}{\numberline {1.1}Motivation}{13}
 \contentsline {section}{\numberline {1.2}Goal of Thesis}{15}
-\contentsline {section}{\numberline {1.3}Importance of Deterministic Execution}{15}
-\contentsline {subsection}{\numberline {1.3.1}Mainstream Computing and Security}{16}
-\contentsline {subsection}{\numberline {1.3.2}Repeatability}{16}
-\contentsline {subsection}{\numberline {1.3.3}Debugging}{16}
-\contentsline {subsection}{\numberline {1.3.4}Testing}{16}
-\contentsline {section}{\numberline {1.4}Contributions}{17}
-\contentsline {subsection}{\numberline {1.4.1}Thesis Organization}{17}
+\contentsline {section}{\numberline {1.3}Contrbutions}{15}
+\contentsline {section}{\numberline {1.4}Importance of Deterministic Execution}{16}
+\contentsline {section}{\numberline {1.5}Thesis Organization}{17}
 \contentsline {chapter}{\numberline {A}Tables}{19}
 \contentsline {chapter}{\numberline {B}Figures}{21}

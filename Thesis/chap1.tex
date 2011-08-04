@@ -26,12 +26,12 @@ users access virtual desktops from desktop PCs or thin clients
 via a remote display protocol. A VDI provides simplicity 
 in administration and management: applications
 can be centrally added, deleted, upgraded and patched. 
-Furthermore, desktop virtualization promises even
-higher consolidation ratios than server virtualization
+VDI deployments also promise even
+higher consolidation ratios than those achieved via server virtualization
 because desktop virtual machines typically require
 less resources than server virtual machines.
 
-Consolidation ratios (equivalently, VM density per host) in data centers
+Consolidation ratios (measured by VM density per host) in data centers
 are expected to increase in the future, not only because of
 improvements in virtualization technology, but also because
 new generations of processors support more cores and 
@@ -59,7 +59,7 @@ There is also anecdotal evidence that VDI users sometimes leave their desktop co
 overnight to avoid morning boot storms; this practice
 represents an unnecessary addition to already exorbitant
 data center energy bills \cite{qureshi2009bills}. Data deduplication \cite{clements2009deduplication},
-through which hosts reclaim/reuse disk pages common to several VMs, 
+through which hosts reclaim/reuse disk blocks common to several VMs, 
 has been proven to reduce the memory footprint of concurrently
 booting machines. However, while data deduplication can mitigate the stress on the memory subsystem in
 a boot storm, lowered memory latency can in turn overwhelm the CPU, 
@@ -107,9 +107,9 @@ to the boot storm problem.
 \section{Contrbutions}
 For this work, we used dynamic instrumentation frameworks such as Pin \cite{luk2005pin} and
 DynamoRio \cite{bruening2004dr} to study user-level instruction streams from a
-a few representative Linux services at boot-time. 
-Specifically, we:
+a few representative Linux services at boot-time. \newline
 
+Specifically, we:
 \begin {enumerate}
 \item show that nondeterminism in Linux services (such as \texttt{cron}, \texttt{cups} and \texttt{ntp}) 
   is bursty and extremely rare;
@@ -121,18 +121,18 @@ Specifically, we:
 
 Strategies to achieve deterministic execution have been studied at the operating system layer \cite{bergan2010dos} before,
 but they require modifications to Linux. Deterministic execution can be achieved in multi-threaded programs 
-using record-and-replay approaches \cite{marek2011scaling, patil2010pinplay}. Our study of non-determinism has somewhat different goals from 
-from both approaches: we wish to avoid changing existing software to ease adoption and make 
-several distinct -- and potentially semantically different -- executions \emph{overlap} as much as possible, 
+using record-and-replay approaches \cite{patil2010pinplay} or deterministic logical clocks \cite{marek2011scaling}. 
+Our study of non-determinism has somewhat different goals from from both approaches: we wish to avoid changing existing 
+software to ease adoption; we also make several distinct -- and potentially semantically different -- executions \emph{overlap} as much as possible, 
 rather than replay one execution over and over. In our case, we do not know \emph{a priori} whether two executions 
-will behave similarly or not. That the behavior of system calls or signals in Linux can lead to different results or side-effects across
+will behave identically or not. That the behavior of system calls or signals in Linux can lead to different results or side-effects across
 multiple executions of an application is well known: what is not documented is the application \emph{context} in
-which these sources of non-determinism originate. To the best of our knowledge,this is
-the first attempt to study the statistical profile of non-determinism in Linux services.
-
-Finally, while we hope that this work ultimately provides the basis for an implementation of our
-proposed solution, we note that deterministic execution can immediately improve
-the effectiveness of existing technologies such as transparent page sharing
+which these sources of non-determinism originate. To the best of our knowledge, this is
+the first attempt to study the statistical profile and context of non-determinism in Linux services
+in such detail. While we we hope
+this work ultimately proves the basis for an implementation of our proposed solution to the boot storm
+problem, we note that deterministic execution can immediately improve
+the effectiveness of existing virtualization technologies such as transparent page sharing
 and data deduplication.
 
 \section{Importance of Deterministic Execution}
@@ -143,17 +143,17 @@ work on deterministc execution because
 it focuses on deterministic execution of primarily single-threaded services in Linux,
 at the granularity of individual instructions and their side-effects in
 memory. The motivations for deterministic multhreading listed in
-\cite{marek2011scaling, patil2010pinplay} apply to our work as well.
+\cite{marek2011scaling, patil2010pinplay} apply to our work as well. \newline
 
-{\bf Mainstream Computing and Security} \newline
+\noindent {\bf Mainstream Computing and Security:}
 If repeated executions of the same program can be
-expected to execute the same set of instructions, then
-any deviations can be used to detect security
-attacks on applications. Detection of such
+expected to execute mostly the same set of instructions, then
+any significant deviations can be used to detect security
+attacks. Detection of such
 anomalous executions is the focus of \emph{mainstream computing} \cite{stephenson2010mainstream},
-and deterministic execution obviously helps in reducing false alarms.
+and deterministic execution obviously helps in reducing false positives. \newline
 
-{\bf Testing} \newline
+\noindent {\bf Testing:} 
 Deterministic execution in general facilitates testing,
 because outputs and internal state can be checked at 
 certain points with respect to expected values. Our version
@@ -161,29 +161,27 @@ of determinism allows for a particularly strong kind
 of test case that may be necessary for safety-critical 
 systems: with deterministic execution, a program 
 must execute the exact same instructions 
-across different executions, for the same inputs.
-Test cases can check for deviations from 
-the expected \emph{instruction} sequences, and not
-just the expected outputs (which may mask bugs).
+across different executions, for the same inputs. \newline 
 
-{\bf Debugging} \newline
+\noindent {\bf Debugging:} 
 Erroneous behavior can be more easily reproduced
 via determininstic execution, which
 helps with debugging. Deterministic
 execution has much lower storage overhead
 than traditional record-and-replay approaches. 
 
-\section{Thesis Organization}
+\section{Thesis Organization} 
 In what follows, Chapter 2 presents an overview of
-how we used dynamic instrumentation to measure
-and profile non-determinism in Linux services.
-Chapter 3 presents the case study of a few selected Linux services
-in detail to list the sources of non-determinism we
-found and how we overcame them. 
-Chapter 4 presents design ideas for an implemenation of deduplication of execution.
-Chapter 5 summarizes related work. Finally, Chapter 6 concludes this thesis
+the Linux boot process and the dynamic instrumentation
+techniques we used to profile non-determinism in Linux services.
+Chapter 3 presents a summary of the sources of non-determinism
+we encountered in this work and how we overcame them. 
+Chapter 4 presents a detailed case study of a few selected Linux services
+to identify the context in which non-determinism arises,
+and the strategies that can be used to control it.
+Chapter 5 presents design ideas for an implementation of deduplication of execution.
+Chapter 6 summarizes related work. Finally, Chapter 7 concludes this thesis
 and discusses future work.
-
 
 % This is an example of how you would use tgrind to include an example
 % of source code; it is commented out in this template since the code

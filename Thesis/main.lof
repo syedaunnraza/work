@@ -1,5 +1,13 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
+\contentsline {figure}{\numberline {2-1}{\ignorespaces CPU and disk activity for a booting VM (0-35 seconds) }}{20}
+\contentsline {figure}{\numberline {2-2}{\ignorespaces (... cont'd) CPU and disk activity for a booting VM (35-70 seconds) }}{20}
+\contentsline {figure}{\numberline {2-3}{\ignorespaces A summary of the actions performed by \texttt {init} for a booting VM}}{21}
+\contentsline {figure}{\numberline {2-4}{\ignorespaces A ``Hello, world!'' program in C.}}{22}
+\contentsline {figure}{\numberline {2-5}{\ignorespaces Steps involved in measuring execution nondeterminism}}{23}
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {B-1}{\ignorespaces Armadillo slaying lawyer.}}{21}
-\contentsline {figure}{\numberline {B-2}{\ignorespaces Armadillo eradicating national debt.}}{22}
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {B-1}{\ignorespaces Armadillo slaying lawyer.}}{31}
+\contentsline {figure}{\numberline {B-2}{\ignorespaces Armadillo eradicating national debt.}}{32}

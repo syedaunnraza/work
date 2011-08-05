@@ -1,0 +1,110 @@
+\newcommand{\noopsort}[1]{} \newcommand{\printfirst}[2]{#1}
+  \newcommand{\singleletter}[1]{#1} \newcommand{\switchargs}[2]{#2#1}
+\begin{thebibliography}{10}
+
+\bibitem{bergan2010dos}
+T.~Bergan, N.~Hunt, L.~Ceze, and S.D. Gribble.
+\newblock Deterministic process groups in dos.
+\newblock {\em 9th OSDI}, 2010.
+
+\bibitem{bruening2004dr}
+D.L. Bruening.
+\newblock {\em Efficient, transparent, and comprehensive runtime code
+  manipulation}.
+\newblock PhD thesis, Citeseer, 2004.
+
+\bibitem{clements2009deduplication}
+A.T. Clements, I.~Ahmad, M.~Vilayannur, and J.~Li.
+\newblock Decentralized deduplication in san cluster file systems.
+\newblock In {\em Proceedings of the 2009 conference on USENIX Annual technical
+  conference}, pages 8--8. USENIX Association, 2009.
+
+\bibitem{hansen2010lithium}
+J.G. Hansen and E.~Jul.
+\newblock Lithium: virtual machine storage for the cloud.
+\newblock In {\em Proceedings of the 1st ACM symposium on Cloud computing},
+  pages 15--26. ACM, 2010.
+
+\bibitem{highperfnas}
+{Solving Boot Storms With High Performance NAS}.
+\newblock
+  \url{http://www.storage-switzerland.com/Articles/Entries/2011/1/3_Solving_Bo%
+ot_Storms_With_High_Performance_NAS.html}, 2011.
+\newblock [Accessed 1-August-2011].
+
+\bibitem{liao2011vmstore}
+X.F. Liao, H.~Li, H.~Jin, H.X. Hou, Y.~Jiang, and H.K. Liu.
+\newblock Vmstore: Distributed storage system for multiple virtual machines.
+\newblock {\em SCIENCE CHINA Information Sciences}, 54(6):1104--1118, 2011.
+
+\bibitem{luk2005pin}
+C.K. Luk, R.~Cohn, R.~Muth, H.~Patil, A.~Klauser, G.~Lowney, S.~Wallace, V.J.
+  Reddi, and K.~Hazelwood.
+\newblock Pin: building customized program analysis tools with dynamic
+  instrumentation.
+\newblock In {\em ACM SIGPLAN Notices}, volume~40, pages 190--200. ACM, 2005.
+
+\bibitem{mahkovec2005bootchart}
+{Bootchart: Boot Process Performance Visualization}.
+\newblock \url{http://www.bootchart.org}, 2011.
+\newblock [Accessed 29-July-2011].
+
+\bibitem{meng2010tide}
+S.~Meng, L.~Liu, and V.~Soundararajan.
+\newblock Tide: achieving self-scaling in virtualized datacenter management
+  middleware.
+\newblock In {\em Proceedings of the 11th International Middleware Conference
+  Industrial track}, pages 17--22. ACM, 2010.
+
+\bibitem{netappstorm}
+{VMware Bootstorm on NetApp}.
+\newblock \url{http://ctistrategy.com/2009/11/01/vmware-boot-storm-netapp/},
+  2009.
+\newblock [Accessed 29-July-2011].
+
+\bibitem{marek2011scaling}
+M.~Olszewski, J.~Ansel, and S.~Amarasinghe.
+\newblock Scaling deterministic multithreading.
+\newblock {\em 2nd WoDet}, 2011.
+
+\bibitem{patil2010pinplay}
+H.~Patil, C.~Pereira, M.~Stallcup, G.~Lueck, and J.~Cownie.
+\newblock Pinplay: a framework for deterministic replay and reproducible
+  analysis of parallel programs.
+\newblock In {\em Proceedings of the 8th annual IEEE/ACM international
+  symposium on Code generation and optimization}, pages 2--11. ACM, 2010.
+
+\bibitem{qureshi2009bills}
+A.~Qureshi, R.~Weber, H.~Balakrishnan, J.~Guttag, and B.~Maggs.
+\newblock Cutting the electric bill for internet-scale systems.
+\newblock In {\em Proceedings of the ACM SIGCOMM 2009 conference on Data
+  communication}, pages 123--134. ACM, 2009.
+
+\bibitem{rajan2010vdc}
+Vijayaraghavan Soundararajan and Jennifer~M. Anderson.
+\newblock The impact of management operations on the virtualized datacenter.
+\newblock {\em SIGARCH Comput. Archit. News}, 38:326--337, June 2010.
+
+\bibitem{stephenson2010mainstream}
+M.W. Stephenson, R.~Rangan, E.~Yashchin, and E.~Van~Hensbergen.
+\newblock Statistically regulating program behavior via mainstream computing.
+\newblock In {\em Proceedings of the 8th annual IEEE/ACM international
+  symposium on Code generation and optimization}, pages 238--247. ACM, 2010.
+
+\bibitem{vaghani2010virtual}
+S.B. Vaghani.
+\newblock Virtual machine file system.
+\newblock {\em ACM SIGOPS Operating Systems Review}, 44(4):57--70, 2010.
+
+\bibitem{vmwarevdi}
+{VMware Virtual Desktop Infrastructure}.
+\newblock
+  \url{http://www.vmware.com/pdf/virtual_desktop_infrastructure_wp.pdf}, 2011.
+\newblock [Accessed 29-July-2011].
+
+\bibitem{waldspurger2002memory}
+C.A. Waldspurger.
+\newblock Memory resource management in vmware esx server.
+\newblock {\em ACM SIGOPS Operating Systems Review}, 36(SI):181--194, 2002.
+
+\end{thebibliography}

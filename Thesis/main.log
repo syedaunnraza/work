@@ -1,0 +1,398 @@
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.28)  4 AUG 2011 19:42
+entering extended mode
+ %&-line parsing enabled.
+**main
+(./main.tex
+LaTeX2e <2009/09/24>
+Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
+yphenation, loaded.
+(./mitthesis.cls
+Document Class: mitthesis 1999/10/20
+\vithesis=\count79
+(/usr/share/texmf-texlive/tex/latex/base/report.cls
+Document Class: report 2007/10/19 v1.4h Standard LaTeX document class
+(/usr/share/texmf-texlive/tex/latex/base/size12.clo
+File: size12.clo 2007/10/19 v1.4h Standard LaTeX file (size option)
+)
+\c@part=\count80
+\c@chapter=\count81
+\c@section=\count82
+\c@subsection=\count83
+\c@subsubsection=\count84
+\c@paragraph=\count85
+\c@subparagraph=\count86
+\c@figure=\count87
+\c@table=\count88
+\abovecaptionskip=\skip41
+\belowcaptionskip=\skip42
+\bibindent=\dimen102
+) (./setspace.sty
+Package: setspace 2000/12/01 6.7 Contributed and Supported LaTeX2e package
+
+Package: `setspace' 6.7 <2000/12/01>
+)
+Thesis document copyright MIT unless otherwise (manually) specified
+\@titlesupervisor=\box26
+\@abstractsupervisor=\box27
+\c@savepage=\count89
+) (/usr/share/texmf-texlive/tex/latex/graphics/color.sty
+Package: color 2005/11/14 v1.0j Standard LaTeX Color (DPC)
+
+(/etc/texmf/tex/latex/config/color.cfg
+File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
+)
+Package color Info: Driver file: pdftex.def on input line 130.
+
+(/usr/share/texmf-texlive/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2010/03/12 v0.04p Graphics/color for pdfTeX
+\Gread@gobject=\count90
+))
+(/usr/share/texmf-texlive/tex/latex/listings/listings.sty
+(/usr/share/texmf-texlive/tex/latex/graphics/keyval.sty
+Package: keyval 1999/03/16 v1.13 key=value parser (DPC)
+\KV@toks@=\toks14
+)
+\lst@mode=\count91
+\lst@gtempboxa=\box28
+\lst@token=\toks15
+\lst@length=\count92
+\lst@currlwidth=\dimen103
+\lst@column=\count93
+\lst@pos=\count94
+\lst@lostspace=\dimen104
+\lst@width=\dimen105
+\lst@newlines=\count95
+\lst@lineno=\count96
+\lst@maxwidth=\dimen106
+
+(/usr/share/texmf-texlive/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+\c@lstnumber=\count97
+\lst@skipnumbers=\count98
+\lst@framebox=\box29
+)
+(/usr/share/texmf-texlive/tex/latex/listings/listings.cfg
+File: listings.cfg 2007/02/22 1.4 listings configuration
+))
+Package: listings 2007/02/22 1.4 (Carsten Heinz)
+
+(/usr/share/texmf-texlive/tex/latex/ltxmisc/url.sty
+\Urlmuskip=\muskip10
+Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
+)
+(/usr/share/texmf-texlive/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf-texlive/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texmf-texlive/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/etc/texmf/tex/latex/config/graphics.cfg
+File: graphics.cfg 2009/08/28 v1.8 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+)
+\Gin@req@height=\dimen107
+\Gin@req@width=\dimen108
+) (./main.aux (./cover.aux)
+(./contents.aux) (./chap1.aux) (./chap2.aux) (./chap3.aux) (./chap4.aux)
+(./appa.aux) (./appb.aux) (./biblio.aux))
+\openout1 = `main.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
+LaTeX Font Info:    ... okay on input line 36.
+
+(/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count99
+\scratchdimen=\dimen109
+\scratchbox=\box30
+\nofMPsegments=\count100
+\nofMParguments=\count101
+\everyMPshowfont=\toks16
+\MPscratchCnt=\count102
+\MPscratchDim=\dimen110
+\MPnumerator=\count103
+\everyMPtoPDFconversion=\toks17
+)
+\c@lstlisting=\count104
+\openout2 = `cover.aux'.
+
+ (./cover.tex
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 87.
+ (/usr/share/texmf-texlive/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <14.4> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 87.
+ [1
+
+
+
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2
+
+] (./abstract.tex) [3
+
+] [4
+
+]
+Underfull \vbox (badness 4229) has occurred while \output is active []
+
+ [5]
+Underfull \hbox (badness 10000) in paragraph at lines 158--163
+
+ []
+
+) [6]
+\openout2 = `contents.aux'.
+
+ (./contents.tex (./main.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 2.
+ [7
+
+
+
+])
+\tf@toc=\write3
+\openout3 = `main.toc'.
+
+ [8] (./main.lof)
+\tf@lof=\write4
+\openout4 = `main.lof'.
+
+ [9
+
+] [10
+
+] (./main.lot)
+\tf@lot=\write5
+\openout5 = `main.lot'.
+
+)
+[11]
+\openout2 = `chap1.aux'.
+
+ (./chap1.tex [12
+
+
+
+]
+Chapter 1.
+[13]
+Underfull \vbox (badness 5652) has occurred while \output is active []
+
+ [14]
+Underfull \hbox (badness 10000) in paragraph at lines 108--111
+
+ []
+
+[15]
+Underfull \hbox (badness 10000) in paragraph at lines 139--147
+
+ []
+
+
+Underfull \vbox (badness 5563) has occurred while \output is active []
+
+ [16]
+Underfull \hbox (badness 10000) in paragraph at lines 148--155
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 156--165
+
+ []
+
+[17]) [18]
+\openout2 = `chap2.aux'.
+
+ (./chap2.tex
+Chapter 2.
+[19
+
+
+
+] <boot_first35seconds.png, id=69, 700.86844pt x 140.77594pt>
+File: boot_first35seconds.png Graphic file (type png)
+
+<use boot_first35seconds.png>
+Overfull \hbox (17.34189pt too wide) in paragraph at lines 45--49
+ [][] 
+ []
+
+<boot_last35seconds.png, id=70, 747.54282pt x 146.04562pt>
+File: boot_last35seconds.png Graphic file (type png)
+
+<use boot_last35seconds.png>
+Overfull \hbox (43.36464pt too wide) in paragraph at lines 55--57
+ [] 
+ []
+
+[20 <./boot_first35seconds.png (PNG copy)> <./boot_last35seconds.png (PNG copy)
+>]
+
+pdfTeX warning: pdflatex (file ./boottimeline.pdf): PDF inclusion: found PDF ve
+rsion <1.5>, but at most version <1.4> allowed
+<boottimeline.pdf, id=74, 722.7pt x 542.025pt>
+File: boottimeline.pdf Graphic file (type pdf)
+ <use boottimeline.pdf> [21 <./boottimeline.pdf>]
+
+pdfTeX warning: pdflatex (file ./naivedatacollection.pdf): PDF inclusion: found
+ PDF version <1.5>, but at most version <1.4> allowed
+<naivedatacollection.pdf, id=89, 722.7pt x 542.025pt>
+File: naivedatacollection.pdf Graphic file (type pdf)
+
+<use naivedatacollection.pdf> [22 <./naivedatacollection.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 141--147
+
+ []
+
+(/usr/share/texmf-texlive/tex/latex/listings/lstlang1.sty
+File: lstlang1.sty 2004/09/05 1.3 listings language file
+)
+(/usr/share/texmf-texlive/tex/latex/listings/lstmisc.sty
+File: lstmisc.sty 2007/02/22 1.4 (Carsten Heinz)
+) (./helloworld.c
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 1.
+
+(/usr/share/texmf-texlive/tex/latex/base/omlcmr.fd
+File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OML/cmm/m/it' tried instead on input line 1.
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 4.
+) [23]
+
+pdfTeX warning: pdflatex (file ./log.pdf): PDF inclusion: found PDF version <1.
+5>, but at most version <1.4> allowed
+<log.pdf, id=113, 722.7pt x 542.025pt>
+File: log.pdf Graphic file (type pdf)
+ <use log.pdf> [24 <./log.pdf>]
+
+pdfTeX warning: pdflatex (file ./log2.pdf): PDF inclusion: found PDF version <1
+.5>, but at most version <1.4> allowed
+<log2.pdf, id=121, 722.7pt x 542.025pt>
+File: log2.pdf Graphic file (type pdf)
+ <use log2.pdf> [25 <./log2.pdf>]
+[26] <trace.pdf, id=134, 578.16pt x 433.62pt>
+File: trace.pdf Graphic file (type pdf)
+ <use trace.pdf>) [27 <./trace.pdf>]
+\openout2 = `chap3.aux'.
+
+ (./chap3.tex [28
+
+
+
+]
+Chapter 3.
+)
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [29]
+[30]
+\openout2 = `chap4.aux'.
+
+ (./chap4.tex
+Chapter 4.
+) [31
+
+
+
+]
+\openout2 = `appa.aux'.
+
+ (./appa.tex [32
+
+
+
+]
+Appendix A.
+[33])
+\openout2 = `appb.aux'.
+
+ (./appb.tex [34
+
+
+
+
+]
+Appendix B.
+[35] [36])
+\openout2 = `biblio.aux'.
+
+ (./biblio.tex (./main.bbl
+Underfull \hbox (badness 6825) in paragraph at lines 29--34
+[]\OT1/cmr/m/n/12 Solving Boot Storms With High Per-for-mance NAS.  $\OT1/cmtt/
+m/n/12 http : / / www .
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 29--34
+\OT1/cmtt/m/n/12 storage-[]switzerland . com / Articles / Entries / 2011 / 1 / 
+3 _ Solving _ Boot _
+ []
+
+
+Underfull \hbox (badness 1454) in paragraph at lines 60--64
+[]\OT1/cmr/m/n/12 VMware Boot-storm on Ne-tApp.  $\OT1/cmtt/m/n/12 http : / / c
+tistrategy . com / 2009 / 11 / 01 /
+ []
+
+[37
+
+
+
+
+
+]
+Underfull \hbox (badness 2707) in paragraph at lines 100--104
+[]\OT1/cmr/m/n/12 VMware Vir-tual Desk-top In-fras-truc-ture.  $\OT1/cmtt/m/n/1
+2 http : / / www . vmware . com / pdf /
+ []
+
+)) [38] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
+(./chap3.aux) (./chap4.aux) (./appa.aux) (./appb.aux) (./biblio.aux)) ) 
+Here is how much of TeX's memory you used:
+ 2671 strings out of 495061
+ 36209 string characters out of 1182621
+ 117345 words of memory out of 3000000
+ 5768 multiletter control sequences out of 15000+50000
+ 10497 words of font info for 37 fonts, out of 3000000 for 9000
+ 28 hyphenation exceptions out of 8191
+ 32i,8n,54p,231b,1395s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/sh
+are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texmf-t
+exlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texlive/font
+s/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/pub
+lic/amsfonts/cm/cmmi12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfont
+s/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr12.p
+fb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/sha
+re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texl
+ive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/t
+ype1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public
+/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (38 pages, 387582 bytes).
+PDF statistics:
+ 267 PDF objects out of 1000 (max. 8388607)
+ 0 named destinations out of 1000 (max. 500000)
+ 36 words of extra memory for PDF output out of 10000 (max. 10000000)
+

@@ -1,0 +1,41 @@
+%% This is an example first chapter.  You should put chapter/appendix that you
+%% write into a separate file, and add a line \include{yourfilename} to
+%% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
+%% You can process specific files by typing their names in at the 
+%% \files=
+%% prompt when you run the file main.tex through LaTeX.
+\chapter{Sources of Nondeterminism}
+This chapter summarizes the sources of non-determinism
+found in Linux services from a high-level; it also
+briefly describes the strategies we used to
+overcome these sources of non-determinism. 
+
+\section{Linux Security Features}
+% ASLR, canary, guard, random keys
+
+\section{Randomization}
+% dev/urandom, ELF AUX vector, 
+
+\section{Process Identification Layer}
+% pid, signal(pid), /proc/ filesystem layer
+
+\section{Time}
+% time system calls
+
+\section{File I/O}
+% file contents;  timestamps in files; file stat(); lengths of logs
+
+\section{Network I/O}
+% ephemeral sockets; IP address resolution; timestamps in headers; contents
+% statistics on network interfaces
+
+\section{Signals}
+% timing e.g. alrms
+
+\section{Inter-thread Communication/Scheduling} 
+%scheduler; concurrency
+
+\section{Misc System Calls}
+% all statistics
+
+\section {Summary}

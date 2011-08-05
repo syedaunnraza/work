@@ -109,49 +109,52 @@ For this work, we used dynamic instrumentation frameworks such as Pin \cite{luk2
 DynamoRio \cite{bruening2004dr} to study user-level instruction streams from a
 a few representative Linux services at boot-time. \newline
 
-Specifically, we:
+In this document, we:
 \begin {enumerate}
-\item show that nondeterminism in Linux services (such as \texttt{cron}, \texttt{cups} and \texttt{ntp}) 
-  is bursty and extremely rare;
+\item show that nondeterminism in Linux services is bursty and extremely rare;
 \item document the sources of non-determinism in Linux services -- both obvious and obscure --
   and specify strategies for overcoming them in the boot storm scenario;
-\item use simple Dynamic Instrumentation techniques to show that \emph{fully} deterministic execution is achievable
+\item use simple dynamic instrumentation techniques to show that \emph{fully} deterministic execution is achievable
   without \emph{any} modifications to Linux or an executing service.
 \end {enumerate}
 
 Strategies to achieve deterministic execution have been studied at the operating system layer \cite{bergan2010dos} before,
 but they require modifications to Linux. Deterministic execution can be achieved in multi-threaded programs 
 using record-and-replay approaches \cite{patil2010pinplay} or deterministic logical clocks \cite{marek2011scaling}. 
-Our study of non-determinism has somewhat different goals from from both approaches: we wish to avoid changing existing 
-software to ease adoption; we also make several distinct -- and potentially semantically different -- executions \emph{overlap} as much as possible, 
+Our study of non-determinism has different goals from from both approaches: we wish to avoid changing existing 
+software (to ease adoption); we also wish to make several distinct -- and potentially different -- executions \emph{overlap} as much as possible, 
 rather than replay one execution over and over. In our case, we do not know \emph{a priori} whether two executions 
 will behave identically or not. That the behavior of system calls or signals in Linux can lead to different results or side-effects across
 multiple executions of an application is well known: what is not documented is the application \emph{context} in
-which these sources of non-determinism originate. To the best of our knowledge, this is
-the first attempt to study the statistical profile and context of non-determinism in Linux services
+which these sources of nondeterminism originate. To the best of our knowledge, this is
+the first attempt to study the statistical profile and context of nondeterminism in Linux services
 in such detail. While we we hope
 this work ultimately proves the basis for an implementation of our proposed solution to the boot storm
-problem, we note that deterministic execution can immediately improve
+problem, we also note that deterministic execution can immediately improve
 the effectiveness of existing virtualization technologies such as transparent page sharing
 and data deduplication.
 
 \section{Importance of Deterministic Execution}
 While our study of nondeterminism is driven by a specfic application,
-deterministic execution of programs can be beneficial in many
-different scenarios in its own right. Our work complements existing
-work on deterministc execution because 
-it focuses on deterministic execution of primarily single-threaded services in Linux,
-at the granularity of individual instructions and their side-effects in
-memory. The motivations for deterministic multhreading listed in
+ deterministic execution of programs can be beneficial in many
+different scenarios in its own right. 
+%Our work complements existing
+%work because it focuses on deterministic execution of primarily single-threaded services in Linux,
+%at the granularity of individual instructions and their side-effects in
+%memory.
+The motivations for deterministic multhreading listed in
 \cite{marek2011scaling, patil2010pinplay} apply to our work as well. \newline
 
-\noindent {\bf Mainstream Computing and Security:}
+\noindent {\bf Mainstream Computing, Security and Performance:}
 If repeated executions of the same program can be
-expected to execute mostly the same set of instructions, then
+expected to execute the same set of instructions, then
 any significant deviations can be used to detect security
 attacks. Detection of such
 anomalous executions is the focus of \emph{mainstream computing} \cite{stephenson2010mainstream},
-and deterministic execution obviously helps in reducing false positives. \newline
+and deterministic execution obviously helps in reducing false
+positives. 
+Anomalous executions can also be flagged for performance
+debugging. \newline
 
 \noindent {\bf Testing:} 
 Deterministic execution in general facilitates testing,
@@ -161,7 +164,7 @@ of determinism allows for a particularly strong kind
 of test case that may be necessary for safety-critical 
 systems: with deterministic execution, a program 
 must execute the exact same instructions 
-across different executions, for the same inputs. \newline 
+across different executions for the same inputs. \newline 
 
 \noindent {\bf Debugging:} 
 Erroneous behavior can be more easily reproduced
@@ -172,28 +175,13 @@ than traditional record-and-replay approaches.
 
 \section{Thesis Organization} 
 In what follows, Chapter 2 presents an overview of
-the Linux boot process and the dynamic instrumentation
+the Linux boot process, along with the dynamic instrumentation
 techniques we used to profile non-determinism in Linux services.
 Chapter 3 presents a summary of the sources of non-determinism
-we encountered in this work and how we overcame them. 
-Chapter 4 presents a detailed case study of a few selected Linux services
-to identify the context in which non-determinism arises,
+we discovered in this work.
+Chapter 4 presents a detailed case study of three Linux services
+to identify the common context in which non-determinism arises
 and the strategies that can be used to control it.
 Chapter 5 presents design ideas for an implementation of deduplication of execution.
 Chapter 6 summarizes related work. Finally, Chapter 7 concludes this thesis
 and discusses future work.
-
-% This is an example of how you would use tgrind to include an example
-% of source code; it is commented out in this template since the code
-% example file does not exist.  To use it, you need to remove the '%' on the
-% beginning of the line, and insert your own information in the call.
-%
-%\tagrind[htbp]{code/pmn.s.tex}{Post Multiply Normalization}{opt:pmn}
-
-% This is an example of how you would use tgrind to include an example
-% of source code; it is commented out in this template since the code
-% example file does not exist.  To use it, you need to remove the '%' on the
-% beginning of the line, and insert your own information in the call.
-%
-%\tgrind[htbp]{code/be.s.tex}{Block Exponent}{opt:be}
-

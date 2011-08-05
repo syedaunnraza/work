@@ -1,14 +1,21 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.4.28)  4 AUG 2011 19:42
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.7.7)  4 AUG 2011 22:30
 entering extended mode
  %&-line parsing enabled.
 **main
 (./main.tex
 LaTeX2e <2009/09/24>
 Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
-yphenation, loaded.
+yphenation, farsi, arabic, croatian, bulgarian, ukrainian, russian, czech, slov
+ak, danish, dutch, finnish, french, basque, ngerman, german, german-x-2009-06-1
+9, ngerman-x-2009-06-19, ibycus, monogreek, greek, ancientgreek, hungarian, san
+skrit, italian, latin, latvian, lithuanian, mongolian2a, mongolian, bokmal, nyn
+orsk, romanian, irish, coptic, serbian, turkish, welsh, esperanto, uppersorbian
+, estonian, indonesian, interlingua, icelandic, kurmanji, slovenian, polish, po
+rtuguese, spanish, galician, catalan, swedish, ukenglish, pinyin, loaded.
 (./mitthesis.cls
 Document Class: mitthesis 1999/10/20
 \vithesis=\count79
+Intentionally Leaving Pages Blank
 (/usr/share/texmf-texlive/tex/latex/base/report.cls
 Document Class: report 2007/10/19 v1.4h Standard LaTeX document class
 (/usr/share/texmf-texlive/tex/latex/base/size12.clo
@@ -35,17 +42,19 @@ Thesis document copyright MIT unless otherwise (manually) specified
 \@titlesupervisor=\box26
 \@abstractsupervisor=\box27
 \c@savepage=\count89
-) (/usr/share/texmf-texlive/tex/latex/graphics/color.sty
-Package: color 2005/11/14 v1.0j Standard LaTeX Color (DPC)
-
-(/etc/texmf/tex/latex/config/color.cfg
+) (/mit/rsi/misc/texinputs/color.sty
+Package: color 1999/02/16 v1.0i Standard LaTeX Color (DPC)
+ (/etc/texmf/tex/latex/config/color.cfg
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
-Package color Info: Driver file: pdftex.def on input line 130.
+Package color Info: Driver file: pdftex.def on input line 125.
 
 (/usr/share/texmf-texlive/tex/latex/pdftex-def/pdftex.def
-File: pdftex.def 2010/03/12 v0.04p Graphics/color for pdfTeX
+File: pdftex.def 2009/08/25 v0.04m Graphics/color for pdfTeX
 \Gread@gobject=\count90
+)
+(/usr/share/texmf-texlive/tex/latex/graphics/dvipsnam.def
+File: dvipsnam.def 1999/02/16 v3.0i Driver-dependant file (DPC,SPQR)
 ))
 (/usr/share/texmf-texlive/tex/latex/listings/listings.sty
 (/usr/share/texmf-texlive/tex/latex/graphics/keyval.sty
@@ -97,8 +106,11 @@ Package graphics Info: Driver file: pdftex.def on input line 91.
 \Gin@req@height=\dimen107
 \Gin@req@width=\dimen108
 ) (./main.aux (./cover.aux)
-(./contents.aux) (./chap1.aux) (./chap2.aux) (./chap3.aux) (./chap4.aux)
-(./appa.aux) (./appb.aux) (./biblio.aux))
+(./contents.aux) (./chap1.aux) (./chap2.aux
+
+LaTeX Warning: Label `hw:stats' multiply defined.
+
+) (./chap3.aux) (./chap4.aux) (./appa.aux) (./appb.aux) (./biblio.aux))
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 36.
@@ -114,7 +126,7 @@ LaTeX Font Info:    ... okay on input line 36.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
 LaTeX Font Info:    ... okay on input line 36.
 
-(/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
+(/usr/share/texmf/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count99
 \scratchdimen=\dimen109
@@ -204,56 +216,47 @@ Underfull \hbox (badness 10000) in paragraph at lines 108--111
  []
 
 [15]
-Underfull \hbox (badness 10000) in paragraph at lines 139--147
+Underfull \hbox (badness 10000) in paragraph at lines 138--147
+
+ []
+
+[16]
+Underfull \hbox (badness 10000) in paragraph at lines 148--158
 
  []
 
 
-Underfull \vbox (badness 5563) has occurred while \output is active []
-
- [16]
-Underfull \hbox (badness 10000) in paragraph at lines 148--155
+Underfull \hbox (badness 10000) in paragraph at lines 159--168
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 156--165
-
- []
-
-[17]) [18]
+) [17]
 \openout2 = `chap2.aux'.
 
- (./chap2.tex
+ (./chap2.tex [18
+
+
+
+]
 Chapter 2.
-[19
-
-
-
-] <boot_first35seconds.png, id=69, 700.86844pt x 140.77594pt>
+[19] <boot_first35seconds.png, id=69, 700.86844pt x 140.77594pt>
 File: boot_first35seconds.png Graphic file (type png)
 
 <use boot_first35seconds.png>
-Overfull \hbox (17.34189pt too wide) in paragraph at lines 45--49
- [][] 
- []
-
 <boot_last35seconds.png, id=70, 747.54282pt x 146.04562pt>
 File: boot_last35seconds.png Graphic file (type png)
 
-<use boot_last35seconds.png>
-Overfull \hbox (43.36464pt too wide) in paragraph at lines 55--57
- [] 
- []
-
-[20 <./boot_first35seconds.png (PNG copy)> <./boot_last35seconds.png (PNG copy)
->]
+<use boot_last35seconds.png> [20 <./boot_first35seconds.png (PNG copy)> <./boot
+_last35seconds.png (PNG copy)>]
 
 pdfTeX warning: pdflatex (file ./boottimeline.pdf): PDF inclusion: found PDF ve
 rsion <1.5>, but at most version <1.4> allowed
 <boottimeline.pdf, id=74, 722.7pt x 542.025pt>
 File: boottimeline.pdf Graphic file (type pdf)
- <use boottimeline.pdf> [21 <./boottimeline.pdf>]
+ <use boottimeline.pdf>
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [21 <./boottimeline.pdf>]
 
 pdfTeX warning: pdflatex (file ./naivedatacollection.pdf): PDF inclusion: found
  PDF version <1.5>, but at most version <1.4> allowed
@@ -295,10 +298,18 @@ File: log2.pdf Graphic file (type pdf)
  <use log2.pdf> [25 <./log2.pdf>]
 [26] <trace.pdf, id=134, 578.16pt x 433.62pt>
 File: trace.pdf Graphic file (type pdf)
- <use trace.pdf>) [27 <./trace.pdf>]
+ <use trace.pdf>
+Underfull \vbox (badness 4084) has occurred while \output is active []
+
+ [27 <./trace.pdf>]
+Overfull \hbox (12.79707pt too wide) in paragraph at lines 375--381
+ [] 
+ []
+
+) [28] [29]
 \openout2 = `chap3.aux'.
 
- (./chap3.tex [28
+ (./chap3.tex [30
 
 
 
@@ -307,36 +318,36 @@ Chapter 3.
 )
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [29]
-[30]
+ [31]
+[32]
 \openout2 = `chap4.aux'.
 
  (./chap4.tex
 Chapter 4.
-) [31
+) [33
 
 
 
 ]
 \openout2 = `appa.aux'.
 
- (./appa.tex [32
+ (./appa.tex [34
 
 
 
 ]
 Appendix A.
-[33])
+[35])
 \openout2 = `appb.aux'.
 
- (./appb.tex [34
+ (./appb.tex [36
 
 
 
 
 ]
 Appendix B.
-[35] [36])
+[37] [38])
 \openout2 = `biblio.aux'.
 
  (./biblio.tex (./main.bbl
@@ -357,7 +368,7 @@ Underfull \hbox (badness 1454) in paragraph at lines 60--64
 tistrategy . com / 2009 / 11 / 01 /
  []
 
-[37
+[39
 
 
 
@@ -369,30 +380,33 @@ Underfull \hbox (badness 2707) in paragraph at lines 100--104
 2 http : / / www . vmware . com / pdf /
  []
 
-)) [38] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
-(./chap3.aux) (./chap4.aux) (./appa.aux) (./appb.aux) (./biblio.aux)) ) 
+)) [40] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
+(./chap3.aux) (./chap4.aux) (./appa.aux) (./appb.aux) (./biblio.aux))
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 2671 strings out of 495061
- 36209 string characters out of 1182621
- 117345 words of memory out of 3000000
- 5768 multiletter control sequences out of 15000+50000
+ 2877 strings out of 493848
+ 39478 string characters out of 1152824
+ 122566 words of memory out of 3000000
+ 6069 multiletter control sequences out of 15000+50000
  10497 words of font info for 37 fonts, out of 3000000 for 9000
- 28 hyphenation exceptions out of 8191
- 32i,8n,54p,231b,1395s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/sh
-are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texmf-t
-exlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-texlive/font
-s/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts/type1/pub
-lic/amsfonts/cm/cmmi12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfont
-s/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr12.p
-fb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/sha
-re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texl
-ive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/t
-ype1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public
-/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (38 pages, 387582 bytes).
+ 714 hyphenation exceptions out of 8191
+ 32i,8n,54p,229b,1395s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
+re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-te
+xlive/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texmf-texlive/fonts
+/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-texlive/fonts/type1/publ
+ic/amsfonts/cm/cmr10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/
+cm/cmr12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr17.pfb
+></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/
+texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texli
+ve/fonts/type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/ty
+pe1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (40 pages, 392083 bytes).
 PDF statistics:
- 267 PDF objects out of 1000 (max. 8388607)
+ 273 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  36 words of extra memory for PDF output out of 10000 (max. 10000000)
 

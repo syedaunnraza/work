@@ -91,7 +91,7 @@ This thesis aims to address the following questions:
 
 \item When identical VMs boot up concurrently, how similar
 are the sets of instructions executed? What is the statistical
-profile of any differences in the distinct instruction streams?
+profile of any differences in the executed instructions?
 
 \item What are the source(s) of any differences in
 the instruction streams of concurrently booting VMs?
@@ -100,7 +100,7 @@ booting VMs?
 
 \end{enumerate}
 
-The answers to these questions clearly are crucial in determining
+The answers to these questions are clearly crucial in determining
 the feasibility of \emph{deduplication of execution} as a possible solution
 to the boot storm problem. 
 
@@ -146,11 +146,11 @@ The motivations for deterministic multhreading listed in
 \cite{marek2011scaling, patil2010pinplay} apply to our work as well. \newline
 
 \noindent {\bf Mainstream Computing, Security and Performance:}
-If repeated executions of the same program can be
+If distinct executions of the same program can be
 expected to execute the same set of instructions, then
 any significant deviations can be used to detect security
-attacks. Detection of such
-anomalous executions is the focus of \emph{mainstream computing} \cite{stephenson2010mainstream},
+attacks. Runtime detection of security attacks through the
+identification of anomalous executions is the focus of \emph{mainstream computing} \cite{stephenson2010mainstream},
 and deterministic execution obviously helps in reducing false
 positives. 
 Anomalous executions can also be flagged for performance

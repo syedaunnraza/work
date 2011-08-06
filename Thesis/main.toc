@@ -9,23 +9,21 @@
 \contentsline {section}{\numberline {2.2}Data Collection Scheme}{22}
 \contentsline {subsection}{\numberline {2.2.1}Analyzing a simple ``Hello, world!'' program}{23}
 \contentsline {subsection}{\numberline {2.2.2}Alternative metrics for measuring nondeterminism}{28}
-\contentsline {section}{\numberline {2.3}Statistical Results}{28}
-\contentsline {section}{\numberline {2.4}Summary}{29}
-\contentsline {chapter}{\numberline {3}Sources of Nondeterminism}{31}
-\contentsline {section}{\numberline {3.1}Linux Security Features}{32}
-\contentsline {section}{\numberline {3.2}Randomization}{32}
-\contentsline {section}{\numberline {3.3}Process Identification Layer}{32}
-\contentsline {section}{\numberline {3.4}Time}{32}
-\contentsline {section}{\numberline {3.5}File I/O}{32}
-\contentsline {section}{\numberline {3.6}Network I/O}{32}
-\contentsline {section}{\numberline {3.7}Signals}{32}
-\contentsline {section}{\numberline {3.8}Inter-thread Communication/Scheduling}{32}
-\contentsline {section}{\numberline {3.9}Misc System Calls}{32}
-\contentsline {section}{\numberline {3.10}Summary}{32}
-\contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{33}
-\contentsline {section}{\numberline {4.1}Cups}{33}
-\contentsline {section}{\numberline {4.2}Cron}{33}
-\contentsline {section}{\numberline {4.3}Ntp}{33}
-\contentsline {section}{\numberline {4.4}Summary}{33}
-\contentsline {chapter}{\numberline {A}Tables}{35}
-\contentsline {chapter}{\numberline {B}Figures}{37}
+\contentsline {section}{\numberline {2.3}Statistical Results}{29}
+\contentsline {section}{\numberline {2.4}Summary}{31}
+\contentsline {chapter}{\numberline {3}Sources of Nondeterminism}{33}
+\contentsline {section}{\numberline {3.1}Linux Security Features}{34}
+\contentsline {section}{\numberline {3.2}Randomization}{34}
+\contentsline {section}{\numberline {3.3}Process Identification Layer}{34}
+\contentsline {section}{\numberline {3.4}Time}{34}
+\contentsline {section}{\numberline {3.5}File I/O}{34}
+\contentsline {section}{\numberline {3.6}Network I/O}{34}
+\contentsline {section}{\numberline {3.7}Signals}{34}
+\contentsline {section}{\numberline {3.8}Inter-thread Communication/Scheduling}{34}
+\contentsline {section}{\numberline {3.9}Misc System Calls}{34}
+\contentsline {section}{\numberline {3.10}Summary}{34}
+\contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{35}
+\contentsline {section}{\numberline {4.1}Cups}{35}
+\contentsline {section}{\numberline {4.2}Cron}{35}
+\contentsline {section}{\numberline {4.3}Ntp}{35}
+\contentsline {section}{\numberline {4.4}Summary}{35}

@@ -325,50 +325,75 @@ by the thin black lines). This is a common trend,
 even for complex programs such as Linux services,
 as discussed in Section \ref{bootresults}.
 
-\subsection{Alternative metrics for measuring nondeterminism}
+\subsection{Alternative metrics for measuring nondeterminism} \label{alt:stats}
 As mentioned in the previous section, we use the 
-common prefix, longest common subsequence,
-longest substring and the distribution of
+common prefix (P), the longest common subsequence (LCS),
+the longest substring (LS) and the distribution of
 conflicting instructions in separate instruction
 streams to measure nondeterminism.
 
-While the conflict ratio measured
-by our analysis script is typically quite small (e.g. $0.02\%$
-for ``Hello, world!''), its importance or impact is disproportionately larger. For one thing, 
-the analysis script only considers {\em side-effects} of instructions
-to registers or memory contents. This understates divergence
-in execution because if the same
-instruction writes a different value to register \texttt{rax}
-across two different executions, the register state between the 
-two executions will have {\em diverged} for subsequent instructions as
-well even if these instructions do not touch \texttt{rax} and are in fact
-completely identical. In fact,
-after the value of \texttt{rax} diverges, the register state will be different up to the point
-where the two executions overwrite the value of \texttt{rax}
-with the same value. The analysis script does not 
-account for this ``cascade-effect'' because we wish to
-accurately identify the set of instructions that are {\em directly}
-related to any nondeterminism in a program.
+While the conflict ratio measured by our analysis script is usually quite small (e.g. $0.02\%$
+for ``Hello, world!''), its importance and impact is disproportionately larger.
+As shown in Figure \ref{cascade:ex},  the analysis script 
+only considers instructions that originate nondeterminism or actively
+propagate it in computing the conflict ratio. 
 
-While our analysis script ignores the cascade-effect, it does not
-filter instructions that simply propagate any nondeterminism. For instance, if the
-same instruction writes a different value to \texttt{rax} across
-two different executions, then any subsequent instructions that read
-\texttt{rax} will probably have different side-effects and will also
- be marked as conflicting. The same is true for
-any related memory writes/reads: if a memory location is
-written with different values across two different executions,
-subsequent reads will also be marked as conflicting.
-This is useful to us because it essentially simulates a taint
-analysis on any divergent values, and allows us to measure the 
-true impact of any nondeterminism in a program.
+\begin{figure}[h]
+  \center
+  \includegraphics[width=\textwidth, trim=1cm 7cm 1cm 0.4cm]{liveness.pdf}
+  \caption[The cascade and propagation effects in measuring nondeterminism.]%
+          {The top image shows an example of the cascade effect: the red
+          instruction represents a real conflict in \texttt{eax}. The light-blue instructions
+          have the same side-effects across the two logs because they don't touch \texttt{eax}.
+          The register state only converges after \texttt{eax} is written
+          by the green instruction. The cascade effect refers to the nondeterministic register state
+          that results in the light-blue instructions because of an earlier conflict, even
+          though the instructions themselves are not reading or writing any nondeterministic
+          values. If we include the cascade effect, the measured conflict ratio in this
+          trace excerpt is $(N+3)/(N+4)$ instead of $1/(N+4)$.  \newline
+          
+          The bottom image shows an example of the propagation effect: the red instruction again
+          represents a conflict in \texttt{eax}. The light-blue instructions do not generate
+          any nondeterminism themselves, but they have conflicting side-effects because they
+          read \texttt{eax}. In this case, We report a conflict ratio of $1$.}
+  \label{cascade:ex}
+\end{figure} 
+
+\newpage As shown in Figure \ref{cascade:ex}, the analysis script effectively simulates a taint
+analysis on register and memory contents to measure the
+true impact of any nondeterminism in a program. 
+Grouping instructions that generate and then propagate
+nondeterminism makes it easier for us to diagnose the sources of nondeterminism.
+
+%This understates divergence
+%in execution because if the same
+%instruction writes a different value to register \texttt{rax}
+%across two different executions, the register state between the 
+%two executions will have {\em diverged} for subsequent instructions as
+%well even if these instructions do not touch \texttt{rax} and are in fact
+%completely identical. In fact,
+%after the value of \texttt{rax} diverges, the register state will be different up to the point
+%where the two executions overwrite the value of \texttt{rax}
+%with the same value. The analysis script does not 
+%account for this ``cascade-effect'' because we wish to
+%accurately identify the set of instructions that are {\em directly}
+%related to any nondeterminism in a program.
+
+% For instance, if the
+%same instruction writes a different value to \texttt{rax} across
+%two different executions, then any subsequent instructions that read
+%\texttt{rax} will probably have different side-effects and will also
+% be marked as conflicting. The same is true for
+%any related memory writes/reads: if a memory location is
+%written with different values across two different executions,
+%subsequent reads will also be marked as conflicting.
 
 \section{Statistical Results} \label{bootresults}
 Table \ref{hw:stats} shows the results from applying our data
-collection scheme on a set of Linux services / daemons
+collection scheme on a set of Linux services and daemons
 that are typically launched at boot. 
 
-\begin{table}
+\begin{table}[h]
 \caption{Nondeterminism profile of Linux services and daemons (ASLR disabled)}
 \label{hw:stats}
 \begin{center}
@@ -376,10 +401,81 @@ that are typically launched at boot.
   Application & Prefix (P) & Longest Substring (LS) &
   Determinism (LCS) \\
   \hline \hline
-  \texttt{cups}, 10 loop iterations & 2.45 & 25.20 & 94.25 \\\hline 
+  \texttt{ntp}, 14 loop iterations & 11.65\% & 22.08\% & 89.21\% \\\hline 
+  \texttt{cron}, 30 loop iterations & 1.58\% & 53.21\% & 98.38\% \\\hline 
+  \texttt{cups}, 10 loop iterations & 2.45\% & 25.20\% & 94.25\% \\\hline 
 \end{tabular}
 \end{center}
 \end{table}
+
+As can be seen in Table \ref{hw:stats}, the common prefix (P) 
+in our sample of Linux services is on average about $3\%$,
+which is quite small and indicates that some
+nondeterminism surfaces relatively early in program execution. 
+The longest substring (LS) in
+Linux services tends to be on average about $25\%$,
+which is substantially larger than the common prefix,
+and indicates that execution reconverges after
+initial divergence for quite some time.
+The longest common subsequence (or general determinism)
+is in general much higher -- about $90\%$ on average -- 
+which indicates that a large majority of instructions 
+in the Linux services are in fact identical across
+different executions. At the same time,
+considering the discussion in Section \ref{alt:stats},
+a conflict ratio of about $10\%$ on average
+indicates a high incidence of nondeterminism 
+in Linux services.  
+
+The distribution of the $10\%$ conflicting instructions
+in Linux services tends to fit into a common profile.
+Figure \ref{ntp:tracech2}, an execution profile of \texttt{ntp}, is representative
+of most execution traces: generally,
+conflicting instructions are spread throughout
+the program execution, but are more frequent
+towards the end; also, execution diverges
+and reconverges very frequently in the program
+execution. Nondeterminism does not seem to cause permanent or
+execution divergences, even though there is nontrivial amount
+of control-flow divergence in some programs.
+
+\begin{figure}[h]
+  \center
+  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.6]{ntptracech2.jpg}
+  \caption[Visualization of \texttt{ntp} program execution]% 
+          {Visualization of \texttt{ntp} program execution.
+          The thin black lines represent conflicts between
+          the two instances of the program, whereas
+          the thin blue lines represent control flow
+          divergences.}
+  \label{ntp:tracech2}
+\end{figure} 
+
+The execution profile of \texttt{cron} is somewhat unique
+because it has a higher LCS and LS than other traces. While the 
+conflict ratio for \texttt{cron} is less than $2\%$, 
+figure \ref{cron:tracech2} seems to suggest a higher
+level of nondeterminism. Figure \ref{cron:zoomtracech2} 
+reconciles these results: it shows that while
+the absolute number of conflicting instructions is small,
+these conflicts occur in bursts and group together
+visually. While the bursty nature of nondeterminism
+is particularly prominent in Figure \ref{cron:zoomtracech2},
+it is common to all the services we profiled. In fact,
+we found that the average control flow divergence length
+was less than $1\%$, and the average length of 
+mutually adjacent conflicting instructions was 
+less than 4.
+
+\begin{figure}[h]
+  \center
+  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.6]{crontracech2.png}
+  \caption[Visualization of \texttt{cron} program execution]% 
+          {Visualization of \texttt{cron} program execution.
+          The thin black lines represent conflicts between
+          the two instances of the program.}
+  \label{cron:tracech2}
+\end{figure} 
 
 
 \section{Summary}

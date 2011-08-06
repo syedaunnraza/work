@@ -11,5 +11,6 @@
 \contentsline {figure}{\numberline {2-9}{\ignorespaces The cascade and propagation effects in measuring nondeterminism.}}{28}
 \contentsline {figure}{\numberline {2-10}{\ignorespaces Visualization of \texttt {ntp} program execution}}{30}
 \contentsline {figure}{\numberline {2-11}{\ignorespaces Visualization of \texttt {cron} program execution}}{31}
+\contentsline {figure}{\numberline {2-12}{\ignorespaces Understanding nature of conflicts in \texttt {cron}}}{31}
 \addvspace {10\p@ }
 \addvspace {10\p@ }

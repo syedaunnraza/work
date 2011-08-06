@@ -4,14 +4,156 @@
 %% You can process specific files by typing their names in at the 
 %% \files=
 %% prompt when you run the file main.tex through LaTeX.
-\chapter{Sources of Nondeterminism}
-This chapter summarizes the sources of non-determinism
-found in Linux services from a high-level; it also
-briefly describes the strategies we used to
-overcome these sources of non-determinism. 
+\newenvironment{mylisting}
+{\begin{list}{}{\setlength{\leftmargin}{1em}}\item\scriptsize\bfseries}
+{\end{list}}
 
-\section{Linux Security Features}
-% ASLR, canary, guard, random keys
+\chapter{Sources of Nondeterminism}
+This chapter summarizes some of the myriad sources of nondeterminism
+in Linux services we encountered in this work. The study of
+such sources of nondeterminism reveals
+the complex interactions between user-mode
+applications, commonly used system libraries (e.g. \texttt{libc}),
+the Linux operating system and the external world.
+Existing literature on nondeterminism is not 
+as comprehensive and does not analyze
+Linux system calls in as much detail. 
+
+\section{Linux Security Features}% ASLR, canary, guard, random keys
+
+\subsection{Address Space Layout Randomization (ASLR)}
+Address Space Layout Randomization (ASLR) involves random arrangement of
+key data areas for an executing program. 
+When ASLR is enabled, the base of the executable, the position of libaries, heap and the stack in the process address space can be 
+different every time the program is run.
+ASLR hinders several kinds of security attacks in which attackers have to predict
+program addresses for redirecting execution (including
+\emph{return-to-libc} attacks).
+
+As mentioned earlier, when ASLR is enabled, two execution traces of a
+simple ``Hello, World!" program in C are almost entirely different.
+Almost every instruction executes from a different
+address; memory addresses (especially stack addresses)
+are all different as well.
+
+Existing record-and-replay systems handle ASLR by
+forcing the operating system to create the same address space layout across
+different runs. A slightly more complicated approach involves
+using base-and-offset computations to translate equivalent 
+addresses between two different executions. For simplicity,
+we disabled ASLR for our experiments using the following command:
+\texttt {sudo kernel.randomize\_va\_space=0}
+
+\subsection{Stack Protection: \texttt{libc} Canary} 
+Copying a \emph{canary} (a dynamically chosen global value) onto the stack below the return
+address can help detect buffer overflow attacks, because 
+the stack copy will also be overwritten if an attacker overwrites
+the return address. A simple comparison of the global (unchanged) canary
+value with the stack copy before a \texttt{ret} can prevent a buffer overflow attack.
+
+In 32-bit Linux distributions, the C runtime library, 
+\texttt{libc}, provides a canary value in \texttt{gs:0x14}.
+There are many different ways for this value to be calculated (discussed later), but this 
+value will obviously be different between multiple executions of the same program.  This 
+feature combines with \texttt{gcc}'s stack smashing protection (SSP), in which
+any function reads \texttt{gs:0x14} and pushes its value below its own stack frame as a canary
+before making a function call.
+After the function call, the caller function makes sure that the value on the stack is
+still the same as \texttt{gs:0x14}, to detect if its own return address has been tampered with. 
+
+Since Pin gets control of the application before \texttt{\_\_libc\_main} starts executing (prior to
+intialization of \texttt{gs:0x14}), multiple execution traces of a program
+can diverge when \texttt{gs:0x14} is initialized. 
+
+Different versions of libc initialize \texttt{gs:0x14} in different ways. If randomization
+is disabled, some versions of libc add a terminator canary value (0xff0a0000)
+to \texttt{gs:0x14}. The reason for using a terminator canary value
+is that most buffer overflow attacks exploit string operations which end at
+terminators. However, the disadvantage of this approach 
+is that attackers can predict canary values in advance and circumvent them.
+For us, if libc uses terminator canary values, then multiple executions of
+the same program do not diverge wherever \texttt{gs:0x14} is read or written.
+
+The following source code from a version of sysdeps/unix/sysv/linux/dl-osinfo.h
+shows the logic for canary initialization:
+
+\begin{mylisting}
+\begin{verbatim}
+static inline uintptr_t __attribute__ ((always_inline))
+_dl_setup_stack_chk_guard (void)
+{
+  uintptr_t ret;
+#ifdef ENABLE_STACKGUARD_RANDOMIZE
+  int fd = __open ("/dev/urandom", O_RDONLY);
+  if (fd >= 0)
+    {
+      ssize_t reslen = __read (fd, &ret, sizeof (ret));
+      __close (fd);
+      if (reslen == (ssize_t) sizeof (ret))
+        return ret;
+    }
+#endif
+  ret = 0;
+  unsigned char *p = (unsigned char *) &ret;
+  p[sizeof (ret) - 1] = 255;
+  p[sizeof (ret) - 2] = '\n';
+  return ret;
+}
+\end{verbatim}
+\end{mylisting}
+
+
+To overcome the drawbacks of terminator canaries, many versions of libc use randomization schemes to
+initialize \texttt{gs:0x14}.  As shown in the code excerpt, some versions of libc
+generate a random word by reading from ``/dev/urandom".
+Since this word will be different across multiple runs of the program,
+execution will diverge in libc's \texttt{\_\_read()} and
+subsequently whenever \texttt{gs:0x14} is written or read. Luckily,
+using Pin and DynamoRio, we can intercept system calls,
+and make all reads to ``/dev/urandom" return fixed values chosen by us,
+so that canary values do not cause execution to diverge.
+
+Modern versions of libc do not use ``/dev/urandom'' for randomization because
+of the performance overhead of the associated system calls. These
+versions use kernel provided AT\_RANDOM bytes to write \texttt{gs:0x14}.
+AT\_RANDOM bytes were recently added; the Linux kernel provides a few random
+bytes to programs as elf auxiliary vectors (see Section 3.5). On 32-bit machines,
+a few random kernel-provided bytes are written to \texttt{gs:0x14} for 
+canary usage. These random bytes exploit kernel entropy, are 
+different across multiple runs of a program, and thus
+make it difficult for attackers to guess canary values.
+
+To make program execution deterministic in this case, we can
+use Pin or DynamoRio to add instrumentation that directly
+overwrites the AT\_RANDOM bytes provided by the kernel
+before the program gets control. The address to the AT\_RANDOM bytes 
+is stored on the program stack as an elf-auxiliary vector below
+\texttt{main}'s arguments and also below any 
+environmental variables on the program stack (see Section 3.5) and 
+can thus be accessed programatically via DynamoRio and Pin. 
+Alternatively, with ASLR disabled, we can just read the address
+of the AT\_RANDOM bytes by running our target program
+with \texttt{LD\_SHOW\_AUXV=1}: 
+
+\begin{mylisting}
+\begin{verbatim}
+
+$ LD_SHOW_AUXV=1 /bin/true
+...
+AT_RANDOM:      0xbffff7eb
+...
+\end{verbatim}
+\end{mylisting}
+
+Thus, while the bytes stored in the AT\_RANDOM array are always different
+between runs, we can find where they are stored for a program (e.g 0xbffff7eb) and overwrite them
+to make execution deterministic. Note that in many current implementations of libc that use AT\_RANDOM,
+only 3 bytes of the first random word are used in the canary; the lowest byte is 
+left as 0x00 to serve as a terminator byte for string operations used by 
+buffer overflow attacks.
+
+All the above schemes prevent programs from diverging due to initialization and usage 
+of \texttt{gs:0x14}.
 
 \section{Randomization}
 % dev/urandom, ELF AUX vector, 

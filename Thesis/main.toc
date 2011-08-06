@@ -14,8 +14,9 @@
 \contentsline {chapter}{\numberline {3}Sources of Nondeterminism}{33}
 \contentsline {section}{\numberline {3.1}Linux Security Features}{33}
 \contentsline {subsection}{\numberline {3.1.1}Address Space Layout Randomization (ASLR)}{33}
-\contentsline {subsection}{\numberline {3.1.2}Stack Protection: \texttt {libc} Canary}{34}
-\contentsline {section}{\numberline {3.2}Randomization}{37}
+\contentsline {subsection}{\numberline {3.1.2}Canary Values and Stack Protection}{34}
+\contentsline {subsection}{\numberline {3.1.3}Pointer Guard / Encryption}{35}
+\contentsline {section}{\numberline {3.2}Randomization Schemes}{36}
 \contentsline {section}{\numberline {3.3}Process Identification Layer}{37}
 \contentsline {section}{\numberline {3.4}Time}{37}
 \contentsline {section}{\numberline {3.5}File I/O}{37}
@@ -23,7 +24,8 @@
 \contentsline {section}{\numberline {3.7}Signals}{37}
 \contentsline {section}{\numberline {3.8}Inter-thread Communication/Scheduling}{37}
 \contentsline {section}{\numberline {3.9}Misc System Calls}{37}
-\contentsline {section}{\numberline {3.10}Summary}{37}
+\contentsline {section}{\numberline {3.10}Issues at Stake}{37}
+\contentsline {section}{\numberline {3.11}Summary}{37}
 \contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{39}
 \contentsline {section}{\numberline {4.1}Cups}{39}
 \contentsline {section}{\numberline {4.2}Cron}{39}

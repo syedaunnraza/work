@@ -22,13 +22,13 @@
 \contentsline {section}{\numberline {3.5}External I/O}{40}
 \contentsline {subsection}{\numberline {3.5.1}File I/O}{40}
 \contentsline {subsection}{\numberline {3.5.2}Network I/O}{41}
-\contentsline {subsection}{\numberline {3.5.3}I/O Polling Engines}{43}
-\contentsline {section}{\numberline {3.6}Signals}{43}
-\contentsline {section}{\numberline {3.7}Inter-thread Communication/Scheduling}{43}
-\contentsline {section}{\numberline {3.8}Misc System Calls}{43}
-\contentsline {section}{\numberline {3.9}The `/proc/' filesystem}{43}
-\contentsline {section}{\numberline {3.10}Issues at Stake}{43}
-\contentsline {section}{\numberline {3.11}Summary}{43}
+\contentsline {subsection}{\numberline {3.5.3}I/O Polling Engines}{42}
+\contentsline {section}{\numberline {3.6}Signals}{44}
+\contentsline {section}{\numberline {3.7}Concurrency}{44}
+\contentsline {section}{\numberline {3.8}Misc System Calls}{44}
+\contentsline {section}{\numberline {3.9}The `/proc/' filesystem}{44}
+\contentsline {section}{\numberline {3.10}Issues at Stake}{44}
+\contentsline {section}{\numberline {3.11}Summary}{44}
 \contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{45}
 \contentsline {section}{\numberline {4.1}Cups}{45}
 \contentsline {section}{\numberline {4.2}Cron}{45}

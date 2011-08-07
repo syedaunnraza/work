@@ -18,16 +18,19 @@
 \contentsline {subsection}{\numberline {3.1.3}Pointer Guard / Encryption}{35}
 \contentsline {section}{\numberline {3.2}Randomization Schemes}{36}
 \contentsline {section}{\numberline {3.3}Process Identification Layer}{37}
-\contentsline {section}{\numberline {3.4}Time}{37}
-\contentsline {section}{\numberline {3.5}File I/O}{37}
-\contentsline {section}{\numberline {3.6}Network I/O}{37}
-\contentsline {section}{\numberline {3.7}Signals}{37}
-\contentsline {section}{\numberline {3.8}Inter-thread Communication/Scheduling}{37}
-\contentsline {section}{\numberline {3.9}Misc System Calls}{37}
-\contentsline {section}{\numberline {3.10}Issues at Stake}{37}
-\contentsline {section}{\numberline {3.11}Summary}{37}
-\contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{39}
-\contentsline {section}{\numberline {4.1}Cups}{39}
-\contentsline {section}{\numberline {4.2}Cron}{39}
-\contentsline {section}{\numberline {4.3}Ntp}{39}
-\contentsline {section}{\numberline {4.4}Summary}{39}
+\contentsline {section}{\numberline {3.4}Time}{38}
+\contentsline {section}{\numberline {3.5}External I/O}{40}
+\contentsline {subsection}{\numberline {3.5.1}File I/O}{40}
+\contentsline {subsection}{\numberline {3.5.2}Network I/O}{41}
+\contentsline {subsection}{\numberline {3.5.3}I/O Polling Engines}{43}
+\contentsline {section}{\numberline {3.6}Signals}{43}
+\contentsline {section}{\numberline {3.7}Inter-thread Communication/Scheduling}{43}
+\contentsline {section}{\numberline {3.8}Misc System Calls}{43}
+\contentsline {section}{\numberline {3.9}The `/proc/' filesystem}{43}
+\contentsline {section}{\numberline {3.10}Issues at Stake}{43}
+\contentsline {section}{\numberline {3.11}Summary}{43}
+\contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{45}
+\contentsline {section}{\numberline {4.1}Cups}{45}
+\contentsline {section}{\numberline {4.2}Cron}{45}
+\contentsline {section}{\numberline {4.3}Ntp}{45}
+\contentsline {section}{\numberline {4.4}Summary}{45}

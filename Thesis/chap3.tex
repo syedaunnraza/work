@@ -175,15 +175,263 @@ instances (Section \ref{ch3:time}).
 \section{Process Identification Layer} \label{ch3:pid}
 % pid, signal(pid), /proc/ filesystem layer
 
+In the absence of a deterministic operating system layer, process IDs assigned
+to Linux services at boot-time are not predictable.
+For instance, a nondeterministic scheduler 
+could lead to several possible process creation sequences.
+
+Given the unpredictability of process IDs,
+Linux system calls that directly or indirectly
+interact with the process identification layer can cause divergences
+in distinct executions of the same program.
+For instance, system calls that return a process ID e.g.
+\texttt{getpid} (get process ID), \texttt{getppid} (get
+parent process ID), \texttt{fork/clone} (create a child process),
+\texttt{wait} (wait for a child process to terminate)
+can return different values across executions. System calls that take process IDs 
+directly as arguments such as \texttt{kill} (send a signal to a specific
+process), \texttt{waitpid} (wait for a specific child process to terminate)
+can similarly propagate any nondeterminism.
+In fact, \texttt{libc} stores a copy of the current process ID in \texttt{gs:0x48},
+so reads or writes to this address can cause conflicts.
+
+There are certain obscure interactions
+between the Linux kernel and executing programs
+where process IDs also show up. For instance:
+\begin{itemize} 
+\item If a process registers a signal handler with the \texttt{SA\_SIGINFO}
+bit set, then the second argument passed
+to the signal handler when a signal occurs is of type \texttt{siginfo\_t*}.
+The member \texttt{siginfo\_t.si\_pid} will
+be set if another process sent the signal 
+to the original process. 
+\item The Linux kernel will sometimes use process IDs 
+to indicate the intended recipients of its messages. 
+For instance, \texttt{Netlink} is a socket-like
+mechanism for inter process communications (IPC)
+between the kernel and user-space processes.
+\texttt{Netlink} can be used to pass
+networking information between kernel
+and user space, and some of its APIs 
+use process IDs to identify communication
+end-points. \end{itemize}
+
+Instead of exhaustively searching the entire
+Linux system-call interface, we found these obscure sources of
+nondeterminism by incrementally adding logic 
+for system calls actually used during execution
+to our Pin tracer tool (Section \ref{ch:hw}) .
+
+Process IDs can be used to seed a PRNG (Section \ref{ch3:rand}),
+or access the \texttt{`/proc/[pid]'} directory (Section \ref{ch3:procfs}). 
+
+\begin{figure}[h]
+  \center
+  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.75]{none.jpg}
+  \caption[Virtualizing the process ID layer using Pin]% 
+  {We intercept all system calls and communications
+  between the Linux user and kernel space; we
+  translate between real and virtual process IDs
+  to trick the kernel and the user-space programs.}
+  \label{ch3:pidfig}
+\end{figure} 
+
+Figure \ref{ch3:pidfig} shows how we can use dynamic instrumentation
+techniques to virtualize and determinize the process ID layer in Linux.
+Using these techniques, we were able to avoid modifying
+the Linux operating system and existing programs
+altogether.
+
 \section{Time} \label{ch3:time}
-% time system calls
+Concurrent runs of the same program will typically
+execute the same instructions at (slightly) different times.
+Thus, any timestamps read or written
+by programs are clearly a significant source of nondeterminism.
 
-\section{File I/O}
-% file contents;  timestamps in files; file stat(); lengths of logs
+Any Linux system calls that directly or indirectly return timestamps
+can cause nondeterminism. For instance:
 
-\section{Network I/O}
-% ephemeral sockets; IP address resolution; timestamps in headers; contents
-% statistics on network interfaces
+\begin{itemize}
+\item The \texttt{time}, \texttt{gettimeofday} and \texttt{clock\_gettime}
+ system calls return the current time.
+\item The \texttt{times} or \texttt{getrusage} system calls
+return process/CPU time statistics.
+\item The \texttt{adjtimex} system call is used 
+by clock synchronization programs (e.g. \texttt{ntp}) 
+and can returns a kernel timestamp indirectly via 
+a \texttt{timex} structure.
+\item Programs can access the hardware clock
+through \texttt{`/dev/rtc'} and can
+read different values for the current time through the \texttt{RTC\_RD\_TIME} \texttt{ioctl}
+operation.
+\item Many system calls that specify a timeout
+for some action (e.g. \texttt{select}, \texttt{sleep} or \texttt{alarm})
+inform the caller of any unused time from the timeout interval if they
+return prematurely.
+\item The \texttt{stat} family of system calls returns file
+   modification timestamps;
+   application files typically contain timestamps;
+   network protocols use timestamps frequently as well.
+   (See Section \ref{ch3:filenetio}
+\end{itemize}
+
+To overcome nondeterminism from time-related system calls,
+we can use dynamic instrumentation to force agreement between 
+any timestamps returned across concurrent
+executions (taking care to preserve monotonicity).
+This creates the illusion that multiple executions
+are occuring precisely at the same time. When timestamps
+returned from system calls are only compared, they
+can be replaced with deterministic ordinal values that 
+perserve the comparison (e.g 0 or 1). 
+
+\section{External I/O} \label{ch3:filenetio}
+\subsection{File I/O} \label{ch3:fileio}
+If two executions of the same program read different
+file contents (e.g. cache files), then
+there will naturally be some execution divergence.
+However, for concurrently executing Linux services,
+differences in file contents typically arise
+from process IDs (Section \ref{ch3:pid}) or timestamps (Section \ref{ch3:time})
+rather than semantic differences.
+If those factors are controlled, file contents rarely differ.
+
+Apart from minor differences in file contents,
+nondeterminism can arise from different file 
+modification (\texttt{mtime}), access (\texttt{atime}) or status-change (\texttt{ctime})
+timestamps.
+The \texttt{stat} system call is usually made for almost
+every file opened by a program; the timestamps
+in the buffer written by the system call invariably
+conflict between executions. Most of the time,
+these timestamps are not read by programs,
+so there is little propagation. On occasion, 
+however, a program will use these timestamps
+to determine which file out of a group is the most recent, 
+or whether a file has been updated
+and needs to be refreshed. Usually, simply
+replacing the time values with fixed ordinal values
+that preserve the ordering of timestamps is sufficient
+to control such nondeterminism.
+
+When a program wishes to open
+a file in append-mode, it uses \texttt{lseek}
+with \texttt{SEEK\_END} to move
+the file cursor to the end,
+before any \texttt{write}s take place.
+The return value of \texttt{lseek} is the
+updated cursor byte offset into the file.
+Clearly, if the length of a file is different across
+multiple exections of a program, then
+\texttt{lseek} will return conflicting values.
+Many Linux services maintain log files
+which can have different lengths due
+to conflicts in an earlier execution; \texttt{lseek}
+further propagates them. To overcome
+such nondeterminism, older log files
+must be identical at the beginning 
+of program execution.
+
+Ultimately, if two input files are semantically different between
+different executions of a program, then 
+execution will inevitably diverge. However,
+the approaches mentioned in this chapter
+are typically sufficient to ensure that
+file contents rarely differ in Linux services,
+if at all.
+
+\subsection{Network I/O} \label{ch3:netio}
+The \texttt{libc} network initialization
+code loads several configuration files
+into memory (e.g. \texttt{`/etc/resolv.conf'}). 
+The \texttt{dhclient} daemon updates \texttt{`/etc/resolv.conf'} 
+with information from the DHCP server periodically in the background.
+Differences in
+the content, timestamps or lengths
+of such configuration files can cause nondeterminism.
+In fact, calls to \texttt{getaddrinfo} 
+periodically \texttt{stat} configuration files (e.g. \texttt{`/etc/gai.conf'})
+to see if they have been changed in the background since they were last read. 
+In our experiments, only the file timestamps of these configuration files vary
+between different executions, so the strategies described in Section \ref{ch3:fileio} 
+are sufficient to ensure deterministic execution. 
+
+IP addresses are resolved identically by concurrently executing programs 
+in our experiments; however, if DNS-based
+load-balancing schemes are used, this may not be the case.
+In these rare cases, dynamic instrumentation can be used
+to enforce agreement between different executions.
+
+If the contents read from sockets
+vary across different executions, dynamic instrumentation can be used to 
+intercept Linux socket calls
+and modify their side-effects to be identical. If
+many concurrent executions are reading data from the
+same network source, this simply simulates the possibility that all instances
+see the same results as the first instance. 
+While these semantics are sufficient for most Linux services,
+we have not needed to use them: in our experiments,
+we have only observed nondeterminism
+in reads from \texttt{Netlink} sockets.
+As mentioned in Section \ref{ch3:pid},
+\texttt{Netlink} sockets provide a 
+mechanism for inter process communications (IPC)
+between the kernel and user-space processes.
+\texttt{Netlink} can be used to pass
+networking information between kernel
+and user space. Netlink sockets
+use process IDs to identify
+communication endpoints, which can
+be different between executions.
+Furthermore, a netlink 
+socket of the \texttt{NETLINK\_ROUTE}
+family receives routing and link updates
+from the kernel. \texttt{libc} uses \texttt{RTM\_NEWLINK}
+messages to discover the link interfaces 
+in the computer. When a new interface
+is discovered or reported, the kernel also supplies
+interface statistics to \texttt{libc},
+such as packets/bytes sent, dropped or
+received. These will obviously be different
+across different executions. However,
+we can easily use dynamic instrumentation
+to intercept \texttt{Netlink} communications
+and force these statistics to be
+identical.
+
+A TCP/IPv4 connection consists of two endpoints,
+and each endpoint consists of an IP address and a port
+number. Therefore, when a client connects to a server,
+an established connection can be thought of as the
+4-tuple (server IP, server port, client IP, client port).
+Usually three of these four are readily known:
+a clients uses its own IP and the
+server IP and server port are required. What is not
+immediately evident is that the client
+side of the connection uses a port number.
+Unless a client program explicitly
+requests a specific port number,
+the port number used is an ephemeral port number.
+Ephemeral ports are temporary ports
+assigned by the machine's IP stack, 
+and are assigned from a dedicated range of
+ports for this purpose. When a connection
+terminates, an ephemeral port can be recycled.
+Since the underlying operating system
+is not deterministic, ephemeral
+port numbers used by Linux services
+tend be different across multiple 
+runs. We mask this nondeterminism 
+using dynamic instrumentation by
+changing the \texttt{bind} or \texttt{connect} 
+system call arguments to explicitly request ports
+in the ephemeral range rather than letting the kernel 
+assign them; alternatively,
+we can also virtualize ephemeral ports
+similar to how we virtualize process IDs.
+
+\subsection{I/O Polling Engines}
+
 
 \section{Signals}
 % timing e.g. alrms
@@ -194,8 +442,17 @@ instances (Section \ref{ch3:time}).
 \section{Misc System Calls}
 % all statistics
 
+\section{The `/proc/' filesystem}\label{ch3:procfs}
+
+
+
+
+
+
+
 
 \section{Issues at Stake}
 % security: canary aslr etc
-% performance & correctness: randomization 
+% performance & correctness: randomization, ntp (time skew), time monotonic,
+% IO aggregation. (acquire lock). 
 \section {Summary}

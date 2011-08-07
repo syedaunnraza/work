@@ -8,74 +8,72 @@
 {\begin{list}{}{\setlength{\leftmargin}{1em}}\item\scriptsize\bfseries}
 {\end{list}}
 
-\chapter{Sources of Nondeterminism}
-This chapter summarizes the myriad sources of nondeterminism
-in Linux services encountered in this work. This
-study of nondeterminism reveals
-the interactions between user-mode
+\chapter{Overcoming Nondeterminism in Linux services}
+This chapter first broadly summarizes the sources of nondeterminism
+in Linux services discovered through our experiments (Section \ref{ch3:sources}).
+Next, it explains the dynamic instrumentation techniques
+we used to simulate deterministic execution in a boot
+storm scenario (Section \ref{ch3:simulation}).
+Finally, it discusses some of the limitations 
+in our approach to deterministic execution (Section \ref{ch3:issues}).
+
+\section{Sources of Nondeterminism} \label{ch3:sources}
+In this section, we describe the sources of nondeterminism
+that we discovered using the data collection scheme
+described in Chapter \ref{ch:boot}.
+This study of nondeterminism reveals
+subtle interactions between user-mode
 applications, commonly used system libraries (e.g. the \texttt{libc} library),
 the Linux operating system and the external world.
-Existing literature on nondeterminism is not 
-as comprehensive and does not analyze
-Linux system calls in as much detail. 
+While our results are derived from analyzing a small
+set of complex programs, they include
+all sources of application-level nondeterminism that 
+have been described in literature. Unlike existing work,
+we cover the various interfaces between user-mode programs
+and the Linux kernel in considerable detail.
 
-% explain these are discoevered by systematic way; not exhaustive
-% but are representative
-
-\section{Linux Security Features} \label{ch3:security}
-\subsection{Address Space Layout Randomization (ASLR)}
+\subsection{Linux Security Features} \label{ch3:security}
+\noindent {\bf Address Space Layout Randomization (ASLR)} \newline
 Address Space Layout Randomization (ASLR) involves random arrangement of
 key memory segments of an executing program. When ASLR is enabled,
 the virtual addresses for the base executable, shared libraries, 
 the heap, and the stack are different every time the program is run.
 ASLR hinders several kinds of security attacks in which attackers have to predict
-program addresses in order to redirect execution (e.g.
-\emph{return-to-libc} attacks). 
-As mentioned earlier, As mentioned earlier, two execution traces of a
+program addresses in order to redirect execution (e.g. \emph{return-to-libc} attacks). 
+As mentioned earlier, two execution traces of a
 simple ``Hello, World!" program in $C$ are almost entirely different
-when ASLR is enabled. Instruction addresses are different; 
-memory addresses (especially stack addresses) are all different as well.
+when ASLR is enabled because of differences in
+instruction and memory addresses. \newline
 
-Existing record-and-replay systems sometimes overcome ASLR by
-forcing the operating system to use the same address space layout across
-different runs. A slightly more complicated approach would involve
-using base/offset computations to translate equivalent 
-addresses between two different executions. 
-We simply disabled ASLR for our experiments using the following command:
-\texttt {sudo kernel.randomize\_va\_space=0}.
-
-\subsection{Canary Values and Stack Protection}
-Copying a \emph{canary} -- a dynamically chosen global value -- onto the stack below the return
-address can help detect buffer overflow attacks, because 
+\noindent {\bf Canary Values and Stack Protection} \newline
+Copying a \emph{canary} -- a dynamically chosen global value -- onto the
+stack before each function call can help detect buffer overflow attacks, because 
 an attack that overwrites the return address will also overwrite
-the stack copy of the canary. Before a \texttt{ret}, a simple comparison of the global (and unchanged) canary
+the copy of the canary. Before a \texttt{ret}, a simple comparison 
+of the global (and unchanged) canary
 value with the (possibly changed) stack copy can prevent a buffer overflow attack.
 
 In 32-bit Linux distributions, the $C$ runtime library, 
 \texttt{libc}, provides a canary value in \texttt{gs:0x14}.
-If stack smashing protection (SSP) is enabled when a program is compiled,
-\texttt{gcc} adds instructions that use the canary value
+If Stack Smashing Protection (SSP) is enabled on compilation,
+\texttt{gcc} generates instructions that use the canary value
 in \texttt{gs:0x14} to detect buffer overflow attacks.
-As Pin gets control of the application before \texttt{libc}
+Because Pin gets control of the application before \texttt{libc}
 initializes \texttt{gs:0x14}, multiple execution traces of a program
 will diverge when \texttt{gs:0x14} is initialized and subsequently
 read.  The manner in which the canary value in \texttt{gs:0x14} is initialized
 depends on the \texttt{libc} version.
-If randomization is disabled, \texttt{libc} will store a fixed terminator canary value (0xff0a0000)
-in \texttt{gs:0x14}; this does not lead to any nondeterminism.
-However, when randomization is enabled, 
-some versions of \texttt{libc} store a random word in \texttt{gs:0x14} by reading from \texttt{`/dev/urandom'}
-or by using the \texttt{AT\_RANDOM} bytes provided by the kernel (see Section \ref{ch3:rand}). 
+If randomization is disabled, \texttt{libc} will store a fixed
+terminator canary value in \texttt{gs:0x14}; this does not lead to any nondeterminism.
+When randomization is enabled, however,  
+some versions of \texttt{libc} store a random word in \texttt{gs:0x14} 
+by reading from \texttt{`/dev/urandom'}
+or by using the \texttt{AT\_RANDOM} bytes provided by the kernel (see
+Section \ref{ch3:rand}). 
 
-Dynamic instrumentation can be used to force canary values
-to agree across distinct executions of the same program:
-instructions that initialize \texttt{gs:0x14} can be
-modified or replaced, or the \texttt{AT\_RANDOM} bytes provided by the kernel can be
-modified before they are read by the application, or reads from \texttt{`/dev/urandom'} can be 
-intercepted.
-
-\subsection{Pointer Guard / Encryption}
-Many stateless APIs return data-pointers to clients 
+\newpage
+\noindent {\bf Pointer Encryption} \newline
+Many stateless APIs return data pointers to clients 
 that the clients are supposed to simply supply as arguments
 to subsequent function calls. 
 For instance, the \texttt{setjmp} and \texttt{longjmp} functions
@@ -84,42 +82,40 @@ a caller-provided, platform-specific \texttt{jmp\_buf} structure
 to store important register state that \texttt{longjmp} later reads to simulate a return from \texttt{setjmp}.
 Since the \texttt{jmp\_buf} instance is transparent to clients of \texttt{setjmp}
 and \texttt{longjmp}, it is possible that the clients may advertently or inadvertently
-overwrite the return address stored in it and cause
-\texttt{longjmp} to fail.
+overwrite the return address stored in it and simulate a buffer-overflow attack
+via \texttt{longjmp}.
 
-Many APIs use simple encryption schemes to detect mangled data structures.
+Simple encryption schemes can detect mangled data structures.
 For instance, in 32-bit Linux, \texttt{libc} provides
-a {\em pointer guard}  in \texttt{gs:0x18}. This pointer guard has a different value
-across multiple runs of a program, just like the \texttt{libc} canary value.
-The idea behind the pointer guard is the following: to encrypt a sensitive address $p$, a program
-can compute $s = p$  $\oplus  $ \texttt{gs:0x18}, optionally add some bit rotations, and store it in a structure
+a {\em pointer guard}  in \texttt{gs:0x18}. 
+The idea behind the pointer guard is the following: 
+to encrypt a sensitive address $p$, a program
+can compute $s = p$  $\oplus  $ \texttt{gs:0x18}, 
+optionally add some bit rotations, and store it in a structure
 that gets passed around. Decryption can simply invert any bit rotations, 
-and then compute $p = s$ $\oplus  $ \texttt{gs:0x18} back. Any blunt writes to the structure from clients will be detected because 
+and then compute $p = s$ $\oplus  $ \texttt{gs:0x18} back. 
+Any blunt writes to the structure from clients will be detected because
 decryption will likely not produce a valid pointer. 
 Pointer encryption is a useful security feature for some APIs
 and is used by some versions of \texttt{libc} to protect addresses stored in \texttt{jmp\_buf}
 structures.
 
-Initialization of the \texttt{libc} pointer guard can therefore be a source of nondeterminism
-program execution. In some versions of \texttt{libc}, the value of \texttt{gs:0x18} is the same
+This pointer guard has different values
+across multiple runs of a program, just like the \texttt{libc} canary
+value. Initialization of the \texttt{libc} pointer guard can 
+therefore be a source of nondeterminism in program execution. 
+In some versions of \texttt{libc}, the value of \texttt{gs:0x18} is the same
 as the value of \texttt{gs:0x14} (the canary). In others,
-the value of \texttt{gs:0x14} is \texttt{XOR}ed with 
-a random word (e.g. the return value of \texttt{rdtsc} x86 instruction,
-or some \texttt{AT\_RANDOM} bytes provided by the kernel) to compute
-the pointer guard. In any case, the value of the pointer
-guard can be made to agree across different instances
-of the same program via dynamic instrumentation: 
-the instructions that initialize \texttt{gs:0x18} can
-be modified or replaced, or the \texttt{rdtsc} instruction
-can be intercepted and emulated, or the  \texttt{AT\_RANDOM} bytes provided by the kernel can be
-replaced before they are ever read.
+the value of \texttt{gs:0x18} is computed by \texttt{XOR}ing \texttt{gs:0x14} with 
+a random word (e.g. the return value of the \texttt{rdtsc} x86 instruction),
+or reading other \texttt{AT\_RANDOM} bytes provided by the kernel
+ (Section \ref{ch3:rand}).
 
-\section{Randomization Schemes} \label{ch3:rand}
+\subsection{Randomization Schemes} \label{ch3:rand}
 As already clear from Section \ref{ch3:security}, 
 randomization schemes constitute a major source of nondeterminism 
-in programs.
-Applications generally use pseudorandom number generators (PRNGs)
-for randomization; they rely on the {\em seeds} to the PRNGs
+in programs. Applications generally use pseudorandom number generators (PRNGs)
+for randomization and rely on the {\em seeds} to the PRNGs
 to be different across multiple program executions 
 to generate truly random values. PRNG seeds are typically 
 computed from several external sources:
@@ -127,64 +123,58 @@ computed from several external sources:
 \begin{itemize}
 
 \item {\em The} \texttt{`/dev/urandom'}{\em special file}: Linux allows
-running processes to access a random number generator through this special file. The entropy generated
-from environmental noise (including device drivers)
-is used in some implementations for the kernel random number generator.
+running processes to access a random number generator through this
+special file. The entropy generated from environmental noise (including
+device drivers) is used in some implementations for the kernel random number generator.
+
 \item \texttt{AT\_RANDOM} {\em bytes}: 
 Making system calls to open, read and close the
 \texttt{`/dev/urandom'} file only for a
-few random bytes can be computationally expensive. So 
-some recent versions of the Linux kernel supply
+few random bytes can be computationally expensive. To
+remedy this, some 
+recent versions of the Linux kernel supply
 a few random bytes to all executing programs
 through the \texttt{AT\_RANDOM} auxiliary vector.
 ELF auxiliary vectors are pushed on the program
 stack below command-line arguments and environmental
-variables before the program starts executing.
+variables before a program starts executing.
 
 \item {\em The} \texttt{rdtsc} {\em instruction}:
 The \texttt{rdtsc} instruction provides an approximate number of ticks since
 the computer was last reset, which is stored in a 64-bit register present
 on x86 processors. Computing the difference between two successive
 calls to \texttt{rdtsc} can be used for timing, whereas a single
-value returned \texttt{rdtsc} lacks any useful context.  
+value returned from \texttt{rdtsc} lacks any useful context.  
 The instruction has low-overhead, which makes it suitable for generating a random value
 instead of reading from \texttt{`/dev/urandom'}. 
 
 \item {\em The current time or process ID}: Many applications simply make a system call
-to get the current time or the process ID, and use the returned value to seed their PRNGs. 
+to get the current time or the current process ID, and use the returned value to seed their PRNGs. 
 
 \item {\em Miscellaneous}: There
 are several creative ways to seed random number
-generators (e.g. {\em www.random.org}),
+generators (e.g. read from {\em www.random.org}),
 but thankfully we have not observed them
 in the Linux services we have analyzed.
-      
 \end{itemize}
 
-To overcome nondeterminism resulting from randomization, 
-we need to intercept the standard techniques
-used by programs to seed PRNGs.
-Dynamic instrumentation can be used to 
-intercept reads from \texttt{`/dev/urandom'}
-and emulate \texttt{rdtsc} instructions.
-Nondeterminism from process IDs
-can be controlled by virtualizing the process ID
-layer (Section \ref{ch3:pid}), and nondeterminism
-from time can be controlled by intercepting
-time-related system calls and forcing
-agreement between concurrently executing 
-instances (Section \ref{ch3:time}).
+Thus, true nondeterminism in Linux services is caused
+from the external techniques used to seed PRNGs;
+if the seeds are different across multiple
+executions, PRNGs algorithms propagate this
+nondeterminsm much further.
 
-\section{Process Identification Layer} \label{ch3:pid}
+\subsection{Process Identification Layer} \label{ch3:pid}
 % pid, signal(pid), /proc/ filesystem layer
 
 In the absence of a deterministic operating system layer, process IDs assigned
 to Linux services at boot-time are not predictable.
-For instance, a nondeterministic scheduler 
-could lead to several possible process creation sequences.
+For instance, a nondeterministic scheduler (Section \ref{ch3:concurrency}) 
+could lead to several possible process creation sequences
+and process ID assignments.
 
 Given the unpredictability of process IDs,
-Linux system calls that directly or indirectly
+system calls that directly or indirectly
 interact with the process identification layer can cause divergences
 in distinct executions of the same program.
 For instance, system calls that return a process ID e.g.
@@ -198,97 +188,64 @@ can similarly propagate any nondeterminism.
 In fact, \texttt{libc} stores a copy of the current process ID in \texttt{gs:0x48},
 so reads or writes to this address can cause conflicts.
 
-There are certain obscure interactions
-between the Linux kernel and executing programs
-where process IDs also show up. For instance:
+Apart from system calls, there are other interfaces
+between the Linux kernel and executing user-mode programs
+where process IDs also show up:
+
 \begin{itemize} 
-\item If a process registers a signal handler with the \texttt{SA\_SIGINFO}
+
+\item {\em Signals}: If a process registers a signal handler with the \texttt{SA\_SIGINFO}
 bit set, then the second argument passed
 to the signal handler when a signal occurs is of type \texttt{siginfo\_t*}.
 The member \texttt{siginfo\_t.si\_pid} will
 be set if another process sent the signal 
-to the original process. 
-\item The Linux kernel will sometimes use process IDs 
+to the original process. (Section \ref{ch3:sig}). 
+
+\item {\em Kernel messages}: The Linux kernel will sometimes use process IDs 
 to indicate the intended recipients of its messages. 
 For instance, \texttt{Netlink} is a socket-like
 mechanism for inter process communications (IPC)
 between the kernel and user-space processes.
 \texttt{Netlink} can be used to pass
 networking information between kernel
-and user space, and some of its APIs 
+and user-space, and some of its APIs 
 use process IDs to identify communication
-end-points. \end{itemize}
+end-points. (Section \ref{ch3:netio}). \end{itemize}
 
-Instead of exhaustively searching the entire
-Linux system-call interface, we found these obscure sources of
-nondeterminism by incrementally adding logic 
-for system calls actually used during execution
-to our Pin tracer tool (Section \ref{ch:hw}) .
+\newpage 
+Nondeterminism arising from the unpredictability of process IDs can be
+further propagated when process IDs are used to seed PRNGs (Section \ref{ch3:rand}),
+access the \texttt{`/proc/[pid]'} directory (Section \ref{ch3:procfs}),
+and create application-specific files or write to them. (Section \ref{ch3:fileio}). 
 
-Process IDs can be used to seed a PRNG (Section \ref{ch3:rand}),
-or access the \texttt{`/proc/[pid]'} directory (Section \ref{ch3:procfs}). 
-
-\begin{figure}[h]
-  \center
-  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.75]{none.jpg}
-  \caption[Virtualizing the process ID layer using Pin]% 
-  {We intercept all system calls and communications
-  between the Linux user and kernel space; we
-  translate between real and virtual process IDs
-  to trick the kernel and the user-space programs.}
-  \label{ch3:pidfig}
-\end{figure} 
-
-Figure \ref{ch3:pidfig} shows how we can use dynamic instrumentation
-techniques to virtualize and determinize the process ID layer in Linux.
-Using these techniques, we were able to avoid modifying
-the Linux operating system and existing programs
-altogether.
-
-\section{Time} \label{ch3:time}
+\subsection{Time} \label{ch3:time}
 Concurrent runs of the same program will typically
 execute the same instructions at (slightly) different times.
-Thus, any timestamps read or written
-by programs are clearly a significant source of nondeterminism.
-
-Any Linux system calls that directly or indirectly return timestamps
+Clearly, any Linux system calls interact with timestamps
 can cause nondeterminism. For instance:
-
 \begin{itemize}
 \item The \texttt{time}, \texttt{gettimeofday} and \texttt{clock\_gettime}
  system calls return the current time.
 \item The \texttt{times} or \texttt{getrusage} system calls
-return process/CPU time statistics.
+return process and CPU time statistics respectively.
 \item The \texttt{adjtimex} system call is used 
 by clock synchronization programs (e.g. \texttt{ntp}) 
-and can returns a kernel timestamp indirectly via 
+and returns a kernel timestamp indirectly via 
 a \texttt{timex} structure.
 \item Programs can access the hardware clock
-through \texttt{`/dev/rtc'} and can
-read different values for the current time through the \texttt{RTC\_RD\_TIME} \texttt{ioctl}
+through \texttt{`/dev/rtc'} and read the current time
+through the \texttt{RTC\_RD\_TIME} \texttt{ioctl}
 operation.
 \item Many system calls that specify a timeout
 for some action (e.g. \texttt{select}, \texttt{sleep} or \texttt{alarm})
 inform the caller of any unused time from the timeout interval if they
 return prematurely.
 \item The \texttt{stat} family of system calls returns file
-   modification timestamps;
-   application files typically contain timestamps;
-   network protocols use timestamps frequently as well.
-   (See Section \ref{ch3:filenetio}
+  modification timestamps; also, many application files typically contain timestamps;
+  network protocols use headers with timestamps as well (Sections \ref{ch3:fileio}
+  and \ref{ch3:netio}).
 \end{itemize}
 
-To overcome nondeterminism from time-related system calls,
-we can use dynamic instrumentation to force agreement between 
-any timestamps returned across concurrent
-executions (taking care to preserve monotonicity).
-This creates the illusion that multiple executions
-are occuring precisely at the same time. When timestamps
-returned from system calls are only compared, they
-can be replaced with deterministic ordinal values that 
-perserve the comparison (e.g 0 or 1). 
-
-\section{External I/O} \label{ch3:filenetio}
 \subsection{File I/O} \label{ch3:fileio}
 If two executions of the same program read different
 file contents (e.g. cache files), then
@@ -549,7 +506,7 @@ We also ensure that they are delivered
 at precisely the same instructions
 across different executions.
 
-\section{Concurrency}
+\section{Concurrency} \label{ch3:concurrency}
 Multiple possible instruction interleavings of 
 threads within a single program, 
 or different processes in 
@@ -629,7 +586,76 @@ The solution is to use dynamic instrumentation
 to intercept and modify reads 
 from procfs.
 
-\section{Issues at Stake}
+\section{Simulating Determinism} \label{ch3:simulation}
+
+Existing record-and-replay systems sometimes overcome ASLR by
+forcing the operating system to use the same address space layout across
+different runs. A slightly more complicated approach would involve
+using base/offset computations to translate equivalent 
+addresses between two different executions. 
+We simply disabled ASLR for our experiments using the following command:
+\texttt {sudo kernel.randomize\_va\_space=0}.
+
+
+
+Dynamic instrumentation can be used to force canary values
+to agree across distinct executions of the same program:
+instructions that initialize \texttt{gs:0x14} can be
+modified or replaced, or the \texttt{AT\_RANDOM} bytes provided by the kernel can be
+modified before they are read by the application, or reads from \texttt{`/dev/urandom'} can be 
+intercepted.
+
+ In any case, the value of the pointer
+guard can be made to agree across different instances
+of the same program via dynamic instrumentation: 
+the instructions that initialize \texttt{gs:0x18} can
+be modified or replaced, or the \texttt{rdtsc} instruction
+can be intercepted and emulated, or the  \texttt{AT\_RANDOM} bytes provided by the kernel can be
+replaced before they are ever read.
+
+To overcome nondeterminism resulting from randomization, 
+we need to intercept the standard techniques
+used by programs to seed PRNGs.
+Dynamic instrumentation can be used to 
+intercept reads from \texttt{`/dev/urandom'}
+and emulate \texttt{rdtsc} instructions.
+Nondeterminism from process IDs
+can be controlled by virtualizing the process ID
+layer (Section \ref{ch3:pid}), and nondeterminism
+from time can be controlled by intercepting
+time-related system calls and forcing
+agreement between concurrently executing 
+instances (Section \ref{ch3:time}).
+
+\begin{figure}[h]
+  \center
+  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.75]{none.jpg}
+  \caption[Virtualizing the process ID layer using Pin]% 
+  {We intercept all system calls and communications
+  between the Linux user and kernel space; we
+  translate between real and virtual process IDs
+  to trick the kernel and the user-space programs.}
+  \label{ch3:pidfig}
+\end{figure} 
+
+Figure \ref{ch3:pidfig} shows how we can use dynamic instrumentation
+techniques to virtualize and determinize the process ID layer in Linux.
+Using these techniques, we were able to avoid modifying
+the Linux operating system and existing programs
+altogether.
+
+To overcome nondeterminism from time-related system calls,
+we can use dynamic instrumentation to force agreement between 
+any timestamps returned across concurrent
+executions (taking care to preserve monotonicity).
+This creates the illusion that multiple executions
+are occuring precisely at the same time. When timestamps
+returned from system calls are only compared, they
+can be replaced with deterministic ordinal values that 
+perserve the comparison (e.g 0 or 1). 
+
+
+\section{Limitations of Deterministic Execution} \label{ch3:issues}
 % security: canary aslr etc
 % performance & correctness: randomization, ntp (time skew), time monotonic,
 % IO aggregation. (acquire lock). 

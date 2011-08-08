@@ -25,11 +25,11 @@
 \contentsline {subsection}{\numberline {3.1.10}{\em Procfs}: The `/proc/' directory}{44}
 \contentsline {subsection}{\numberline {3.1.11}Architecture Specific Instructions}{44}
 \contentsline {section}{\numberline {3.2}Simulating Deterministic Execution}{45}
-\contentsline {section}{\numberline {3.3}Results after Using Deterministic Execution}{51}
-\contentsline {section}{\numberline {3.4}Disadvantages of Deterministic Execution}{51}
-\contentsline {section}{\numberline {3.5}Summary}{52}
-\contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{53}
-\contentsline {section}{\numberline {4.1}Cups}{53}
-\contentsline {section}{\numberline {4.2}Cron}{53}
-\contentsline {section}{\numberline {4.3}Ntp}{53}
-\contentsline {section}{\numberline {4.4}Summary}{53}
+\contentsline {section}{\numberline {3.3}Results after Using Deterministic Execution}{52}
+\contentsline {section}{\numberline {3.4}Disadvantages of Deterministic Execution}{52}
+\contentsline {section}{\numberline {3.5}Summary}{53}
+\contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{55}
+\contentsline {section}{\numberline {4.1}Cups}{55}
+\contentsline {section}{\numberline {4.2}Cron}{55}
+\contentsline {section}{\numberline {4.3}Ntp}{55}
+\contentsline {section}{\numberline {4.4}Summary}{55}

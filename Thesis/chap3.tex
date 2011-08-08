@@ -13,9 +13,10 @@ This chapter first broadly summarizes the sources of nondeterminism
 in Linux services discovered through our experiments (Section \ref{ch3:sources}).
 Next, it explains the dynamic instrumentation techniques
 we used to simulate deterministic execution in a boot
-storm scenario (Section \ref{ch3:simulation}).
+storm scenario (Section \ref{ch3:simulation})
+and our results (Section \ref{ch3:data}).
 Finally, it discusses some of the limitations 
-in our approach to deterministic execution (Section \ref{ch3:issues}).
+of our approach to deterministic execution (Section \ref{ch3:issues}).
 
 \section{Sources of Nondeterminism} \label{ch3:sources}
 In this section, we describe the sources of nondeterminism
@@ -29,7 +30,7 @@ While our results are derived from analyzing a small
 set of complex programs, they include
 all sources of application-level nondeterminism that 
 have been described in literature. Unlike existing work,
-we cover the various interfaces between user-mode programs
+however, we cover the various interfaces between user-mode programs
 and the Linux kernel in considerable detail.
 
 \subsection{Linux Security Features} \label{ch3:security}
@@ -79,11 +80,12 @@ to subsequent function calls.
 For instance, the \texttt{setjmp} and \texttt{longjmp} functions
 can be used to implement a try-catch block in $C$: \texttt{setjmp} uses 
 a caller-provided, platform-specific \texttt{jmp\_buf} structure
-to store important register state that \texttt{longjmp} later reads to simulate a return from \texttt{setjmp}.
-Since the \texttt{jmp\_buf} instance is transparent to clients of \texttt{setjmp}
+to store important register state that \texttt{longjmp} 
+later reads to simulate a return from \texttt{setjmp}.
+Since the \texttt{jmp\_buf} instance is accessible to clients of \texttt{setjmp}
 and \texttt{longjmp}, it is possible that the clients may advertently or inadvertently
 overwrite the return address stored in it and simulate a buffer-overflow attack
-via \texttt{longjmp}.
+when \texttt{longjmp} is called.
 
 Simple encryption schemes can detect mangled data structures.
 For instance, in 32-bit Linux, \texttt{libc} provides
@@ -113,25 +115,23 @@ or reading other \texttt{AT\_RANDOM} bytes provided by the kernel
 
 \subsection{Randomization Schemes} \label{ch3:rand}
 As already clear from Section \ref{ch3:security}, 
-randomization schemes constitute a major source of nondeterminism 
-in programs. Applications generally use pseudorandom number generators (PRNGs)
-for randomization and rely on the {\em seeds} to the PRNGs
-to be different across multiple program executions 
-to generate truly random values. PRNG seeds are typically 
-computed from several external sources:
+randomization schemes can lead to significant nondeterminism 
+in programs. Applications generally employ pseudorandom number generators (PRNGs)
+and rely on the PRNG seeds to differ across multiple program executions 
+to generate truly random values. PRNG seeds are usually
+computed from external sources:
 
 \begin{itemize}
-
 \item {\em The} \texttt{`/dev/urandom'}{\em special file}: Linux allows
 running processes to access a random number generator through this
 special file. The entropy generated from environmental noise (including
 device drivers) is used in some implementations for the kernel random number generator.
 
 \item \texttt{AT\_RANDOM} {\em bytes}: 
-Making system calls to open, read and close the
-\texttt{`/dev/urandom'} file only for a
-few random bytes can be computationally expensive. To
-remedy this, some 
+Using \texttt{open}, \texttt{read} and \texttt{close} system-calls 
+to read only a few random bytes from \texttt{`/dev/urandom'} 
+can be computationally expensive. 
+To remedy this, some 
 recent versions of the Linux kernel supply
 a few random bytes to all executing programs
 through the \texttt{AT\_RANDOM} auxiliary vector.
@@ -149,17 +149,18 @@ The instruction has low-overhead, which makes it suitable for generating a rando
 instead of reading from \texttt{`/dev/urandom'}. 
 
 \item {\em The current time or process ID}: Many applications simply make a system call
-to get the current time or the current process ID, and use the returned value to seed their PRNGs. 
+to get the current time or the current process ID, 
+and use the returned value to seed their PRNGs. 
 
 \item {\em Miscellaneous}: There
 are several creative ways to seed random number
-generators (e.g. read from {\em www.random.org}),
+generators (e.g. reads from {\em www.random.org}),
 but thankfully we have not observed them
 in the Linux services we have analyzed.
 \end{itemize}
 
-Thus, true nondeterminism in Linux services is caused
-from the external techniques used to seed PRNGs;
+Thus, randomization-related nondeterminism in Linux services is 
+really originates from external sources used to seed PRNGs;
 if the seeds are different across multiple
 executions, PRNGs algorithms propagate this
 nondeterminsm much further.
@@ -171,7 +172,7 @@ In the absence of a deterministic operating system layer, process IDs assigned
 to Linux services at boot-time are not predictable.
 For instance, a nondeterministic scheduler (Section \ref{ch3:concurrency}) 
 could lead to several possible process creation sequences
-and process ID assignments.
+and, in turn, process ID assignments.
 
 Given the unpredictability of process IDs,
 system calls that directly or indirectly
@@ -199,7 +200,7 @@ bit set, then the second argument passed
 to the signal handler when a signal occurs is of type \texttt{siginfo\_t*}.
 The member \texttt{siginfo\_t.si\_pid} will
 be set if another process sent the signal 
-to the original process. (Section \ref{ch3:sig}). 
+to the original process (Section \ref{ch3:sig}). 
 
 \item {\em Kernel messages}: The Linux kernel will sometimes use process IDs 
 to indicate the intended recipients of its messages. 
@@ -214,9 +215,10 @@ end-points. (Section \ref{ch3:netio}). \end{itemize}
 
 \newpage 
 Nondeterminism arising from the unpredictability of process IDs can be
-further propagated when process IDs are used to seed PRNGs (Section \ref{ch3:rand}),
-access the \texttt{`/proc/[pid]'} directory (Section \ref{ch3:procfs}),
-and create application-specific files or write to them. (Section \ref{ch3:fileio}). 
+further propagated when an application uses process IDs to seed PRNGs 
+(Section \ref{ch3:rand}), access the \texttt{`/proc/[PID]'} directory
+(Section \ref{ch3:procfs}), name application-specific files or 
+write to them. (Section \ref{ch3:fileio}). 
 
 \subsection{Time} \label{ch3:time}
 Concurrent runs of the same program will typically
@@ -250,8 +252,8 @@ return prematurely.
 Apart from nondeterminism arising
 from timestamps, {\em timing} differences
 can arise between distinct executions 
-because of variable system-call latency 
-or unpredictable timing
+because of variable system-call latencies 
+or unpredictable timing of
 external events relative
 to program execution (Sections \ref{ch3:sig} and \ref{ch3:poll}).
 
@@ -259,7 +261,7 @@ to program execution (Sections \ref{ch3:sig} and \ref{ch3:poll}).
 \noindent {\bf File contents} \newline
 If two executions of the same program read different
 file contents (e.g. cache files), then
-there will naturally be some execution divergence.
+there will naturally be execution divergence.
 However, for concurrently executing Linux services,
 differences in file contents typically arise
 from process IDs (Section \ref{ch3:pid}) or timestamps (Section \ref{ch3:time})
@@ -278,9 +280,9 @@ conflict between any two executions. Most of the time,
 these timestamps are not read by programs,
 so there is little propagation. On occasion, 
 however, a program will use these timestamps
-to determine which file out of a group is the most recent, 
-or whether a file has been updated
-and needs to be refreshed. \newline
+to determine which file is more recent than another,
+or whether a file has changed since
+it was last read. \newline
 
 \noindent {\bf File Size} \newline
 When a program wishes to open
@@ -322,13 +324,15 @@ Calls to \texttt{libc} functions such as \texttt{getaddrinfo} use \texttt{stat}
 to determine if relevant configuration files (e.g. \texttt{`/etc/gai.conf'})
 have been modified since they were last read. 
 In our experiments, typically the file modification timestamps 
--- and not the actual contents -- of these configuration files vary between different executions,
-because identical VMs have the same network setup. \newline
+-- and not the actual contents -- of these configuration files 
+vary between different executions,
+because identical VMs have the same network setup
+and behavior. \newline
 
 \noindent {\bf DNS Resolution} \newline
 In our experiments, IP addresses are resolved identically by concurrently executing services. 
 However, if DNS-based load-balancing schemes are used, the same 
-servers can appear to have different IP addresses. \newline
+server can appear to have different IP addresses. \newline
 
 \noindent {\bf Socket \texttt{read}s} \newline
 Bytes read from sockets can differ between
@@ -341,7 +345,7 @@ By studying application behavior, it is possible
 to distinguish between 
 these different scenarios and
 identify the seriousness
-of any differences from socket reads.
+of any differences arising from socket reads.
 
 In our experiments, we have only observed nondeterminism
 in \texttt{read}s from \texttt{Netlink} sockets.
@@ -356,19 +360,18 @@ use process IDs to identify
 communication endpoints, which can
 differ between executions (Section \ref{ch3:pid}).
 Some implementations of \texttt{libc} use
-the current time as sequence
-number for \texttt{Netlink} packets (Section \ref{ch3:time}).
-Also, a
-socket of the \texttt{NETLINK\_ROUTE}
-family receives routing and link updates
-from the kernel. \texttt{libc} uses \texttt{RTM\_NEWLINK}
+unpredictable timestamps to assign monotonically increasing sequence 
+numbers to \texttt{Netlink} packets (Section \ref{ch3:time}).
+Nondeterminism can also arise from sockets of the \texttt{NETLINK\_ROUTE}
+family, which receive routing and link updates
+from the kernel; \texttt{libc} uses \texttt{RTM\_NEWLINK}
 messages to discover the link interfaces 
 in the computer. When a new interface
-is discovered or reported, the kernel also supplies
-interface statistics to \texttt{libc},
-such as packets/bytes sent, dropped or
-received. These statistics will obviously be different
-across different executions.  \newline
+is discovered or reported, the kernel supplies
+interface statistics to \texttt{libc} 
+such as packets sent, dropped or
+received. These statistics will obviously vary
+across different program instances.  \newline
 
 \noindent {\bf Ephemeral Ports} \newline
 A TCP/IPv4 connection consists of two end-points;
@@ -383,7 +386,7 @@ immediately evident is that the client-side of
 the connection uses a port number.
 Unless a client program explicitly
 requests a specific port number,
-the port number used is for an {\em ephemeral port}.
+an {\em ephemeral port} is used.
 Ephemeral ports are temporary ports
 assigned from a dedicated range by the machine IP stack,
 When a connection
@@ -573,10 +576,10 @@ to simulate deterministic execution in the bootstorm scenario.
                   {simulation.pdf}
   \caption[Simulation of Deterministic Execution of Bootstorm scenario]%
   {Simulation of Deterministic Execution of Bootstorm scenario.}
-  \label{ch3:simulation}
+  \label{ch3:figsimulation}
 \end{figure}
 
-As shown by Figure \ref{ch3:simulation}, we run one instance of the program before all others.
+As shown by Figure \ref{ch3:figsimulation}, we run one instance of the program before all others.
 For this instance, we generate an {\em execution log}, as before,
 but also summarize information about the sources of nondeterminism
 described in Section \ref{ch3:sources}. For instance, we record
@@ -662,29 +665,6 @@ executed time-related system calls
 at precisely the same times,
 and several randomly generated values independently agreed. \newline
 
-\noindent {\bf Process IDs} \newline
-Nondeterminism from process IDs
-can be controlled by virtualizing the process ID
-layer, as shown by Figure \ref{ch3:pidfig}.
-
-\begin{figure}[h]
-  \center
-  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.75]{none.jpg}
-  \caption[Virtualizing the process ID layer using Pin]% 
-  {We intercept all system calls and communications
-  between the Linux user and kernel space; we
-  translate between real and virtual process IDs
-  to trick the kernel and the user-space programs.}
-  \label{ch3:pidfig}
-\end{figure} 
-
-Using dynamic instrumentation, we can trick
-an executing program about its process ID.
-As outlined in Section \ref{ch3:pid}, all interfaces
-which use process IDs need to be carefully monitored
-so that process IDs can be translated back and forth
-for correctness. \newline
-
 \noindent {\bf Signal Delivery} \newline
 In order to overcome the unpredictable timing and 
 order of signals, we intercept all signals received by 
@@ -704,6 +684,33 @@ desired signal is received. If a signal simply
 refuses to appear for a long time, execution
 must diverge. This case has not yet happened
 in our experiments. \newline
+
+\noindent {\bf Process IDs} \newline
+Nondeterminism from process IDs
+can be controlled by virtualizing the process ID
+layer, as shown by Figure \ref{ch3:pidfig}.
+
+\begin{figure}[h]
+  \center
+  \includegraphics[trim=0cm 1cm 0cm 0.5cm, scale=0.60]{pid.pdf}
+  \caption[Virtualizing the process ID layer using Pin]% 
+  {All system calls and communications
+  between the Linux user and kernel space are intercepted; 
+  the dynamic instrumentation layer
+  uses a PID translation table, and
+  translates between real and virtual process IDs
+  to ensure correctness. }
+  
+  \label{ch3:pidfig}
+\end{figure} 
+
+Using dynamic instrumentation, we can replace
+real and unpredictable process IDs from kernel space
+with virtual and unpredictable process IDs in user space.
+As outlined in Section \ref{ch3:pid}, all interfaces
+which use process IDs need to be carefully monitored
+so that process IDs can be translated back and forth
+for correctness. \newline
 
 \noindent {\bf File I/O} \newline
 Semantic differences in file contents across
@@ -753,7 +760,7 @@ or sequence numbers). To handle
 nondeterminsm from interface statistics
 included in \texttt{RTM\_NEWLINK} packets,
 we can simply overwrite them with fixed
-numbers. \newline
+numbers. 
 
 We can mask nondeterminism from ephemeral ports, 
 by changing arguments for \texttt{bind} or \texttt{connect} 
@@ -763,6 +770,7 @@ assign them; alternatively,
 we can also virtualize ephemeral ports
 similar to how we virtualize process IDs. \newline
 
+\newpage
 \noindent{\bf Scalable I/O Schemes} \newline
 To handle nondeterminism caused by unpredictable
 ordering of I/O ``events'',
@@ -772,15 +780,35 @@ as described by Figure \ref{ch3:reorderfig}.
 
 \begin{figure}[h]
   \center
-  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.75]{none.jpg}
+  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.60]{epoll.pdf}
   \caption[Reordering I/O events using Pin]% 
-  {We intercept all \texttt{epoll} system calls,
+    {We intercept all \texttt{epoll} system calls,
     and use the execution signature file to
-    achieve determinism. We do not ``replay'' these I/O
+    achieve determinism. We do not ``replay'' I/O
     events because only events that actually do occur
-    are delivered to the application instance.}
+    are delivered to the application instance. This
+    diagram assumes \texttt{epoll} returns one event
+    per call for the sake of illustration. }       
   \label{ch3:reorderfig}
 \end{figure} 
+              
+Assuming that \texttt{epoll} returns just one event, figure
+\ref{ch3:reorderfig} illustrates three possible cases that could occur:
+\begin{itemize}
+    \item The event returned by a call to \texttt{epoll} is the one expected
+    in the execution signature file. The instrumentation layer
+    does not modify the system call.
+    \item Instead of the expected event,
+    \texttt{epoll} returns another event.
+    The instrumentation layer stores all such out-of-order events,
+    and repeatedly calls \texttt{epoll} until the 
+    the expected event is received.
+    \item  A call to \texttt{epoll} is initiated, and the
+    event returned has already been received.
+    The instrumentation layer does not 
+    make a system call but simulates a return
+    from \texttt{epoll} with the expected event.
+\end{itemize}
 
 Even if I/O events are reordered,
 it is possible that different amounts
@@ -848,6 +876,13 @@ and switch real and virtual process IDs
 in these paths.
 
 \section{Results after Using Deterministic Execution} \label{ch3:data}
+We were able to achieve fully deterministic execution in several
+Linux services including \texttt{cron}, \texttt{ntp} and
+\texttt{cups} using these approaches.
+
+The next chapter describes the context in which nondeterminism
+occured in these services and the relative signficance of the various factors we have outlined 
+as sources of nondeterminism in programs.
 
 \section{Disadvantages of Deterministic Execution} \label{ch3:issues}
 There are several drawbacks and limitations associated with the approach we use
@@ -871,7 +906,7 @@ clients may choose random IDs for themselves).
 Ntp requires time to be accurate, but it is self-healing.
 Time must be monotonic.
 \item{\em I/O aggregation in Network} \newline
-
+Is problematic e.g. for lock requests etc.
 
 
 \end{itemize}

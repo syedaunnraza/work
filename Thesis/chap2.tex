@@ -366,28 +366,7 @@ true impact of any nondeterminism in a program.
 Grouping instructions that generate and then propagate
 nondeterminism makes it easier for us to diagnose the sources of nondeterminism.
 
-%This understates divergence
-%in execution because if the same
-%instruction writes a different value to register \texttt{rax}
-%across two different executions, the register state between the 
-%two executions will have {\em diverged} for subsequent instructions as
-%well even if these instructions do not touch \texttt{rax} and are in fact
-%completely identical. In fact,
-%after the value of \texttt{rax} diverges, the register state will be different up to the point
-%where the two executions overwrite the value of \texttt{rax}
-%with the same value. The analysis script does not 
-%account for this ``cascade-effect'' because we wish to
-%accurately identify the set of instructions that are {\em directly}
-%related to any nondeterminism in a program.
-
-% For instance, if the
-%same instruction writes a different value to \texttt{rax} across
-%two different executions, then any subsequent instructions that read
-%\texttt{rax} will probably have different side-effects and will also
-% be marked as conflicting. The same is true for
-%any related memory writes/reads: if a memory location is
-%written with different values across two different executions,
-%subsequent reads will also be marked as conflicting.
+% ABSOLUTE TIMING ISSUES
 
 \section{Results for Linux services} \label{bootresults}
 

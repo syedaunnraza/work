@@ -14,5 +14,6 @@
 \contentsline {figure}{\numberline {2-12}{\ignorespaces Understanding nature of conflicts in \texttt {cron}}}{31}
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {3-1}{\ignorespaces Simulation of Deterministic Execution of Bootstorm scenario}}{45}
-\contentsline {figure}{\numberline {3-2}{\ignorespaces Virtualizing the process ID layer using Pin}}{46}
+\contentsline {figure}{\numberline {3-2}{\ignorespaces Virtualizing the process ID layer using Pin}}{48}
+\contentsline {figure}{\numberline {3-3}{\ignorespaces Reordering I/O events using Pin}}{50}
 \addvspace {10\p@ }

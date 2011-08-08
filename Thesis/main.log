@@ -1,12 +1,17 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  7 AUG 2011 17:14
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  7 AUG 2011 23:23
 entering extended mode
- restricted \write18 enabled.
  %&-line parsing enabled.
 **main
 (./main.tex
 LaTeX2e <2009/09/24>
 Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
-yphenation, loaded.
+yphenation, farsi, arabic, croatian, bulgarian, ukrainian, russian, czech, slov
+ak, danish, dutch, finnish, french, basque, ngerman, german, german-x-2009-06-1
+9, ngerman-x-2009-06-19, ibycus, monogreek, greek, ancientgreek, hungarian, san
+skrit, italian, latin, latvian, lithuanian, mongolian2a, mongolian, bokmal, nyn
+orsk, romanian, irish, coptic, serbian, turkish, welsh, esperanto, uppersorbian
+, estonian, indonesian, interlingua, icelandic, kurmanji, slovenian, polish, po
+rtuguese, spanish, galician, catalan, swedish, ukenglish, pinyin, loaded.
 (./mitthesis.cls
 Document Class: mitthesis 1999/10/20
 \vithesis=\count79
@@ -37,13 +42,12 @@ Thesis document copyright MIT unless otherwise (manually) specified
 \@titlesupervisor=\box26
 \@abstractsupervisor=\box27
 \c@savepage=\count89
-) (/usr/share/texmf-texlive/tex/latex/graphics/color.sty
-Package: color 2005/11/14 v1.0j Standard LaTeX Color (DPC)
-
-(/etc/texmf/tex/latex/config/color.cfg
+) (/mit/rsi/misc/texinputs/color.sty
+Package: color 1999/02/16 v1.0i Standard LaTeX Color (DPC)
+ (/etc/texmf/tex/latex/config/color.cfg
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
-Package color Info: Driver file: pdftex.def on input line 130.
+Package color Info: Driver file: pdftex.def on input line 125.
 
 (/usr/share/texmf-texlive/tex/latex/pdftex-def/pdftex.def
 File: pdftex.def 2010/03/12 v0.04p Graphics/color for pdfTeX
@@ -106,7 +110,11 @@ Package graphics Info: Driver file: pdftex.def on input line 91.
 
 LaTeX Warning: Label `hw:stats' multiply defined.
 
-) (./chap3.aux))
+) (./chap3.aux
+
+LaTeX Warning: Label `ch3:simulation' multiply defined.
+
+) (./chap4.aux) (./biblio.aux))
 \openout1 = `main.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 36.
@@ -121,7 +129,8 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 36.
 LaTeX Font Info:    ... okay on input line 36.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
 LaTeX Font Info:    ... okay on input line 36.
- (/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
+
+(/usr/share/texmf/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count99
 \scratchdimen=\dimen109
@@ -165,21 +174,28 @@ Underfull \hbox (badness 10000) in paragraph at lines 158--163
 ) [6]
 \openout2 = `contents.aux'.
 
- (./contents.tex (./main.toc)
-\tf@toc=\write3
-\openout3 = `main.toc'.
-
+ (./contents.tex (./main.toc
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <12> on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <8> on input line 2.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <6> on input line 2.
  [7
 
 
 
-] [8
+])
+\tf@toc=\write3
+\openout3 = `main.toc'.
 
-] (./main.lof)
+ [8] (./main.lof)
 \tf@lof=\write4
 \openout4 = `main.lof'.
 
- [9] [10
+ [9
+
+] [10
 
 ] (./main.lot)
 \tf@lot=\write5
@@ -195,108 +211,20 @@ Underfull \hbox (badness 10000) in paragraph at lines 158--163
 
 ]
 Chapter 1.
-
-LaTeX Warning: Citation `waldspurger2002memory' on page 13 undefined on input l
-ine 16.
-
-
-LaTeX Warning: Citation `vmwarevdi' on page 13 undefined on input line 22.
-
-
-LaTeX Warning: Citation `hansen2010lithium' on page 13 undefined on input line 
-38.
-
-
-LaTeX Warning: Citation `hansen2010lithium' on page 13 undefined on input line 
-44.
-
-
-LaTeX Warning: Citation `liao2011vmstore' on page 13 undefined on input line 44
-.
-
-
-LaTeX Warning: Citation `meng2010tide' on page 13 undefined on input line 44.
-
-
-LaTeX Warning: Citation `rajan2010vdc' on page 13 undefined on input line 44.
-
-
-LaTeX Warning: Citation `vaghani2010virtual' on page 13 undefined on input line
- 44.
-
 [13]
-
-LaTeX Warning: Citation `highperfnas' on page 14 undefined on input line 57.
-
-
-LaTeX Warning: Citation `liao2011vmstore' on page 14 undefined on input line 57
-.
-
-
-LaTeX Warning: Citation `qureshi2009bills' on page 14 undefined on input line 6
-1.
-
-
-LaTeX Warning: Citation `clements2009deduplication' on page 14 undefined on inp
-ut line 61.
-
-
-LaTeX Warning: Citation `netappstorm' on page 14 undefined on input line 67.
-
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <12> on input line 81.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <8> on input line 81.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <6> on input line 81.
-
 Underfull \vbox (badness 5652) has occurred while \output is active []
 
  [14]
-
-LaTeX Warning: Citation `luk2005pin' on page 15 undefined on input line 108.
-
-
-LaTeX Warning: Citation `bruening2004dr' on page 15 undefined on input line 109
-.
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 108--111
 
  []
 
 [15]
-
-LaTeX Warning: Citation `bergan2010dos' on page 16 undefined on input line 121.
-
-
-
-LaTeX Warning: Citation `patil2010pinplay' on page 16 undefined on input line 1
-23.
-
-
-LaTeX Warning: Citation `marek2011scaling' on page 16 undefined on input line 1
-23.
-
-
-LaTeX Warning: Citation `marek2011scaling' on page 16 undefined on input line 1
-46.
-
-
-LaTeX Warning: Citation `patil2010pinplay' on page 16 undefined on input line 1
-46.
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 138--147
 
  []
 
 [16]
-
-LaTeX Warning: Citation `stephenson2010mainstream' on page 17 undefined on inpu
-t line 153.
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 148--158
 
  []
@@ -322,13 +250,8 @@ File: boot_first35seconds.png Graphic file (type png)
 <boot_last35seconds.png, id=70, 747.54282pt x 146.04562pt>
 File: boot_last35seconds.png Graphic file (type png)
 
-<use boot_last35seconds.png>
-
-LaTeX Warning: Citation `mahkovec2005bootchart' on page 20 undefined on input l
-ine 71.
-
-[20 <./boot_first35seconds.png (PNG copy)> <./boot_last35seconds.png (PNG copy)
->]
+<use boot_last35seconds.png> [20 <./boot_first35seconds.png (PNG copy)> <./boot
+_last35seconds.png (PNG copy)>]
 
 pdfTeX warning: pdflatex (file ./boottimeline.pdf): PDF inclusion: found PDF ve
 rsion <1.5>, but at most version <1.4> allowed
@@ -421,13 +344,6 @@ LaTeX Warning: `h' float specifier changed to `ht'.
  (./chap3.tex
 Chapter 3.
 
-LaTeX Warning: Reference `ch3:simulation' on page 33 undefined on input line 16
-.
-
-
-LaTeX Warning: Reference `ch3:issues' on page 33 undefined on input line 18.
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 36--47
 
  []
@@ -450,10 +366,6 @@ ys-tem calls to open, read and close the \OT1/cmtt/m/n/12 `/dev/urandom'
  []
 
 [36] [37]
-
-LaTeX Warning: Reference `ch3:procfs' on page 38 undefined on input line 218.
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 259--268
 
  []
@@ -482,17 +394,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 346--372
 
 [40] [41] [42] [43]
 
-LaTeX Warning: Reference `ch3:simulation' on page 44 undefined on input line 56
-7.
-
-
-
 pdfTeX warning: pdflatex (file ./simulation.pdf): PDF inclusion: found PDF vers
 ion <1.5>, but at most version <1.4> allowed
 <simulation.pdf, id=263, 722.7pt x 542.025pt>
 File: simulation.pdf Graphic file (type pdf)
  <use simulation.pdf>
-Overfull \hbox (32.43298pt too wide) in paragraph at lines 572--574
+Overfull \hbox (32.43298pt too wide) in paragraph at lines 573--575
  [] 
  []
 
@@ -500,30 +407,96 @@ Overfull \hbox (32.43298pt too wide) in paragraph at lines 572--574
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [44]
-Overfull \hbox (1.85153pt too wide) in paragraph at lines 578--585
-\OT1/cmr/m/n/12 our ex-per-i-ments us-ing the fol-low-ing com-mand: \OT1/cmtt/m
-/n/12 sudo kernel.randomize[]va[]space=0\OT1/cmr/m/n/12 . 
+[45 <./simulation.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 602--608
+
  []
 
-[45 <./simulation.pdf>]
+
+Underfull \hbox (badness 10000) in paragraph at lines 609--619
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 620--632
+
+ []
+
+[46]
+Underfull \hbox (badness 10000) in paragraph at lines 659--664
+
+ []
+
 File: none.jpg Graphic file (type jpg)
- <use none.jpg>
+<use none.jpg>
 
-LaTeX Warning: Reference `ch3:pidfig' on page 46 undefined on input line 628.
+LaTeX Warning: `h' float specifier changed to `ht'.
 
-[46] [47]) [48]
+
+Underfull \hbox (badness 10000) in paragraph at lines 681--687
+
+ []
+
+[47]
+Underfull \hbox (badness 10000) in paragraph at lines 696--707
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 708--727
+
+ []
+
+
+Underfull \vbox (badness 1939) has occurred while \output is active []
+
+ [48]
+Underfull \hbox (badness 10000) in paragraph at lines 746--757
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 758--765
+
+ []
+
+File: none.jpg Graphic file (type jpg)
+<use none.jpg>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 785--812
+
+ []
+
+[49]
+Underfull \hbox (badness 10000) in paragraph at lines 830--838
+
+ []
+
+
+Underfull \vbox (badness 4595) has occurred while \output is active []
+
+ [50]
+[51]
+Underfull \hbox (badness 10000) in paragraph at lines 873--874
+
+ []
+
+) [52]
 \openout2 = `chap4.aux'.
 
  (./chap4.tex
 Chapter 4.
-) [49
+) [53
 
 
 
 ]
 \openout2 = `biblio.aux'.
 
- (./biblio.tex (./main.bbl [50
+ (./biblio.tex (./main.bbl [54
 
 
 
@@ -545,28 +518,25 @@ Underfull \hbox (badness 1454) in paragraph at lines 60--64
 tistrategy . com / 2009 / 11 / 01 /
  []
 
-[51]
+[55]
 Underfull \hbox (badness 2707) in paragraph at lines 100--104
 []\OT1/cmr/m/n/12 VMware Vir-tual Desk-top In-fras-truc-ture.  $\OT1/cmtt/m/n/1
 2 http : / / www . vmware . com / pdf /
  []
 
-)) [52] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
+)) [56] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
 (./chap3.aux) (./chap4.aux) (./biblio.aux))
-
-LaTeX Warning: There were undefined references.
-
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2908 strings out of 495061
- 40125 string characters out of 1182622
- 119554 words of memory out of 3000000
- 6013 multiletter control sequences out of 15000+50000
- 10856 words of font info for 38 fonts, out of 3000000 for 9000
- 28 hyphenation exceptions out of 8191
+ 2919 strings out of 493848
+ 40194 string characters out of 1152824
+ 121525 words of memory out of 3000000
+ 6118 multiletter control sequences out of 15000+50000
+ 11215 words of font info for 39 fonts, out of 3000000 for 9000
+ 714 hyphenation exceptions out of 8191
  32i,9n,54p,229b,1395s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
 re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-te
@@ -579,9 +549,9 @@ are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-tex
 live/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/
 type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/publi
 c/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (52 pages, 559945 bytes).
+Output written on main.pdf (56 pages, 569287 bytes).
 PDF statistics:
- 347 PDF objects out of 1000 (max. 8388607)
+ 360 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  61 words of extra memory for PDF output out of 10000 (max. 10000000)
 

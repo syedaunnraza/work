@@ -12,15 +12,14 @@
 This chapter first broadly summarizes the sources of nondeterminism
 in Linux services discovered through our experiments (Section \ref{ch3:sources}).
 Next, it explains the dynamic instrumentation techniques
-we used to simulate deterministic execution in a boot
-storm scenario (Section \ref{ch3:simulation})
+we used to simulate deterministic execution (Section \ref{ch3:simulation})
 and our results (Section \ref{ch3:data}).
 Finally, it discusses some of the limitations 
 of our approach to deterministic execution (Section \ref{ch3:issues}).
 
 \section{Sources of Nondeterminism} \label{ch3:sources}
 In this section, we describe the sources of nondeterminism
-that we discovered using the data collection scheme
+discovered using the data collection scheme
 described in Chapter \ref{ch:boot}.
 This study of nondeterminism reveals
 subtle interactions between user-mode
@@ -37,7 +36,7 @@ and the Linux kernel in considerable detail.
 \noindent {\bf Address Space Layout Randomization (ASLR)} \newline
 Address Space Layout Randomization (ASLR) involves random arrangement of
 key memory segments of an executing program. When ASLR is enabled,
-the virtual addresses for the base executable, shared libraries, 
+virtual addresses for the base executable, shared libraries, 
 the heap, and the stack are different every time the program is run.
 ASLR hinders several kinds of security attacks in which attackers have to predict
 program addresses in order to redirect execution (e.g. \emph{return-to-libc} attacks). 
@@ -67,7 +66,7 @@ depends on the \texttt{libc} version.
 If randomization is disabled, \texttt{libc} will store a fixed
 terminator canary value in \texttt{gs:0x14}; this does not lead to any nondeterminism.
 When randomization is enabled, however,  
-some versions of \texttt{libc} store a random word in \texttt{gs:0x14} 
+some versions of \texttt{libc} store an unpredictable value in \texttt{gs:0x14} 
 by reading from \texttt{`/dev/urandom'}
 or by using the \texttt{AT\_RANDOM} bytes provided by the kernel (see
 Section \ref{ch3:rand}). 
@@ -154,22 +153,22 @@ and use the returned value to seed their PRNGs.
 
 \item {\em Miscellaneous}: There
 are several creative ways to seed random number
-generators (e.g. reads from {\em www.random.org}),
-but thankfully we have not observed them
-in the Linux services we have analyzed.
+generators (e.g. reading from {\em www.random.org}),
+but we have not observed them
+in our analysis of Linux services.
 \end{itemize}
 
-Thus, randomization-related nondeterminism in Linux services is 
+Thus, randomization-related nondeterminism in Linux services 
 really originates from external sources used to seed PRNGs;
 if the seeds are different across multiple
 executions, PRNGs algorithms propagate this
-nondeterminsm much further.
+nondeterminism.
 
 \subsection{Process Identification Layer} \label{ch3:pid}
 % pid, signal(pid), /proc/ filesystem layer
 
-In the absence of a deterministic operating system layer, process IDs assigned
-to Linux services at boot-time are not predictable.
+In the absence of a deterministic operating system layer, process IDs for
+Linux services at boot-time are not predictable.
 For instance, a nondeterministic scheduler (Section \ref{ch3:concurrency}) 
 could lead to several possible process creation sequences
 and, in turn, process ID assignments.
@@ -182,7 +181,7 @@ For instance, system calls that return a process ID e.g.
 \texttt{getpid} (get process ID), \texttt{getppid} (get
 parent process ID), \texttt{fork/clone} (create a child process),
 \texttt{wait} (wait for a child process to terminate)
-can return different values across executions. System calls that take process IDs 
+can return different values across distinct executions. System calls that take process IDs 
 directly as arguments such as \texttt{kill} (send a signal to a specific
 process), \texttt{waitpid} (wait for a specific child process to terminate)
 can similarly propagate any nondeterminism.
@@ -468,7 +467,7 @@ interval is specified by the application for polling file descriptors,
 \texttt{select} may be completed or interrupted
 prematurely. In that case, \texttt{select} returns
 the remaining time interval, which can     
-differ between executions (Section \ref{ch3:time}).
+differ between executions (Section \ref{ch3:time}). \newline
 
 \noindent {\bf Asynchronous I/O Systems} \newline
 Asynchronous I/O APIs (e.g. the Kernel Asynchronous I/O interface
@@ -559,10 +558,10 @@ will reveal process creation time.
 Architecture specific instructions such as \texttt{rdtsc}
 and \texttt{cpuid} can return different
 results across program executions. As mentioned before
-(Section \ref{ch3:rand}), the \texttt{rdtsc} instruction provides an approximate number of ticks since
+(Section \ref{ch3:rand}), the \texttt{rdtsc} instruction provides the number of ticks since
 the computer was last reset, which
 will differ across executions. The \texttt{cpuid} instruction
-returns information about the process and the underlying 
+returns information about the processor and the underlying 
 hardware, and its results can vary across different
 executions as well.
 

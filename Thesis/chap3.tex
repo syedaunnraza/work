@@ -884,18 +884,21 @@ occured in these services and the relative signficance of the various factors we
 as sources of nondeterminism in programs.
 
 \section{Disadvantages of Deterministic Execution} \label{ch3:issues}
-There are several drawbacks and limitations associated with the approach we use
+There are several drawbacks and limitations associated with the approach we used
 to make execution deterministic:
 \begin{itemize}
 \item {\em Security:} \newline
 Disabling ASLR increases the vulnerability of
-applications to external attacks. Similarly, although canary and pointer guard
-values are still dynamically chosen using deterministic
-execution, they must agree across many different VMs. Thus,
-an attacker who can compromise one such VM can easily
-attack others too. However, attacks
-that can compromise one machine can usually compromise
-other machines too, unless they just got extremely lucky.
+applications to external attacks. 
+Although canary and pointer guard
+values are still dynamically chosen (between successive bootstorms) in
+our brand of deterministic execution, 
+they must agree across all VMs. Thus,
+an adversary  who can compromise one VM by guessing its canary can easily
+attack the others as well. 
+Having said that, if an adversary can compromise one machine, he/she can usually compromise
+other machines too using the same attacks in most cases.
+
 \item {\em Randomization:} \newline
 Randomization is essential for security (e.g. random values
 are used to generate keys and certificates),
@@ -906,7 +909,6 @@ Ntp requires time to be accurate, but it is self-healing.
 Time must be monotonic.
 \item{\em I/O aggregation in Network} \newline
 Is problematic e.g. for lock requests etc.
-
 
 \end{itemize}
 

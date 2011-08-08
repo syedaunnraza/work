@@ -1,4 +1,12 @@
+<<<<<<< HEAD
 This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 16:22
+=======
+<<<<<<< HEAD
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  8 AUG 2011 14:43
+=======
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 15:39
+>>>>>>> 8c071dffb0e0e108ccb60f22440d559c480836c6
+>>>>>>> c1c3bc7fa9884f56fbffce4096e6d9e10cce68c3
 entering extended mode
  %&-line parsing enabled.
 **main
@@ -298,10 +306,10 @@ File: log.pdf Graphic file (type pdf)
 
 pdfTeX warning: pdflatex (file ./log2.pdf): PDF inclusion: found PDF version <1
 .5>, but at most version <1.4> allowed
-<log2.pdf, id=121, 722.7pt x 542.025pt>
+<log2.pdf, id=124, 722.7pt x 542.025pt>
 File: log2.pdf Graphic file (type pdf)
  <use log2.pdf> [25 <./log2.pdf>]
-[26] <trace.pdf, id=134, 578.16pt x 433.62pt>
+[26] <trace.pdf, id=137, 578.16pt x 433.62pt>
 File: trace.pdf Graphic file (type pdf)
  <use trace.pdf>
 Underfull \vbox (badness 4084) has occurred while \output is active []
@@ -310,7 +318,7 @@ Underfull \vbox (badness 4084) has occurred while \output is active []
 
 pdfTeX warning: pdflatex (file ./liveness.pdf): PDF inclusion: found PDF versio
 n <1.5>, but at most version <1.4> allowed
-<liveness.pdf, id=195, 722.7pt x 542.025pt>
+<liveness.pdf, id=198, 722.7pt x 542.025pt>
 File: liveness.pdf Graphic file (type pdf)
  <use liveness.pdf>
 Underfull \hbox (badness 10000) in paragraph at lines 359--359
@@ -322,13 +330,13 @@ Overfull \hbox (29.75562pt too wide) in paragraph at lines 377--406
  [] 
  []
 
-[29] <ntptracech2.jpg, id=213, 596.2275pt x 451.6875pt>
+[29] <ntptracech2.jpg, id=216, 596.2275pt x 451.6875pt>
 File: ntptracech2.jpg Graphic file (type jpg)
  <use ntptracech2.jpg>
-[30 <./ntptracech2.jpg>] <crontracech2.png, id=217, 593.21625pt x 446.41782pt>
+[30 <./ntptracech2.jpg>] <crontracech2.png, id=220, 593.21625pt x 446.41782pt>
 File: crontracech2.png Graphic file (type png)
 
-<use crontracech2.png> <none.jpg, id=219, 213.79875pt x 213.79875pt>
+<use crontracech2.png> <none.jpg, id=222, 213.79875pt x 213.79875pt>
 File: none.jpg Graphic file (type jpg)
 
 <use none.jpg>
@@ -394,7 +402,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 459--471
 
 pdfTeX warning: pdflatex (file ./simulation.pdf): PDF inclusion: found PDF vers
 ion <1.5>, but at most version <1.4> allowed
-<simulation.pdf, id=263, 722.7pt x 542.025pt>
+<simulation.pdf, id=266, 722.7pt x 542.025pt>
 File: simulation.pdf Graphic file (type pdf)
  <use simulation.pdf>
 Overfull \hbox (32.43298pt too wide) in paragraph at lines 575--577
@@ -430,7 +438,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 675--686
 
 pdfTeX warning: pdflatex (file ./pid.pdf): PDF inclusion: found PDF version <1.
 5>, but at most version <1.4> allowed
-<pid.pdf, id=291, 722.7pt x 542.025pt>
+<pid.pdf, id=294, 722.7pt x 542.025pt>
 File: pid.pdf Graphic file (type pdf)
  <use pid.pdf>
 Underfull \hbox (badness 10000) in paragraph at lines 706--713
@@ -451,7 +459,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 764--771
 
 pdfTeX warning: pdflatex (file ./epoll.pdf): PDF inclusion: found PDF version <
 1.5>, but at most version <1.4> allowed
-<epoll.pdf, id=338, 722.7pt x 542.025pt>
+<epoll.pdf, id=341, 722.7pt x 542.025pt>
 File: epoll.pdf Graphic file (type pdf)
  <use epoll.pdf> [50 <./epoll.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 812--839
@@ -548,9 +556,19 @@ are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-tex
 live/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/
 type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/publi
 c/amsfonts/cm/cmtt12.pfb>
+<<<<<<< HEAD
 Output written on main.pdf (62 pages, 681622 bytes).
 PDF statistics:
  467 PDF objects out of 1000 (max. 8388607)
+=======
+<<<<<<< HEAD
+Output written on main.pdf (58 pages, 658100 bytes).
+=======
+Output written on main.pdf (58 pages, 680152 bytes).
+>>>>>>> 8c071dffb0e0e108ccb60f22440d559c480836c6
+PDF statistics:
+ 457 PDF objects out of 1000 (max. 8388607)
+>>>>>>> c1c3bc7fa9884f56fbffce4096e6d9e10cce68c3
  0 named destinations out of 1000 (max. 500000)
  71 words of extra memory for PDF output out of 10000 (max. 10000000)
 

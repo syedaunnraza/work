@@ -1,12 +1,17 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  8 AUG 2011 02:01
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 15:39
 entering extended mode
- restricted \write18 enabled.
  %&-line parsing enabled.
 **main
 (./main.tex
 LaTeX2e <2009/09/24>
 Babel <v3.8l> and hyphenation patterns for english, usenglishmax, dumylang, noh
-yphenation, loaded.
+yphenation, farsi, arabic, croatian, bulgarian, ukrainian, russian, czech, slov
+ak, danish, dutch, finnish, french, basque, ngerman, german, german-x-2009-06-1
+9, ngerman-x-2009-06-19, ibycus, monogreek, greek, ancientgreek, hungarian, san
+skrit, italian, latin, latvian, lithuanian, mongolian2a, mongolian, bokmal, nyn
+orsk, romanian, irish, coptic, serbian, turkish, welsh, esperanto, uppersorbian
+, estonian, indonesian, interlingua, icelandic, kurmanji, slovenian, polish, po
+rtuguese, spanish, galician, catalan, swedish, ukenglish, pinyin, loaded.
 (./mitthesis.cls
 Document Class: mitthesis 1999/10/20
 \vithesis=\count79
@@ -37,13 +42,12 @@ Thesis document copyright MIT unless otherwise (manually) specified
 \@titlesupervisor=\box26
 \@abstractsupervisor=\box27
 \c@savepage=\count89
-) (/usr/share/texmf-texlive/tex/latex/graphics/color.sty
-Package: color 2005/11/14 v1.0j Standard LaTeX Color (DPC)
-
-(/etc/texmf/tex/latex/config/color.cfg
+) (/mit/rsi/misc/texinputs/color.sty
+Package: color 1999/02/16 v1.0i Standard LaTeX Color (DPC)
+ (/etc/texmf/tex/latex/config/color.cfg
 File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
-Package color Info: Driver file: pdftex.def on input line 130.
+Package color Info: Driver file: pdftex.def on input line 125.
 
 (/usr/share/texmf-texlive/tex/latex/pdftex-def/pdftex.def
 File: pdftex.def 2010/03/12 v0.04p Graphics/color for pdfTeX
@@ -122,7 +126,7 @@ LaTeX Font Info:    ... okay on input line 36.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 36.
 LaTeX Font Info:    ... okay on input line 36.
 
-(/usr/share/texmf-texlive/tex/context/base/supp-pdf.mkii
+(/usr/share/texmf/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count99
 \scratchdimen=\dimen109
@@ -456,16 +460,16 @@ Underfull \hbox (badness 10000) in paragraph at lines 857--865
 
  []
 
-[51] [52]) [53]
+[51] [52] [53]) [54]
 \openout2 = `chap4.aux'.
 
- (./chap4.tex [54
+ (./chap4.tex
+Chapter 4.
+) [55
 
 
 
 ]
-Chapter 4.
-) [55]
 \openout2 = `biblio.aux'.
 
  (./biblio.tex (./main.bbl [56
@@ -503,12 +507,12 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 2929 strings out of 495061
- 40371 string characters out of 1182622
- 120556 words of memory out of 3000000
- 6028 multiletter control sequences out of 15000+50000
+ 2930 strings out of 493848
+ 40331 string characters out of 1152824
+ 121536 words of memory out of 3000000
+ 6127 multiletter control sequences out of 15000+50000
  11215 words of font info for 39 fonts, out of 3000000 for 9000
- 28 hyphenation exceptions out of 8191
+ 714 hyphenation exceptions out of 8191
  32i,9n,54p,229b,1395s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
 re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-te
@@ -521,7 +525,7 @@ are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-tex
 live/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/
 type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/publi
 c/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (58 pages, 678177 bytes).
+Output written on main.pdf (58 pages, 680152 bytes).
 PDF statistics:
  454 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

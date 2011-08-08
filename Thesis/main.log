@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 16:22
-=======
-<<<<<<< HEAD
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  8 AUG 2011 14:43
-=======
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 15:39
->>>>>>> 8c071dffb0e0e108ccb60f22440d559c480836c6
->>>>>>> c1c3bc7fa9884f56fbffce4096e6d9e10cce68c3
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 16:59
 entering extended mode
  %&-line parsing enabled.
 **main
@@ -556,19 +548,9 @@ are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-tex
 live/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/
 type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/publi
 c/amsfonts/cm/cmtt12.pfb>
-<<<<<<< HEAD
-Output written on main.pdf (62 pages, 681622 bytes).
+Output written on main.pdf (62 pages, 661477 bytes).
 PDF statistics:
- 467 PDF objects out of 1000 (max. 8388607)
-=======
-<<<<<<< HEAD
-Output written on main.pdf (58 pages, 658100 bytes).
-=======
-Output written on main.pdf (58 pages, 680152 bytes).
->>>>>>> 8c071dffb0e0e108ccb60f22440d559c480836c6
-PDF statistics:
- 457 PDF objects out of 1000 (max. 8388607)
->>>>>>> c1c3bc7fa9884f56fbffce4096e6d9e10cce68c3
+ 470 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  71 words of extra memory for PDF output out of 10000 (max. 10000000)
 

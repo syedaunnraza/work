@@ -7,7 +7,7 @@
 \contentsline {chapter}{\numberline {2}Execution Profile of Linux Services}{19}
 \contentsline {section}{\numberline {2.1}The Linux Boot Process}{19}
 \contentsline {section}{\numberline {2.2}Data Collection Scheme}{22}
-\contentsline {subsection}{\numberline {2.2.1}Analyzing a simple ``Hello, world!'' program}{23}
+\contentsline {subsection}{\numberline {2.2.1}Measuring nondeterminism in a simple $C$ program}{23}
 \contentsline {subsection}{\numberline {2.2.2}Alternative metrics for measuring nondeterminism}{28}
 \contentsline {section}{\numberline {2.3}Results for Linux services}{29}
 \contentsline {section}{\numberline {2.4}Summary}{32}
@@ -28,8 +28,12 @@
 \contentsline {section}{\numberline {3.3}Results after Using Deterministic Execution}{52}
 \contentsline {section}{\numberline {3.4}Disadvantages of Deterministic Execution}{52}
 \contentsline {section}{\numberline {3.5}Summary}{54}
-\contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{55}
+\contentsline {chapter}{\numberline {4}Case Study of \texttt {cups}, \texttt {ntp} and \texttt {cron}}{55}
 \contentsline {section}{\numberline {4.1}Cups}{55}
 \contentsline {section}{\numberline {4.2}Cron}{55}
 \contentsline {section}{\numberline {4.3}Ntp}{55}
 \contentsline {section}{\numberline {4.4}Summary}{55}
+\contentsline {chapter}{\numberline {5}Design Ideas for Deduplication of Execution}{57}
+\contentsline {section}{\numberline {5.1}Summary}{57}
+\contentsline {chapter}{\numberline {6}Conclusion and Future Work}{59}
+\contentsline {section}{\numberline {6.1}Summary}{59}

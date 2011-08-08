@@ -34,8 +34,8 @@ less resources than server virtual machines.
 Consolidation ratios (measured by VM density per host) in data centers
 are expected to increase in the future, not only because of
 improvements in virtualization technology, but also because
-new generations of processors support more cores and 
-more memory \cite{hansen2010lithium}. 
+newer generations of processors support more cores and 
+memory \cite{hansen2010lithium}. 
 Because a single VM would typically utilize only a modest fraction of a 
 host's hardware resources, a high VM density per host is
 desireable in most cases for effective resource utilization. 
@@ -78,9 +78,9 @@ controllable sources of non-determinism? Ultimately, if there is a way
 to ensure that concurrently booting VMs execute mostly the same set of instructions
 and perform the same I/O requests, one way to solve the boot storm
 problem may be remarkable simple in essence: instead of booting
-$N$ identical VMs concurrently, we can boot one VM as a leader; the remaining $(N-1)$ VMs minimally
+$N$ identical VMs concurrently, we can boot one VM as a leader; the remaining $(N-1)$ VMs 
 follow the leader by executing a tiny subset of the instructions they would otherwise execute;
-we fork execution into $N$ different instances as late as possible into the boot process. This approach
+we split execution into $N$ different instances as late as possible into the boot process. This approach
 could potentially reduce pressure on the underlying host hardware,
 and thereby enable data centers to handle boot storms effectively.
 
@@ -105,14 +105,16 @@ the feasibility of \emph{deduplication of execution} as a possible solution
 to the boot storm problem. 
 
 \section{Contrbutions}
-For this work, we used dynamic instrumentation frameworks such as Pin \cite{luk2005pin} and
-DynamoRio \cite{bruening2004dr} to study user-level instruction streams from a
+For this work, we used dynamic instrumentation frameworks such as
+DynamoRio \cite{bruening2004dr} and Pin \cite{luk2005pin}
+to study user-level instruction streams from 
 a few representative Linux services at boot-time. \newline
 
 In this document, we:
 \begin {enumerate}
-\item show that nondeterminism in Linux services is bursty and extremely rare;
-\item document the sources of non-determinism in Linux services -- both obvious and obscure --
+\item quantify nondeterminism in Linux services, and show that it is
+  bursty and rare;
+\item document the sources of nondeterminism in Linux services -- both obvious and obscure --
   and specify strategies for overcoming them in the boot storm scenario;
 \item use simple dynamic instrumentation techniques to show that \emph{fully} deterministic execution is achievable
   without \emph{any} modifications to Linux or an executing service.
@@ -136,8 +138,7 @@ and data deduplication.
 
 \section{Importance of Deterministic Execution}
 While our study of nondeterminism is driven by a specfic application,
- deterministic execution of programs can be beneficial in many
-different scenarios in its own right. 
+deterministic execution is desirable in a variety of scenarios.
 %Our work complements existing
 %work because it focuses on deterministic execution of primarily single-threaded services in Linux,
 %at the granularity of individual instructions and their side-effects in
@@ -162,9 +163,9 @@ because outputs and internal state can be checked at
 certain points with respect to expected values. Our version
 of determinism allows for a particularly strong kind
 of test case that may be necessary for safety-critical 
-systems: with deterministic execution, a program 
+systems: a program 
 must execute the exact same instructions 
-across different executions for the same inputs. \newline 
+across different executions (for the same inputs). \newline 
 
 \noindent {\bf Debugging:} 
 Erroneous behavior can be more easily reproduced
@@ -174,14 +175,13 @@ execution has much lower storage overhead
 than traditional record-and-replay approaches. 
 
 \section{Thesis Organization} 
-In what follows, Chapter 2 presents an overview of
+In what follows, Chapter \ref{ch:boot} presents an overview of
 the Linux boot process, along with the dynamic instrumentation
 techniques we used to profile non-determinism in Linux services.
-Chapter 3 presents a summary of the sources of non-determinism
-we discovered in this work.
-Chapter 4 presents a detailed case study of three Linux services
-to identify the common context in which non-determinism arises
-and the strategies that can be used to control it.
-Chapter 5 presents design ideas for an implementation of deduplication of execution.
-Chapter 6 summarizes related work. Finally, Chapter 7 concludes this thesis
-and discusses future work.
+Chapter \ref{ch:src} presents a summary of the sources of nondeterminism
+discovered in this work and the strategies we used
+to eliminate them. 
+Chapter \ref{ch:case} presents a detailed case study of three Linux services
+to identify the common context in which non-determinism arises.
+Chapter \ref{ch:design} presents design ideas for an implementation of deduplication of execution.
+Finally, Chapter \ref{ch:conc} concludes this thesis and discusses future work.

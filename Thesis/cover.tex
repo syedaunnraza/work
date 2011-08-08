@@ -40,7 +40,7 @@
 % however the specifications can change.  We recommend that you verify the
 % layout of your title page with your thesis advisor and/or the MIT 
 % Libraries before printing your final copy.
-\title{Understanding and Controlling Nondeterminism in Linux Services}
+\title{Profiling and Controlling Nondeterminism in Linux Services}
 
 \author{Syed Aunn Hasan Raza}
 % If you wish to list your previous degrees on the cover page, use the 
@@ -123,18 +123,19 @@
 I would like to thank Professor Saman Amarasinghe for his huge role in both this project 
 and my wonderful undergraduate experience at MIT. Saman was my professor for 6.005 (Spring 2008), 
 6.197/6.172 (Fall 2009) and 6.035 (Spring 2009). These three exciting semesters 
-not only convinced me of his unparalleled genius, they also ignited my interest in computer systems.  
+not only convinced me of his unparalleled genius, but also ignited my interest in computer systems.  
 Over the past year, as I have experienced the highs and lows of research, I have 
 really benefited from Saman's infinite insight, encouragement and patience. 
  
 As an M-Eng student, I have been blessed to work with two truly inpsirational and gifted people from the COMMIT group:
-Marek Olszewski and Qin Zhao. Marek and Qin's expertise and brilliance is probably only eclipsed by their humility and 
-helpfulness. I have learned more from them than I probably realize, and their knowledge of Dynamic Instrumentation 
-and Operating Systems is invaluable and, frankly, immensely intimidating. 
+Marek Olszewski and Qin Zhao. Their expertise and brilliance is probably only eclipsed by their humility and 
+helpfulness. I have learned more from Marek and Qin than I probably realize, and
+their knowledge of operating systems
+and dynamic instrumentation is invaluable and, frankly, immensely intimidating. 
 I hope to emulate (or even approximate) their excellence some day.
 
 This past year, I have also had the opportunity to work with Professor Srini Devadas, 
-Professor Fraans Kaashoek, and Professor Dina Katabi as a Teaching Assistant for 6.005 and 6.033. It has been an extraordinarily
+Professor Fraans Kaashoek, and Professor Dina Katabi as a TA for 6.005 and 6.033. It has been an extraordinarily
 rewarding experience, and I have learned tremendously from simply interacting with these peerless individuals. Professor
 Dina Katabi was especially kind to me for letting me work in G916 over the past few months.
 
@@ -142,16 +143,16 @@ I would like to thank Abdul Munir, whom I have known since my first day at MIT;
 I simply don't deserve the unflinchingly loyal and supportive friend I have found in him. 
 I am also indebted to Osama Badar, Usman Masood, Brian Joseph, and Nabeel Ahmed
 for their unrelenting support and encouragement; this past year would have been especially 
-boring without the never-ending arguments and unproductive `all-nighters' that accompany our friendship. 
+boring without our never-ending arguments and unproductive `all-nighters'.
 I also owe a debt of gratitude to my partners-in-crime Prannay Budhraja, Ankit Gordhandas, Daniel Firestone 
 and Maciej Pacula, who have been great friends and collaborators over the past few years. 
-
+\newpage
 I am humbled by the countless sacrifices made by my family in order for me to be where I am today. 
 My father has been the single biggest inspiration and support in my life since childhood.
-He epitomizes, for me, the meaning of selflessness and resilience in life. 
+He epitomizes, for me, the meaning of selflessness and resilience.
 This thesis, my work and few achievements were enabled by -- and dedicated to -- him, my mother and my two siblings Ali and Zahra. Ali has been a calming influence during my years at MIT; the strangest
 (and most unproductive) obsessions unite us, ranging from Chinese \emph{Wuxia} fiction to,
-more recently, \emph{The Game of Thrones}. Zahra's high-school problems
+more recently, \emph{The Game of Thrones}. Zahra's high-school math problems
 have been a welcome distraction over the past year; they have also allowed me to appear
 smarter than I truly am.
 

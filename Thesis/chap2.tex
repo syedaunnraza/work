@@ -78,7 +78,7 @@ process is completed and the machine is
 ready for login (70+ seconds). This disparity
 in CPU/memory usage is the source of the boot storm problem;
 a single host can handle many VMs in
-steady-state usage, but the host gets crippled
+steady-state usage but gets crippled
 when the same VMs boot up concurrently.
 
 In the last step of the booting
@@ -127,17 +127,17 @@ boot actions, or spawned many sub-processes themselves.
 Pin and DynamoRio are runtime frameworks that enable inspection
 and arbitrary transformation of user-mode application code as it executes.
 We used both Pin and DynamoRio to study the behavior
-of Linux services together because this allowed us to verify
+of Linux services to verify
 the accuracy of our results. However, we relied on Pin more 
 than DynamoRio because it gets injected into application code
-earlier than DynamoRio, which allows for greater
+earlier than DynamoRio and thus provides greater
 instruction coverage for our purpose.  Figure \ref{data:naive} shows the simple steps involved
 in collecting data on nondeterminism using
 dynamic instrumentation. The next section 
 explains each of these steps in detail, 
 using a simple ``Hello, world!'' program as an example.
 
-\subsection{Analyzing a simple ``Hello, world!'' program} \label{ch:hw}
+\subsection{Measuring nondeterminism in a simple $C$ program} \label{ch:hw}
 This section outlines the data collection scheme
 described in Figure \ref{data:naive} in detail with the help
 of an example:  the simple ``Hello, world!'' program

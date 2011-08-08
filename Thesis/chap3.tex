@@ -875,7 +875,8 @@ and switch real and virtual process IDs
 in these paths.
 
 \section{Results after Using Deterministic Execution} \label{ch3:data}
-We were able to achieve fully deterministic execution in several
+We were able to achieve {\em fully} deterministic execution (i.e.
+user-mode execution traces that were 100\% identical) in several
 Linux services including \texttt{cron}, \texttt{ntp} and
 \texttt{cups} using these approaches.
 
@@ -887,33 +888,79 @@ as sources of nondeterminism in programs.
 There are several drawbacks and limitations associated with the approach we used
 to make execution deterministic:
 \begin{itemize}
+
 \item {\em Security:} \newline
 Disabling ASLR increases the vulnerability of
 applications to external attacks. 
 Although canary and pointer guard
-values are still dynamically chosen (between successive bootstorms) in
+values are still dynamically chosen in
 our brand of deterministic execution, 
 they must agree across all VMs. Thus,
-an adversary  who can compromise one VM by guessing its canary can easily
-attack the others as well. 
-Having said that, if an adversary can compromise one machine, he/she can usually compromise
-other machines too using the same attacks in most cases.
+an adversary  who can compromise one VM by
+guessing its canary could easily attack the others.
+However, the fact that we can choose different
+canary or guard values between different bootstorms
+still provides some security from these features.
 
 \item {\em Randomization:} \newline
-Randomization is essential for security (e.g. random values
+Randomization can be essential for security (e.g. random values
 are used to generate keys and certificates),
 performance, and sometimes simply correctness (e.g. 
-clients may choose random IDs for themselves). 
-\item{\em Correctness/Time Skew:} \newline
-Ntp requires time to be accurate, but it is self-healing.
-Time must be monotonic.
+clients may choose random IDs for themselves).
+Making PRNG seeds across different instances
+agree might impact the security, performance
+or correctness of target programs. 
+
+Thankfully, we have not yet discovered any such
+issues in the Linux services. Technically,
+our approach simulates the extremely unlikely 
+-- yet possible -- scenario that all concurrently executing
+instances somehow generated the same seeds
+from external sources.
+
+\item{\em Time Correctness:} \newline
+Any programs that rely on precise
+measurements of time (e.g. through \texttt{rdtsc})
+will lose correctness. None 
+of the services or daemons we considered 
+had such an issue.
+
+However, some Linux services (e.g. \texttt{ntp}) 
+do rely on measuring time in an accurate 
+manner to synchronize the system clock.
+Our semantics can cause such services to 
+behave incorrectly at start up,
+because we do not allow programs to accurately measure time.
+However, this is still not a huge correctness problem because these
+programs are self-healing. After the booting process is over,
+and all VMs branch in execution, \texttt{ntp} will synchronize
+the current time correctly.
+
 \item{\em I/O aggregation in Network} \newline
-Is problematic e.g. for lock requests etc.
+When socket \texttt{read}s return different bytes,
+these could be because of synthetic differences (e.g.
+in timestamps in headers), or because of 
+semantic differences (e.g. different requests or data).
+We can study application code and use dynamic instrumentation
+to reconstruct network packets and overcome synthetic nondeterminism
+from such sources. In our experiments, we used this approach
+for \texttt{Netlink} packets, but generalizing it
+to all network sockets and protocols, while possible, would clearly
+complicate the design of the dynamic instrumentation
+layer. For semantic differences in I/O, 
+execution would have to branch out.
+
+One possible approach for fixing nondeterminism from external
+socket \texttt{reads} would be to forcibly
+conform these reads to be identical by replaying
+them. This approach would work for many 
+Linux services and would simulate the possibility
+that these services received responses from
+an external source at the exact same time containing
+the same data. However, these semantics can
+also be problematic in terms of correctness e.g. if the network 
+response says ``you have the lock!'' we will have issues
+by replaying it.
 
 \end{itemize}
-
-% security: canary aslr etc
-% performance & correctness: randomization, ntp (time skew), time monotonic,
-% IO aggregation. (acquire lock). 
-% networks/ntp are self healing
 \section {Summary}

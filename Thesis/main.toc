@@ -27,7 +27,7 @@
 \contentsline {section}{\numberline {3.2}Simulating Deterministic Execution}{45}
 \contentsline {section}{\numberline {3.3}Results after Using Deterministic Execution}{52}
 \contentsline {section}{\numberline {3.4}Disadvantages of Deterministic Execution}{52}
-\contentsline {section}{\numberline {3.5}Summary}{53}
+\contentsline {section}{\numberline {3.5}Summary}{54}
 \contentsline {chapter}{\numberline {4}Case Studies of Linux Services}{55}
 \contentsline {section}{\numberline {4.1}Cups}{55}
 \contentsline {section}{\numberline {4.2}Cron}{55}

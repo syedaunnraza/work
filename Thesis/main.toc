@@ -8,9 +8,9 @@
 \contentsline {section}{\numberline {2.1}The Linux Boot Process}{19}
 \contentsline {section}{\numberline {2.2}Data Collection Scheme}{22}
 \contentsline {subsection}{\numberline {2.2.1}Measuring nondeterminism in a simple $C$ program}{23}
-\contentsline {subsection}{\numberline {2.2.2}Alternative metrics for measuring nondeterminism}{28}
+\contentsline {subsection}{\numberline {2.2.2}Quantifying Nondeterminism}{28}
 \contentsline {section}{\numberline {2.3}Results for Linux services}{29}
-\contentsline {section}{\numberline {2.4}Summary}{31}
+\contentsline {section}{\numberline {2.4}Summary}{33}
 \contentsline {chapter}{\numberline {3}Overcoming Nondeterminism in Linux services}{35}
 \contentsline {section}{\numberline {3.1}Sources of Nondeterminism}{35}
 \contentsline {subsection}{\numberline {3.1.1}Linux Security Features}{36}
@@ -32,3 +32,7 @@
 \contentsline {section}{\numberline {4.2}Cron}{57}
 \contentsline {section}{\numberline {4.3}Ntp}{57}
 \contentsline {section}{\numberline {4.4}Summary}{57}
+\contentsline {chapter}{\numberline {5}Design Ideas for Deduplication of Execution}{59}
+\contentsline {section}{\numberline {5.1}Summary}{59}
+\contentsline {chapter}{\numberline {6}Conclusion and Future Work}{61}
+\contentsline {section}{\numberline {6.1}Summary}{61}

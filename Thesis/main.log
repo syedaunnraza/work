@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  9 AUG 2011 01:11
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  9 AUG 2011 01:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -359,24 +359,27 @@ Overfull \hbox (29.75562pt too wide) in paragraph at lines 410--439
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[29] <ntp.png, id=220, 1606.0pt x 1204.5pt>
-File: ntp.png Graphic file (type png)
- <use ntp.png>
-<cron.png, id=222, 1606.0pt x 1204.5pt>
-File: cron.png Graphic file (type png)
- <use cron.png>
-<none.jpg, id=223, 213.79875pt x 213.79875pt>
-File: none.jpg Graphic file (type jpg)
- <use none.jpg>
+[29] <ntp-ch2.png, id=220, 1606.0pt x 1204.5pt>
+File: ntp-ch2.png Graphic file (type png)
+ <use ntp-ch2.png>
+<cron-ch2.png, id=222, 1606.0pt x 1204.5pt>
+File: cron-ch2.png Graphic file (type png)
+ <use cron-ch2.png>
+
+pdfTeX warning: pdflatex (file ./cronzoom-ch2.pdf): PDF inclusion: found PDF ve
+rsion <1.5>, but at most version <1.4> allowed
+<cronzoom-ch2.pdf, id=223, 722.7pt x 542.025pt>
+File: cronzoom-ch2.pdf Graphic file (type pdf)
+ <use cronzoom-ch2.pdf>
 Overfull \hbox (43.75946pt too wide) in paragraph at lines 528--555
  [] 
  []
 
-[30] [31 <./ntp.png> <./cron.png>] [32 <./none.jpg>]) [33]
+[30] [31 <./ntp-ch2.png> <./cron-ch2.png>] [32 <./cronzoom-ch2.pdf>]) [33]
 \openout2 = `chap3.aux'.
 
- (./chap3.tex
-[34
+
+(./chap3.tex [34
 
 
 
@@ -436,7 +439,7 @@ Underfull \vbox (badness 1014) has occurred while \output is active []
 
 pdfTeX warning: pdflatex (file ./simulation.pdf): PDF inclusion: found PDF vers
 ion <1.5>, but at most version <1.4> allowed
-<simulation.pdf, id=277, 722.7pt x 542.025pt>
+<simulation.pdf, id=284, 722.7pt x 542.025pt>
 File: simulation.pdf Graphic file (type pdf)
  <use simulation.pdf>
 Overfull \hbox (32.43298pt too wide) in paragraph at lines 579--581
@@ -472,7 +475,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 683--695
 
 pdfTeX warning: pdflatex (file ./pid.pdf): PDF inclusion: found PDF version <1.
 5>, but at most version <1.4> allowed
-<pid.pdf, id=306, 722.7pt x 542.025pt>
+<pid.pdf, id=313, 722.7pt x 542.025pt>
 File: pid.pdf Graphic file (type pdf)
  <use pid.pdf>
 Underfull \hbox (badness 10000) in paragraph at lines 715--722
@@ -493,7 +496,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 781--788
 
 pdfTeX warning: pdflatex (file ./epoll.pdf): PDF inclusion: found PDF version <
 1.5>, but at most version <1.4> allowed
-<epoll.pdf, id=352, 722.7pt x 542.025pt>
+<epoll.pdf, id=359, 722.7pt x 542.025pt>
 File: epoll.pdf Graphic file (type pdf)
  <use epoll.pdf> [52 <./epoll.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 855--860
@@ -592,8 +595,8 @@ Underfull \hbox (badness 2707) in paragraph at lines 100--104
 )) [64] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
 (./chap3.aux) (./chap4.aux) (./chap5.aux) (./chap6.aux) (./biblio.aux)) ) 
 Here is how much of TeX's memory you used:
- 4022 strings out of 495061
- 59461 string characters out of 1182622
+ 4021 strings out of 495061
+ 59537 string characters out of 1182622
  139366 words of memory out of 3000000
  7097 multiletter control sequences out of 15000+50000
  11742 words of font info for 41 fonts, out of 3000000 for 9000
@@ -611,9 +614,9 @@ f-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fon
 ts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/pu
 blic/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfon
 ts/cm/cmtt12.pfb>
-Output written on main.pdf (64 pages, 660429 bytes).
+Output written on main.pdf (64 pages, 678463 bytes).
 PDF statistics:
- 481 PDF objects out of 1000 (max. 8388607)
+ 488 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  71 words of extra memory for PDF output out of 10000 (max. 10000000)
 

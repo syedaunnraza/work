@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 18:32
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.5)  8 AUG 2011 20:28
 entering extended mode
  %&-line parsing enabled.
 **main
@@ -301,24 +301,18 @@ pdfTeX warning: pdflatex (file ./log2.pdf): PDF inclusion: found PDF version <1
 <log2.pdf, id=124, 722.7pt x 542.025pt>
 File: log2.pdf Graphic file (type pdf)
  <use log2.pdf>
+Underfull \hbox (badness 10000) in paragraph at lines 229--237
 
-LaTeX Warning: `h' float specifier changed to `ht'.
+ []
 
-[25] [26 <./log2.pdf>] <trace.pdf, id=140, 578.16pt x 433.62pt>
+[25 <./log2.pdf>] [26] <trace.pdf, id=141, 578.16pt x 433.62pt>
 File: trace.pdf Graphic file (type pdf)
 
-<use trace.pdf>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \vbox (badness 3291) has occurred while \output is active []
-
- [27]
+<use trace.pdf> [27 <./trace.pdf>]
 
 pdfTeX warning: pdflatex (file ./liveness.pdf): PDF inclusion: found PDF versio
 n <1.5>, but at most version <1.4> allowed
-<liveness.pdf, id=145, 722.7pt x 542.025pt>
+<liveness.pdf, id=202, 722.7pt x 542.025pt>
 File: liveness.pdf Graphic file (type pdf)
  <use liveness.pdf>
 Underfull \hbox (badness 10000) in paragraph at lines 359--359
@@ -328,7 +322,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 359--359
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[28 <./trace.pdf>]
+[28]
 Overfull \hbox (29.75562pt too wide) in paragraph at lines 377--406
  [] 
  []
@@ -371,7 +365,7 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 ]
 Chapter 3.
 
-Underfull \hbox (badness 10000) in paragraph at lines 36--47
+Underfull \hbox (badness 10000) in paragraph at lines 35--46
 
  []
 
@@ -383,68 +377,76 @@ Underfull \vbox (badness 7722) has occurred while \output is active []
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 124.
  [38] [39]
-Underfull \hbox (badness 10000) in paragraph at lines 260--269
+Underfull \hbox (badness 10000) in paragraph at lines 264--273
 
  []
 
 [40]
-Underfull \hbox (badness 10000) in paragraph at lines 270--285
+Underfull \hbox (badness 10000) in paragraph at lines 274--289
 
  []
 
 [41]
-Underfull \hbox (badness 10000) in paragraph at lines 314--330
+Underfull \hbox (badness 10000) in paragraph at lines 318--332
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 331--335
+Underfull \hbox (badness 10000) in paragraph at lines 333--337
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 349--374
+Underfull \hbox (badness 10000) in paragraph at lines 351--377
 
  []
 
-[42] [43]
-Underfull \hbox (badness 10000) in paragraph at lines 459--471
+
+Underfull \vbox (badness 7981) has occurred while \output is active []
+
+ [42]
+[43]
+Underfull \hbox (badness 10000) in paragraph at lines 463--475
 
  []
 
-[44] [45]
+
+Underfull \vbox (badness 1014) has occurred while \output is active []
+
+ [44]
+[45]
 
 pdfTeX warning: pdflatex (file ./simulation.pdf): PDF inclusion: found PDF vers
 ion <1.5>, but at most version <1.4> allowed
 <simulation.pdf, id=276, 722.7pt x 542.025pt>
 File: simulation.pdf Graphic file (type pdf)
  <use simulation.pdf>
-Overfull \hbox (32.43298pt too wide) in paragraph at lines 575--577
+Overfull \hbox (32.43298pt too wide) in paragraph at lines 579--581
  [] 
  []
 
 [46] [47 <./simulation.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 604--610
+Underfull \hbox (badness 10000) in paragraph at lines 616--618
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 611--621
+Underfull \hbox (badness 10000) in paragraph at lines 619--629
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 622--634
+Underfull \hbox (badness 10000) in paragraph at lines 630--642
 
  []
 
 [48]
-Underfull \hbox (badness 10000) in paragraph at lines 661--666
+Underfull \hbox (badness 10000) in paragraph at lines 669--674
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 675--686
+Underfull \hbox (badness 10000) in paragraph at lines 683--694
 
  []
 
@@ -455,17 +457,17 @@ pdfTeX warning: pdflatex (file ./pid.pdf): PDF inclusion: found PDF version <1.
 <pid.pdf, id=305, 722.7pt x 542.025pt>
 File: pid.pdf Graphic file (type pdf)
  <use pid.pdf>
-Underfull \hbox (badness 10000) in paragraph at lines 706--713
+Underfull \hbox (badness 10000) in paragraph at lines 714--721
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 714--733
+Underfull \hbox (badness 10000) in paragraph at lines 722--741
 
  []
 
 [50 <./pid.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 764--771
+Underfull \hbox (badness 10000) in paragraph at lines 772--779
 
  []
 
@@ -476,12 +478,12 @@ pdfTeX warning: pdflatex (file ./epoll.pdf): PDF inclusion: found PDF version <
 <epoll.pdf, id=351, 722.7pt x 542.025pt>
 File: epoll.pdf Graphic file (type pdf)
  <use epoll.pdf> [52 <./epoll.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 812--839
+Underfull \hbox (badness 10000) in paragraph at lines 820--847
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 857--865
+Underfull \hbox (badness 10000) in paragraph at lines 865--873
 
  []
 
@@ -570,7 +572,7 @@ are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-tex
 live/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/
 type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/publi
 c/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (64 pages, 651510 bytes).
+Output written on main.pdf (64 pages, 652261 bytes).
 PDF statistics:
  480 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

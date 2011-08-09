@@ -11,10 +11,10 @@
 \chapter{Overcoming Nondeterminism in Linux services} \label{ch:src}
 This chapter summarizes the sources of nondeterminism
 in Linux services discovered through our experiments (Section \ref{ch3:sources}).
-It also explains the techniques we used to simulate deterministic execution (Section \ref{ch3:simulation})
-and outlines our results (Section \ref{ch3:data}).
-Finally, it briefly discusses some of the limitations
-of our approach to deterministic execution (Section \ref{ch3:issues}).
+It also explains the techniques we used to simulate 
+deterministic execution (Section \ref{ch3:simulation}). 
+Finally, it briefly discusses some of the inherent
+limitations of deterministic execution (Section \ref{ch3:issues}).
 
 \section{Sources of Nondeterminism} \label{ch3:sources}
 In this section, we describe the sources of nondeterminism
@@ -686,11 +686,12 @@ received. Thus, signals that are received earlier
 than expected are simply delayed or reordered. If,
 however, a signal is not received at the expected
 instruction count, our instrumentation tool
-simply inserts \texttt{nops} until the 
+simply waits or inserts \texttt{nops} until the 
 desired signal is received. If a signal simply
 refuses to appear for a long time, execution
-must diverge. This case has not yet happened
-in our experiments. \newline
+must diverge. In our experiments,
+this final case does not occur as long
+as other sources of nondeterminism are controlled. \newline
 
 \noindent {\bf Process IDs} \newline
 Nondeterminism from process IDs
@@ -720,14 +721,14 @@ so that process IDs can be translated back and forth
 for correctness. \newline
 
 \noindent {\bf File I/O} \newline
-Semantic differences in file contents across
-executions would inevitably cause executions
-to diverge, but overcoming nondeterminism arsing
-from time, randomization or process ID system-calls
+Differences in input file contents across
+executions would inevitably cause execution
+to diverge, but overcoming nondeterminism arising
+from time, randomization or process ID system calls
 is typically sufficient to ensure that
 file contents rarely differ in Linux services,
 if at all. Some files that may differ
-between two instances on start-up (e.g. 
+between two instances on start up (e.g. 
 cache files or logs) can simply be 
 deleted or replaced without sacrificing correctness.
 Also, as mentioned already, \texttt{stat} 
@@ -736,58 +737,66 @@ they can be replaced with fixed constants;
 when they are read and only compared with other
 \texttt{stat} timestamps, they can be replaced with 
 ordinal numbers that perserve ordering;  
-otherwise, \texttt{stat} system-calls 
+in all other cases, \texttt{stat} system calls 
 can be faithfully replayed. \newline
 
 \noindent{\bf Network I/O} \newline
 The content of network configuration files
-does not differ between our identical VMs, so the strategies 
-described to handle timestamp comparisons are sufficient
-to eliminate nondeterminism from network configuration files.
- 
-Whenever addresses resolved by various instances differ
-between executions, because of DNS-based dynamic load balancing, 
+does not change in our experiments, so the strategies 
+described to handle \texttt{stat} timestamps 
+are sufficient for them. In the same vein, whenever an address is resolved
+differently between execution instances because of DNS-based dynamic load balancing, 
 we can intercept and replace resolved IPs with those
 stored in the execution signature file.
 
-If the contents read from sockets vary across different executions,
-dynamic instrumentation can be used to intercept Linux socket calls
-and modify their side-effects to be identical. If
-many concurrent executions are reading data from the
-same network source, this simply simulates the possibility that all instances
-see the same results as the first instance. 
+If bytes read from sockets differ across different executions,
+we need to understand the {\em context} to determine whether the
+differences are serious (e.g. due to different requests)
+or synthetic (e.g. due to timestamps). This can
+can complicate design of the dynaminc instrumentation
+layer because it 
+may have to re-execute application or \texttt{libc}
+logic to understand differences in raw bytes read from system calls.
+We handle nondeterminism from \texttt{Netlink}
+sockets in this way: the dynamic instrumentation layer 
+re-executes \texttt{libc} logic associated
+with understanding contents of \texttt{RTM\_NEWLINK}
+messages to detect nondeterminsm from source/destination 
+IDs, sequence numbers or interface statistics.
+To handle variability in interface statistics,
+we can simply overwrite them with fixed values.
+This scheme can be generalized to handle
+other kinds of network protocols as well.
 
-While these semantics are sufficient for most Linux services,
-we have not needed to use them: in our experiments,
-we have only observed nondeterminism from \texttt{Netlink}
-sockets. The techniques used to handle
-process IDs and timestamps overcome nondeterminism
-in \texttt{Netlink} headers (for source/destination IDs
-or sequence numbers). To handle
-nondeterminsm from interface statistics
-included in \texttt{RTM\_NEWLINK} packets,
-we can simply overwrite them with fixed
-numbers. 
-
-We can mask nondeterminism from ephemeral ports, 
-by changing arguments for \texttt{bind} or \texttt{connect} 
-system calls to explicitly request ports
-in the ephemeral range rather than letting the kernel 
-assign them; alternatively,
+As an alternative, we could
+aggressively intercept Linux socket calls
+and blindly replay them in all followers.
+When many concurrent executions are reading data from the
+same network source, this simulates the possibility
+that all instances see the same results over the network
+as the first instance. Such an approach, however,
+can break correctness (Section \ref{ch3:issues}).
+          
+\newpage 
+To overcome nondeterminism from ephemeral ports, 
+we monitor the \texttt{bind} or \texttt{connect} 
+system calls and change their arguments to explicitly request ports
+in the ephemeral range rather than let the kernel 
+assign them; if necessary,
 we can also virtualize ephemeral ports
-similar to how we virtualize process IDs. \newline
+in a similar fashion to how we virtualize process IDs. \newline
 
-\newpage
+
 \noindent{\bf Scalable I/O Schemes} \newline
 To handle nondeterminism caused by unpredictable
-ordering of I/O ``events'',
+ordering of I/O events,
 we use techniques similar to those used 
 for reordering signals,
 as described by Figure \ref{ch3:reorderfig}.
 
 \begin{figure}[h]
   \center
-  \includegraphics[trim=0cm 0cm 0cm 0cm, scale=0.60]{epoll.pdf}
+  \includegraphics[trim=0cm 1.25cm 0cm 0.75cm, scale=0.60]{epoll.pdf}
   \caption[Reordering I/O events using Pin]% 
     {We intercept all \texttt{epoll} system calls,
     and use the execution signature file to
@@ -802,47 +811,51 @@ as described by Figure \ref{ch3:reorderfig}.
 Assuming that \texttt{epoll} returns just one event, figure
 \ref{ch3:reorderfig} illustrates three possible cases that could occur:
 \begin{itemize}
-    \item The event returned by a call to \texttt{epoll} is the one expected
-    in the execution signature file. The instrumentation layer
+    \item The event returned by a call to \texttt{epoll} ($A$) is the one expected
+    in the execution signature file ($A$). The instrumentation layer
     does not modify the system call.
-    \item Instead of the expected event,
-    \texttt{epoll} returns another event.
-    The instrumentation layer stores all such out-of-order events,
+    \item The desired event ($B$) has not been received yet,
+    and \texttt{epoll} returns an unexpected event ($C$).
+    The instrumentation layer stores the out-of-order event,
     and repeatedly calls \texttt{epoll} until the 
     the expected event is received.
     \item  A call to \texttt{epoll} is initiated, and the
-    event returned has already been received.
+    event desired ($C$) has already been received.
     The instrumentation layer does not 
-    make a system call but simulates a return
-    from \texttt{epoll} with the expected event.
+    make a system call and simulates a return
+    from \texttt{epoll} with the expected event instead.
 \end{itemize}
 
 Even if I/O events are reordered,
 it is possible that different amounts
-of data are available for a ``ready''
-file descriptor for each event
-across executions. We can use
-dynamic instrumentation to mask
-this nondeterminism: if more bytes
+of data are available for ready
+file descriptors across executions. We can 
+mask this effect in the same
+way we handle signals: if more bytes
 are available (e.g. through \texttt{read}) 
-than exected in the execution signature
+than expected in the execution signature
 file, we modify return values and \texttt{read}
 buffers to delay the reading of these bytes
-until the next \texttt{read}. (In some corner
+until the next \texttt{read}. In some corner
 cases, we may have to ``fake'' readiness
-if all bytes to be read were available in an event
-and we hid them). If less-than-expected
+in a call to \texttt{epoll}: if all bytes to be read from
+a file descriptor have been read by 
+the dynamic instrumentation layer (out of which
+a few have not yet been delivered to the application),
+there will be no more readiness events even
+though the application expects them. If less-than-expected
 bytes are available, we simply wait
 till they are available by waiting for
-another readiness update inside 
+another readiness update on the same file descriptor inside 
 dynamic instrumentation layer.
-In our experiments, this approach has been sufficient to 
-achieve deterministic execution.
-For asynchronous I/O schemes, schemes
+In our experiments, this approach has been sufficient 
+for overcoming nondeterminsm from event-based I/O
+schemes.
+
+For asynchronous I/O schemes (e.g. \texttt{aio\_read}), strategies
 similar to those used for reordering
-and timing signals 
-would be necessary to hide
-the variability of I/O latency.
+and precisely-timing signals would be necessary to hide
+variable I/O latency and ordering.
 \newline
 
 \noindent {\bf Concurrency} \newline
@@ -862,97 +875,104 @@ deterministic logical clocks
 into our design by augmenting the
 execution signature file.
 
-Similarly, a nondeterministic system scheduler
+As mentioned before, a nondeterministic system scheduler
 can cause variable timing of signals
 or I/O events, which
-can be handled as described previously.
+can be handled using reordering and
+timing strategies.
 Work on deterministic
 operating systems can
 be extended to overcome this issue
 in a more systematic manner. \newline
 
 \noindent {\bf {\em Procfs}: The \texttt{`/proc/directory'}} \newline
-We intercept and modify reads 
-from {\em procfs} if necessary. We can simply 
+Using the techniques described
+already, I/O operations on {\em procfs} can be intercepted
+and modified. We can 
 replay reads from {\em procfs} using the execution signature
-file, or replace any statistics with fixed and 
-reasonable values. We must also intercept
-all \texttt{open} system calls with paths
-of the form \texttt{`proc/[PID]'},
-and switch real and virtual process IDs
-in these paths.
+file if necessary or replace any statistics with fixed and 
+reasonable values. The dynamic instrumentation layer 
+must respect differences in virtual and real processes:
+it must modify all \texttt{open} system calls with paths
+of the form \texttt{`proc/[PID]'}
+by switching real and virtual process IDs,
+and a process must see its 
+parent's virtual process ID when it reads
+\texttt{`/proc/[PID]/status'}.
 
-\section{Results after Using Deterministic Execution} \label{ch3:data}
-We were able to achieve {\em fully} deterministic execution (i.e.
-user-mode execution traces that were 100\% identical) in several
-Linux services including \texttt{cron}, \texttt{ntp} and
-\texttt{cups} using these approaches.
+%\section{Results after Using Deterministic Execution} \label{ch3:data}
+%We were able to achieve {\em fully} deterministic execution (i.e.
+%user-mode execution traces that were 100\% identical) in several
+%Linux services including \texttt{cron}, \texttt{ntp} and
+%\texttt{cups} using these approaches.
 
-The next chapter describes the context in which nondeterminism
-occured in these services and the relative signficance of the various factors we have outlined 
-as sources of nondeterminism in programs.
+%The next chapter describes the context in which nondeterminism
+%occured in these services and the relative
+%signficance of the various factors we have outline 
+%as sources of nondeterminism in programs.
 
-\section{Disadvantages of Deterministic Execution} \label{ch3:issues}
-There are several drawbacks and limitations associated with the approach we used
-to make execution deterministic:
-\begin{itemize}
+\section{Limitations of Deterministic Execution} \label{ch3:issues}
+This section describes some of the drawbacks
+of deterministic execution. \newline
 
-\item {\em Security:} \newline
+\noindent \textbf{Security} \newline
+To achieve deterministic execution,
+we have to disable ASLR. We also have to fix 
+canary (\texttt{gs:0x14}) or pointer guard (\texttt{gs:0x18})
+ values across many different VMs.
 Disabling ASLR increases the vulnerability of
 applications to external attacks. 
-Although canary and pointer guard
+Though canary and pointer guard
 values are still dynamically chosen in
 our brand of deterministic execution, 
 they must agree across all VMs. Thus,
 an adversary  who can compromise one VM by
-guessing its canary could easily attack the others.
-However, the fact that we can choose different
-canary or guard values between different bootstorms
-still provides some security from these features.
+guessing its canary could easily attack the other VMs.
+The fact that we can choose different
+canary or guard values between different successive bootstorms
+is some consolation and provides some security. \newline
 
-\item {\em Randomization:} \newline
+\noindent \textbf{Randomization} \newline
 Randomization can be essential for security (e.g. random values
-are used to generate keys and certificates),
+may be used to generate keys or certificates),
 performance, and sometimes simply correctness (e.g. 
 clients may choose random IDs for themselves).
-Making PRNG seeds across different instances
-agree might impact the security, performance
-or correctness of target programs. 
-
+Making PRNG seeds agree across all VM instances can entail
+a compromise on all of these fronts.
 Thankfully, we have not yet discovered any such
 issues in the Linux services. Technically,
 our approach simulates the extremely unlikely 
 -- yet possible -- scenario that all concurrently executing
 instances somehow generated the same seeds
-from external sources.
+from external sources. \newline
 
-\item{\em Time Correctness:} \newline
+\noindent \textbf{Time Correctness} \newline
 Any programs that rely on precise
 measurements of time (e.g. through \texttt{rdtsc})
-will lose correctness. None 
-of the services or daemons we considered 
-had such an issue.
-
-However, some Linux services (e.g. \texttt{ntp}) 
-do rely on measuring time in an accurate 
-manner to synchronize the system clock.
+will lose correctness. 
+Some Linux services such as \texttt{ntp} 
+do need to measure time accurately in order to synchronize the system clock
 Our semantics can cause such services to 
 behave incorrectly at start up,
-because we do not allow programs to accurately measure time.
-However, this is still not a huge correctness problem because these
-programs are self-healing. After the booting process is over,
+because we may give incorrect values
+of time to \texttt{ntp}.
+Thankfully, this is not a huge correctness problem because network 
+clock synchronization programs are self-healing and
+because we ultimately do provide monotonically
+ increasing time values. After the booting process is over,
 and all VMs branch in execution, \texttt{ntp} will synchronize
-the current time correctly.
+the current time correctly. \newline
 
-\item{\em I/O aggregation in Network} \newline
-When socket \texttt{read}s return different bytes,
+\noindent \textbf{I/O aggregation in Network} \newline
+As indicated earlier, when file contents
+or bytes read over sockets differ, 
 these could be because of synthetic differences (e.g.
-in timestamps in headers), or because of 
+timestamps in headers), or because of 
 semantic differences (e.g. different requests or data).
 We can study application code and use dynamic instrumentation
-to reconstruct network packets and overcome synthetic nondeterminism
+to reconstruct file contents or network packets and overcome synthetic nondeterminism
 from such sources. In our experiments, we used this approach
-for \texttt{Netlink} packets, but generalizing it
+for \texttt{Netlink} packets and application files, but generalizing it
 to all network sockets and protocols, while possible, would clearly
 complicate the design of the dynamic instrumentation
 layer. For semantic differences in I/O, 
@@ -965,10 +985,19 @@ them. This approach would work for many
 Linux services and would simulate the possibility
 that these services received responses from
 an external source at the exact same time containing
-the same data. However, these semantics can
-also be problematic in terms of correctness e.g. if the network 
-response says ``you have the lock!'' we will have issues
-by replaying it.
+precisely the same data. However, these semantics can
+also be problematic in terms of correctness for other services
+e.g. if a network 
+response essentially says {\em ``you have the lock''} or 
+{\em ``your print job was successfully queued''} or
+{\em ``your client id is 134''},
+this approach falls apart.
 
-\end{itemize}
 \section {Summary}
+This chapter described sources of non-determinism in Linux
+services and ways to overcome them in detail.
+It also discussed some of the limitations of deterministic
+execution.
+Chapter \ref{ch:case} describes the effectiveness
+of the techniques described in this section
+by presenting a case study of three Linux services.

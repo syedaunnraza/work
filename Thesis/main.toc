@@ -25,15 +25,10 @@
 \contentsline {subsection}{\numberline {3.1.10}{\em Procfs}: The `/proc/' directory}{46}
 \contentsline {subsection}{\numberline {3.1.11}Architecture Specific Instructions}{46}
 \contentsline {section}{\numberline {3.2}Simulating Deterministic Execution}{47}
-\contentsline {section}{\numberline {3.3}Results after Using Deterministic Execution}{54}
-\contentsline {section}{\numberline {3.4}Disadvantages of Deterministic Execution}{54}
-\contentsline {section}{\numberline {3.5}Summary}{56}
+\contentsline {section}{\numberline {3.3}Limitations of Deterministic Execution}{54}
+\contentsline {section}{\numberline {3.4}Summary}{56}
 \contentsline {chapter}{\numberline {4}Case Study of \texttt {cups}, \texttt {ntp} and \texttt {cron}}{57}
 \contentsline {section}{\numberline {4.1}Cups}{57}
 \contentsline {section}{\numberline {4.2}Cron}{57}
 \contentsline {section}{\numberline {4.3}Ntp}{57}
 \contentsline {section}{\numberline {4.4}Summary}{57}
-\contentsline {chapter}{\numberline {5}Design Ideas for Deduplication of Execution}{59}
-\contentsline {section}{\numberline {5.1}Summary}{59}
-\contentsline {chapter}{\numberline {6}Conclusion and Future Work}{61}
-\contentsline {section}{\numberline {6.1}Summary}{61}

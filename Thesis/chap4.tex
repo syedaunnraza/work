@@ -120,12 +120,21 @@ We modified our data collection scheme from Chapter \ref{ch:boot} (shown in
 Figure \ref{data:naive}) to simulate and
 evaluate silhouette execution in the bootstorm scenario.
 
-\begin{figure}[h]
+\begin{figure}[]
   \center
   \includegraphics[scale=0.7, trim=1cm 0cm 1cm 0cm]
                   {simulation.pdf}
-  \caption[Simulation of Silhouette Execution in a bootstorm scenario]%
-  {Simulation of Silhouette Execution in a bootstorm scenario.}
+  \caption[Simulation of {\em Silhouette Execution} in a bootstorm scenario]%
+  {Simulation of {\em Silhouette Execution} in a bootstorm scenario.
+    We use dynamic instrumentation to 
+    generate an execution signature file for the leader.
+    While we do not bypass execution in the 
+    silhouettes, try to reduce the number of fork-points 
+    and record information about them.
+    Our analysis and visualization
+    scripts allow us to simualate and evaluate
+    the effectiveness of {\em silhouette} execution.
+  }
   \label{ch3:figsimulation}
 \end{figure}
 

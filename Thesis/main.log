@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.9)  10 AUG 2011 15:29
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.9)  10 AUG 2011 16:28
 entering extended mode
  %&-line parsing enabled.
 **main
@@ -479,65 +479,63 @@ Chapter 4.
 
 ] [50]
 
+LaTeX Warning: No positions in optional float specifier.
+               Default added (so using `tbp') on input line 123.
+
+
+
 pdfTeX warning: pdflatex (file ./simulation.pdf): PDF inclusion: found PDF vers
 ion <1.5>, but at most version <1.4> allowed
 <simulation.pdf, id=301, 722.7pt x 542.025pt>
 File: simulation.pdf Graphic file (type pdf)
  <use simulation.pdf>
-Overfull \hbox (32.43298pt too wide) in paragraph at lines 126--128
+Overfull \hbox (32.43298pt too wide) in paragraph at lines 126--137
  [] 
  []
 
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-[51]
-Underfull \hbox (badness 10000) in paragraph at lines 163--165
-
- []
-
-[52 <./simulation.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 166--176
+[51] [52 <./simulation.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 172--174
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 177--189
+Underfull \hbox (badness 10000) in paragraph at lines 175--185
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 186--198
 
  []
 
 [53]
-Underfull \hbox (badness 10000) in paragraph at lines 216--221
+Underfull \hbox (badness 10000) in paragraph at lines 225--230
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 230--242
+Underfull \hbox (badness 10000) in paragraph at lines 239--251
 
  []
 
-
+[54]
 
 pdfTeX warning: pdflatex (file ./pid.pdf): PDF inclusion: found PDF version <1.
 5>, but at most version <1.4> allowed
-<pid.pdf, id=325, 722.7pt x 542.025pt>
+<pid.pdf, id=331, 722.7pt x 542.025pt>
 File: pid.pdf Graphic file (type pdf)
  <use pid.pdf>
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 262--269
+Underfull \hbox (badness 10000) in paragraph at lines 271--278
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 270--289
+Underfull \hbox (badness 10000) in paragraph at lines 279--298
 
  []
 
-[54] [55 <./pid.pdf>] [56]
-Underfull \hbox (badness 10000) in paragraph at lines 328--335
+[55 <./pid.pdf>] [56]
+Underfull \hbox (badness 10000) in paragraph at lines 337--344
 
  []
 
@@ -545,15 +543,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 328--335
 
 pdfTeX warning: pdflatex (file ./epoll.pdf): PDF inclusion: found PDF version <
 1.5>, but at most version <1.4> allowed
-<epoll.pdf, id=375, 722.7pt x 542.025pt>
+<epoll.pdf, id=378, 722.7pt x 542.025pt>
 File: epoll.pdf Graphic file (type pdf)
  <use epoll.pdf> [57 <./epoll.pdf>]
-Underfull \hbox (badness 10000) in paragraph at lines 402--407
+Underfull \hbox (badness 10000) in paragraph at lines 411--416
 
  []
 
 [58]
-Underfull \hbox (badness 10000) in paragraph at lines 425--434
+Underfull \hbox (badness 10000) in paragraph at lines 434--443
 
  []
 
@@ -631,9 +629,9 @@ are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-tex
 live/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/
 type1/public/amsfonts/cm/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/publi
 c/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (66 pages, 684626 bytes).
+Output written on main.pdf (66 pages, 685684 bytes).
 PDF statistics:
- 494 PDF objects out of 1000 (max. 8388607)
+ 497 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
  71 words of extra memory for PDF output out of 10000 (max. 10000000)
 

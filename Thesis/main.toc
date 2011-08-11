@@ -29,10 +29,14 @@
 \contentsline {section}{\numberline {3.4}Summary}{48}
 \contentsline {chapter}{\numberline {4}{\em Silhouette} Execution}{49}
 \contentsline {section}{\numberline {4.1}What is {\em Silhouette} execution?}{49}
-\contentsline {section}{\numberline {4.2}Simulation Scheme}{51}
-\contentsline {section}{\numberline {4.3}Evaluation of Simulation}{59}
-\contentsline {section}{\numberline {4.4}Summary}{59}
-\contentsline {chapter}{\numberline {5}Design Ideas for Deduplication of Execution}{61}
-\contentsline {section}{\numberline {5.1}Summary}{61}
-\contentsline {chapter}{\numberline {6}Conclusion and Future Work}{63}
-\contentsline {section}{\numberline {6.1}Summary}{63}
+\contentsline {subsection}{\numberline {4.1.1}{\em Precise Silhouetting}}{50}
+\contentsline {subsection}{\numberline {4.1.2}{\em Optimistic Silhouetting} (excluding control flow)}{51}
+\contentsline {subsection}{\numberline {4.1.3}Scheme C: Taint Propagation w/ Control Flow}{52}
+\contentsline {subsection}{\numberline {4.1.4}Scheme D: Taint Propagation w/ Control Flow + Scripting}{52}
+\contentsline {section}{\numberline {4.2}Simulation Scheme}{53}
+\contentsline {section}{\numberline {4.3}Evaluation of Simulation}{61}
+\contentsline {section}{\numberline {4.4}Summary}{61}
+\contentsline {chapter}{\numberline {5}Design Ideas for Deduplication of Execution}{63}
+\contentsline {section}{\numberline {5.1}Summary}{63}
+\contentsline {chapter}{\numberline {6}Conclusion and Future Work}{65}
+\contentsline {section}{\numberline {6.1}Summary}{65}

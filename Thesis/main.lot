@@ -1,8 +1,8 @@
 \addvspace {10\p@ }
 \addvspace {10\p@ }
-\contentsline {table}{\numberline {2.1}{\ignorespaces Nondeterminism profile of ``Hello, world!'' program (ASLR disabled)}}{27}
-\contentsline {table}{\numberline {2.2}{\ignorespaces Nondeterminism profile of Linux services and daemons (ASLR disabled)}}{30}
-\contentsline {table}{\numberline {2.3}{\ignorespaces Measuring burstiness of nondeterminism in Linux services}}{32}
+\contentsline {table}{\numberline {2.1}{\ignorespaces Nondeterminism profile of ``Hello, world!'' program (ASLR disabled)\relax }}{27}
+\contentsline {table}{\numberline {2.2}{\ignorespaces Nondeterminism profile of Linux services and daemons (ASLR disabled)\relax }}{30}
+\contentsline {table}{\numberline {2.3}{\ignorespaces Measuring burstiness of nondeterminism in Linux services\relax }}{32}
 \addvspace {10\p@ }
 \addvspace {10\p@ }
 \addvspace {10\p@ }

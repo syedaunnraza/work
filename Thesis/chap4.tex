@@ -1,36 +1,65 @@
- %% This is an example first chapter.  You should put chapter/appendix that you
-%% write into a separate file, and add a line \include{yourfilename} to
-%% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
-%% You can process specific files by typing their names in at the 
-%% \files=
-%% prompt when you run the file main.tex through LaTeX.
 \chapter{{\em Silhouette} Execution}
-This chapter introduces {\em silhouette} 
-execution as a possible solution to the bootstorm
-problem (Section \ref{def:sil}).
-It then explains the dynamic instrumentation 
-techniques we used to simulate and improve silhouette execution
-for concurrently booting VMs (Section \ref{silsimulation}). Finally,
-it evaluates the potential effectiveness
-of simulated silhouette execution in solving the 
-bootstorm problem (Section \ref{sileval}). 
+In the previous two chapters,
+we have identified how and why
+multiple executions of the same
+Linux service can diverge in behavior.
+In light of our results, this chapter introduces a 
+novel design strategy that aims to mitigate the bootstorm problem:
+{\em silhouette} execution (Section \ref{def:sil}).
+It also describes the simple simulation techniques we used 
+to model the effectiveness of silhouette
+execution in reducing CPU pressure for concurrently booting VMs 
+(Section \ref{silsimulation}).
+It presents design ideas to improve
+the the effectiveness of 
+silhouette execution in our simulations (Section \ref{silimprove})
+and the corresponding results (Section \ref{sileval}).
+An implementation of the designs in this 
+chapter is still under way, our simulations 
+show that the proposed designs can be successful
+in mitigating the bootstorm problem.
+
 
 \section{What is {\em Silhouette} execution?} \label{def:sil}
-{\em Silhouette} execution encapsulates the 
+The previous few chapters established that
+distinct executions of the same Linux service
+generally execute the same number of instructions
+across identical VMs. If the number of VMs colocated
+on the same physical host is large (as is 
+the case in VDI deployments),
+then executing many instructions over
+and over again during boot represents a waste of scarce CPU cycles.
+{\em Silhouette} execution is designed to reduce this 
+redundant execution of the same instructions across different
+instances in order to reduce CPU pressure in bootstorm
+scenarios. In some sense,
+this approach stretches host CPU capabilities much like
+memory overcommit extends
+the host memory resources.
+
+Broadly speaking, {\em silhouette} execution captures the
 novel design idea that information recorded from one
-execution of a program can be used to 
+execution of a program -- the {\em leader} -- can be used to 
 bypass execution steps of subsequent instances
-of the same program (we refer to these
-subsequent instances as {\em silhouettes}). 
-Precise knowledge
-of where program execution can diverge 
-is indispensable to such an approach.
-Silhouette execution exploits
-the commonality in instruction
-streams of executing instances
-to extend host CPU capabilities much like
-memory overcommitment is used to extend
-the memory resources of host machines.
+of the same program -- the {\em silhouettes}. 
+Precise knowledge of where program execution can diverge 
+is indispensable to such an approach:
+conceptually, the leader executes all instructions from the program, 
+while the silhouettes only execute
+
+\begin{itemize}
+\item instructions that can potentially cause the leader's
+  execution to differ from the silhouettes (e.g. the \texttt{rdtsc}
+  instruction), or propagate any earlier differences in execution, or 
+\item instructions that read or write to memory, or are system calls.
+\end{itemize}
+
+Ideally, if there are no differences in the leader's
+execution and a silhouette's, then the silhouette would only
+execute the system calls or load/store instructions
+from the leader until the VMs are ready for login.
+This can reduce the stress places on the CPU by
+complex programs.
 
 The fundamental difference
 between silhouette execution and record-and-replay
@@ -321,7 +350,7 @@ sent from the leader sent to concurrently booting VMs. Possible
 design ideas for the bootstorm scenario are described 
 in Chapter \ref{ch:design}.
 
-\section{Improving Silhouette Execution}
+\section{Improving Silhouette Execution} \label{silimprove}
 We now briefly describe how dynamic instrumentation can be used to overcome
 the sources of nondeterminism described in \ref{ch3:sources}. \newline
 

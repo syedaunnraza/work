@@ -10,56 +10,87 @@ It also describes the simple simulation techniques we used
 to model the effectiveness of silhouette
 execution in reducing CPU pressure for concurrently booting VMs 
 (Section \ref{silsimulation}).
-It presents design ideas to improve
-the the effectiveness of 
-silhouette execution in our simulations (Section \ref{silimprove})
-and the corresponding results (Section \ref{sileval}).
-An implementation of the designs in this 
-chapter is still under way, our simulations 
-show that the proposed designs can be successful
-in mitigating the bootstorm problem.
-
+From the results of our simulations, we present design ideas
+that can improve the effectiveness of
+silhouette execution (Section \ref{silimprove})
+and evaluate them (Section \ref{sileval}).
+Our simulations show that the proposed designs can be successful
+in mitigating the bootstorm problem. 
 
 \section{What is {\em Silhouette} execution?} \label{def:sil}
-The previous few chapters established that
+The previous few chapters showed that
 distinct executions of the same Linux service
 generally execute the same number of instructions
-across identical VMs. If the number of VMs colocated
-on the same physical host is large (as is 
+across identical VMs. If the number of booting VMs for
+the same physical host is large (as is 
 the case in VDI deployments),
 then executing many instructions over
 and over again during boot represents a waste of scarce CPU cycles.
-{\em Silhouette} execution is designed to reduce this 
+{\em Silhouette} execution, in essence, targets
 redundant execution of the same instructions across different
 instances in order to reduce CPU pressure in bootstorm
-scenarios. In some sense,
-this approach stretches host CPU capabilities much like
-memory overcommit extends
+scenarios. As illustrated by Figure \ref{silconcept},
+this approach can extend host CPU capabilities much like
+memory overcommitment extends
 the host memory resources.
+
+\begin{figure}
+  \centering
+  \includegraphics[scale=0.64, trim=1cm 0cm 1cm 0cm]{none.jpg}
+  \caption[Silhouette execution is to the CPU what memory overcommitment
+    is to the memory subsystem.]%
+          {Silhouette execution is to the CPU what memory overcommitment
+          is to the memory subsystem.}
+  \label{silconcept}
+\end{figure}
 
 Broadly speaking, {\em silhouette} execution captures the
 novel design idea that information recorded from one
 execution of a program -- the {\em leader} -- can be used to 
 bypass execution steps of subsequent instances
 of the same program -- the {\em silhouettes}. 
-Precise knowledge of where program execution can diverge 
-is indispensable to such an approach:
-conceptually, the leader executes all instructions from the program, 
-while the silhouettes only execute
+Ideally, the leader executes all instructions from the program, 
+while the silhouettes execute a significantly smaller subset
+of these instructions. To maintain correctness,
+silhouettes need only execute: 
 
 \begin{itemize}
 \item instructions that can potentially cause the leader's
   execution to differ from the silhouettes (e.g. the \texttt{rdtsc}
-  instruction), or propagate any earlier differences in execution, or 
-\item instructions that read or write to memory, or are system calls.
+  instruction); 
+\item instructions that propagate any earlier differences in execution; 
+\item instructions that read or write to memory;
+\item system calls that have side-effects to external entities
+  from the operating system (e.g. the \texttt{read} system 
+  call mutates operating system state associated with file descriptors).
+  
 \end{itemize}
 
-Ideally, if there are no differences in the leader's
+Ideally, if there are no differences between the leader's
 execution and a silhouette's, then the silhouette would only
 execute the system calls or load/store instructions
-from the leader until the VMs are ready for login.
-This can reduce the stress places on the CPU by
-complex programs.
+executed by the leader until the login screen is shown.
+Assuming that the leader and a silhouette start from the same
+memory image, executing all the loads and stores
+ensures that the memory image of the two instances
+are identical at the end. Executing all the system
+calls with the same arguments also ensures
+that the silhouette's execution is {\em faithful}
+to its semantics i.e. the side-effects to the underlying
+operating system are maintained at the end.
+When the number of system calls and memory read/writes
+are much less than all instructions executed,
+this approach can, in theory, reduce the stress
+placed on the host CPU.
+
+Precise knowledge of where program execution can diverge 
+is indispensable to getting silhouette execution
+to work, because instructions that can 
+diverge execution need to be dynamically identified.
+Our detailed analysis of the various interfaces
+between application programs and the operating system
+allows us to identify such potential sources of
+execution divergence.
 
 The fundamental difference
 between silhouette execution and record-and-replay
@@ -78,16 +109,11 @@ These designs can be further generalized to the execution of entire
 VMs themselves; this would require us to precisely
 identify the nondeterminism that can
 arise from all software layers inside a VM.
-
 We focus using silhouette execution for user-space programs as 
 a first step to solving the bootstorm problem: after all, as outlined
 Section \ref{linuxboot}, booting VMs
 can saturate host CPUs when they launch many
-identical user-space processes. Silhouette
-execution can reduce
-CPU pressure by preventing
-identical instructions from being
-executed multiple times on the same CPU.
+identical user-space processes.
 
 \subsection{{\em Precise Silhouetting}}\label{precise:sil}
 Here is a simple design that uses silhouette execution 
@@ -95,29 +121,39 @@ to reduce CPU overhead in the bootstorm scenario:
 
 \begin{enumerate}
 
-\item We run one program instance -- the {\em leader} -- before 
-all others.
+\item We run one program instance -- the {\em leader} -- 
+slightly ahead of all other program instances -- the {\em silhouettes}.
 
-\item Using information collected from the {\em leader} (e.g.
-via dynamic instrumentation techniques), 
-we precisely identify instructions where
-multiple instances of the program could {\em potentially} diverge.
-We call these instructions {\em fork-points}.
-
-\item From the leader, we also collect an {\em execution signature} 
-that summarizes its execution between successive
-fork-points. For a user-space program, this could
-include a record of memory operations and 
+\newpage
+\item Using dynamic instrumentation techniques on the leader, we
+\begin{itemize}
+\item precisely identify instructions where other instances of the
+program could {\em potentially} diverge. We call these instructions {\em fork-points}.
+\item collect an {\em execution signature} that summarizes the 
+leader's execution between successive fork-points. For a user-space program, 
+this includes a record of memory operations and 
 deterministic system calls.
+\end{itemize}
 
-\item We do not execute all instructions from the execution
-instances -- or {\em silhouettes} -- that are run
-after the leader. Instead, each silhouette skips execution to
-the first fork-point by executing memory
-operations and system calls before that fork-point. 
-It then executes the {\em forking} instruction.
+\item When a leader reaches a fork-point, it sends its
+own execution signature from the previous fork-point (or the
+beginning of the program) till the current fork-point to all
+other silhouettes. It then waits for all silhouettes
+to catch up in execution and reach the fork-point as well.
 
-\item The forking instruction may or 
+\item The silhouettes do not execute
+all the instructions that the leader executes.
+Instead, each silhouette bypasses execution between
+two fork-points by executing only the memory
+operations and system calls from the 
+execution signature sent by the leader,
+and restoring the register state at the end.
+
+\item 
+When the leader and the silhouettes
+have caught up, they execute the {\em forking} instruction
+in sync and observe its side-effects.
+The forking instruction may or 
 may not behave differently
 in a silhouette than the leader.
 
@@ -128,17 +164,16 @@ in a silhouette, the silhouette branches execution and
 executes instructions independently
 from that point onwards. 
 
-\item Otherwise, the silhouette bypasses
-execution to the next fork-point by
-executing only memory operations and
-system calls up to that point.
-After executing the next forking instruction,
-the silhouette repeats step 5.
-
+\item Otherwise, we
+return to Step 2: the leader
+executes instructions till
+the next fork-point (or the desired
+end-point) while the silhouettes 
+wait for the next execution signature.
 \end{itemize}
 \end{enumerate}
 
-We name this design {\em precise silhouetting} because
+\noindent We name this design {\em precise silhouetting} because
 it cannot tolerate any differences in execution
 between the multiple instances of a program:
 silhouettes completely branch
@@ -146,19 +181,16 @@ execution after executing a
 forking instruction that disagrees
 with the leader. 
 
-While our description of precise silhouetting implies that the leader
-executes to completion before any silhouettes 
-start executing, this is not necessary.
+Our description of precise silhouetting requires
+that the leader executes concurrently
+with the silhouettes -- albeit slightly ahead --
+but this is not necessary.
 This approach would work even
-if we run the leader and the silhouettes
-concurrently. The silhouettes,
-of course, would only execute system calls and memory
-operations while
-the leader would execute all instructions. 
-The leader just needs to be a little
-ahead of the silhouettes
-so that it can identify fork-points
-and send logs for bypassing execution to them.
+if we run the leader to completion
+before we run any silhouettes. 
+The silhouettes, of course, would only execute system calls and memory
+operations between
+successive fork-points that the leader recorded earlier.
 
 \subsection{\em Optimistic Silhouetting (excluding control flow)}\label{opt:sil}
 {\em Optimistic silhouetting} essentially follows the 
@@ -169,53 +201,53 @@ to tolerate minor execution differences
 before branching execution completely.
 In this design:
 
-\begin{itemize}
+\begin{enumerate}
+\item The leader executes slightly ahead of the silhouettes. 
+  The leader identifies fork-points and sends
+  execution signatures to silhouettes. 
+  The silhouettes bypass execution by only 
+  executing the load/store instructions
+  and system calls made by the leader.
+  This is similar to what happens
+  in precise silhouetting.
 
-\item The leader must augment its
-computation of fork-points by performing 
-{\em taint propagation} via dynamic instrumentation to 
-mark {\em secondary fork-points}.
-
-\item Secondary fork-points are instructions which 
-could potentially propagate any execution differences
-caused by earlier fork-points (of either kind).
-
-\item If a forking 
+\item Unlike the previous design, however, if a forking 
 instruction has different
 side-effects in a silhouette
 than the leader,
-the silhouette would have to 
-execute secondary fork-points
-that relate to the original fork-point to 
-accomodate minor differences in program execution.
-
-\item When secondary fork-points 
-become too frequent, or when
-control flow diverges,
-a silhouette would start
-independently executing instructions
-and branch off from the leader.
-
+\begin{itemize}
+\item the silhouette does not immediately 
+  branch execution completely;
+\item the leader tracks the register or 
+  memory values that are written differently
+  in the multiple instances
+  by marking them as {\em tainted}.
+  The leader treats any instructions that 
+  read tainted values as
+  fork-points as well.
 \end{itemize}
 
-This approach is more effective if we
+\item When fork-points 
+become too frequent, or when
+control flow diverges (e.g. a tainted
+value is compared to a constant to
+determine control flow),
+a silhouette starts
+executing instructions independently
+and branches off from the leader.
+\end{enumerate}
+
+\noindent This approach does require that we
 run the leader and its silhouettes
 at the same time, with the leader
 slightly ahead of the silhouettes.
-Concurrent execution would significantly reduce
+Concurrent execution significantly reduces
 the complexity associated with taint propagation
 during the leader's execution,
 because the leader would
-not have to compute
-{\em all} possible secondary fork-points
-ahead of time.
-Instead, the leader could wait at 
-a fork-point for all the silhouettes
-to catch up. Only when a silhouette
-{\em actually} conflicts with the leader would
-the leader need to use taint propagation
-to mark tainted memory or register values and
-compute secondary fork-points using them.
+have to compute
+{\em all} possible fork points
+ahead of time otherwise.
 
 \subsection{\em Optimistic Silhouetting (including control flow)}\label{opt:sil}
 This design is similar in essence to the version of {\em optimistic silhouetting}  
@@ -223,25 +255,26 @@ described above, but it can also tolerate minor control flow
 differences between the leader and the silhouettes. The leader and the
 silhouettes must execute concurrently. In this design:
 
+\begin{enumerate}
+
+\item As before, the leader executes
+  slightly ahead of the silhouettes, records
+  and transmits execution signatures, and uses dynamic taint propagation 
+  to tolerate minor differences in instruction side-effects.
+
+\item Unlike before, the leader uses dynamic instrumentation to
+  create a dynamic {\em control flow graph}
+  for the program execution as well:
 \begin{itemize}
-
-\item The leader users dynamic taint propagation as before,
-  so that minor differences in instruction side-effects
-  can be tolerated.
-
-\item The leader augments its analysis by also
-  creating a dynamic {\em control flow graph}
-  during program execution.
-
-\item When the leader and a silhouette reach a
+\item  When the leader and a silhouette reach a
   control flow fork-point (e.g. after a tainted value
   is read to determine control flow), the
   leader uses the dynamic control flow
   graph to determine when the {\em immediate post-dominator}
-  of the block in which execution branches.
+  of the block where execution has diverged.
 
-\item 
-  The silhouette branches off 
+\item   The silhouette branches off
+  temporarily (rather than permanently)
   and executes independently to the 
   point of control flow convergence.
   The silhouette and the leader log
@@ -256,6 +289,7 @@ silhouettes must execute concurrently. In this design:
   Any conflicting memory addresses 
   or register values are
   marked by the leader as tainted.
+\end{itemize}
 
 \item The leader resumes
   execution as before; the silhouette
@@ -264,7 +298,7 @@ silhouettes must execute concurrently. In this design:
   When fork-points become too frequent,
   execution branches permanently.
 
-\end{itemize}
+\end{enumerate}
 
 \section{Simulation Scheme} \label{silsimulation}
 

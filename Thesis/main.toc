@@ -38,9 +38,11 @@
 \contentsline {subsection}{\numberline {4.3.2}Caveats}{62}
 \contentsline {subsection}{\numberline {4.3.3}Initial Results}{67}
 \contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{70}
-\contentsline {section}{\numberline {4.5}Evaluation of Simulation}{77}
-\contentsline {section}{\numberline {4.6}Summary}{77}
-\contentsline {chapter}{\numberline {5}Related Work}{79}
-\contentsline {section}{\numberline {5.1}Summary}{79}
-\contentsline {chapter}{\numberline {6}Conclusion}{81}
-\contentsline {section}{\numberline {6.1}Future Work}{81}
+\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{70}
+\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{70}
+\contentsline {section}{\numberline {4.5}Evaluation of Simulation}{79}
+\contentsline {section}{\numberline {4.6}Summary}{79}
+\contentsline {chapter}{\numberline {5}Related Work}{81}
+\contentsline {section}{\numberline {5.1}Summary}{81}
+\contentsline {chapter}{\numberline {6}Conclusion}{83}
+\contentsline {section}{\numberline {6.1}Future Work}{83}

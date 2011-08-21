@@ -18,8 +18,8 @@
 \contentsline {figure}{\numberline {4-2}{\ignorespaces Modeling CPU overhead from precise silhouetting}}{63}
 \contentsline {figure}{\numberline {4-3}{\ignorespaces Modeling CPU overhead from optimistic silhouetting (excluding control flow)}}{64}
 \contentsline {figure}{\numberline {4-4}{\ignorespaces Modeling CPU overhead from optimistic silhouetting (excluding control flow)}}{65}
-\contentsline {figure}{\numberline {4-5}{\ignorespaces Simulation of {\em Silhouette Execution} in a bootstorm scenario}}{69}
-\contentsline {figure}{\numberline {4-6}{\ignorespaces Virtualizing the process ID layer using Pin}}{72}
-\contentsline {figure}{\numberline {4-7}{\ignorespaces Reordering I/O events using Pin}}{75}
+\contentsline {figure}{\numberline {4-5}{\ignorespaces Simulation of {\em Silhouette Execution} in a bootstorm scenario}}{71}
+\contentsline {figure}{\numberline {4-6}{\ignorespaces Virtualizing the process ID layer using Pin}}{75}
+\contentsline {figure}{\numberline {4-7}{\ignorespaces Reordering I/O events using Pin}}{77}
 \addvspace {10\p@ }
 \addvspace {10\p@ }

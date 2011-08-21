@@ -739,7 +739,7 @@ The value of $A$ is 0.40
 on average, again representing a {\em degradation}
 on CPU load.
  
-\noindent {\bf Optimistic Silhouetting (Excluding Control FLow)} \newline
+\noindent {\bf Optimistic Silhouetting (Excluding Control Flow)} \newline
 Table \ref{osnc:inittbl} shows the results of modeling 
 optimistic silhouetting (without control flow) on our sample of Linux services.
 As before, we include all system calls in our definition
@@ -915,44 +915,45 @@ The values of the canary (\texttt{gs:0x14}) and the pointer guard (\texttt{gs:0x
 are initialized in user-space, so dynamic instrumentation can be used to force 
 these values to agree across distinct executions of the same program:
 instructions that initialize them can be
-modified or replaced or the sources used to compute
+modified or replaced; the sources used to compute
 these values (e.g. \texttt{rdtsc}, \texttt{`/dev/urandom'}
 or \texttt{AT\_RANDOM}) bytes
-can be intercepted.
+can be intercepted as well.
 
-In practice, all this means that a leader can simply choose to
+For a real implementation of silhouette execution, this means that a leader can simply choose to
 not treat the instructions that initialize \texttt{gs:0x14} or
 \texttt{gs:0x18} as fork-points and simply
-continue executing past them. The silhouettes will follow the 
+treat them as normal memory writes instead. The silhouettes will follow the 
 leader's execution signature and store the same canary or pointer guard
 as the leader into memory. All subsequent instructions
 that load the canary or pointer guard values 
 from memory will also be identical and thus
-can be excluded from fork-points. 
+will not be fork-points. 
 \newline
 
 \noindent {\bf Randomization} \newline
 To overcome execution differences resulting from randomization,
-we need to intercept the standard techniques
+we need to address the standard techniques
 used by programs to seed PRNGs.
-In our simulations, values read by the leader from \texttt{`/dev/urandom'}, the
+In our simulations, reads performed by the leader from \texttt{`/dev/urandom'}, the
 \texttt{AT\_RANDOM} bytes, or the \texttt{rdtsc} instruction 
-can be intercepted and recorded in the trace execution file using
+are intercepted and recorded in the trace execution file using
 dynamic instrumentation;
 for other subsequent instances, we simply
-intercept and replace the return values to match
+replace the return values to match
 those from the leader.
 
-In practice, this means that the leader can simply
+For silhouette execution in practice, this means that the leader can simply
 exclude \texttt{rdtsc} instructions 
 or \texttt{read}s from \texttt{`dev/urandom'}
-from fork-points and continue executing past them. 
+from fork-points and simply execute past them. 
 Semantically, when silhouettes replay 
-the leader's memory writes, this simulates
+the leader's execution signature, this simulates
 the unlikely but possible case that they
-received the same random values as the leader.
+received the same random values as the leader
+from external sources.
 
-We need a slightly different approach in practice for \texttt{AT\_RANDOM} bytes because they
+We need a slightly different approach for \texttt{AT\_RANDOM} bytes because they
 are not initialized in user-space.
 Simply excluding reads 
 of \texttt{AT\_RANDOM} bytes from fork-points
@@ -963,17 +964,18 @@ bytes again and they will be different
 from those read earlier (which is impossible). 
 To solve this minor issue, we can make the leader transmit
 its \texttt{AT\_RANDOM} bytes
-in its execution signature;
+in its first execution signature;
 the silhouettes overwrite
 their own \texttt{AT\_RANDOM}
 bytes with the leader's values
 before starting execution.
-This eliminates
+
+These strategies eliminate
 any fork-points or tainted memory
 locations that result
 from external
 sources of randomization
-in programs; while
+in programs. While
 eliminating such randomization
 can change execution
 semantics of a Linux service,
@@ -994,33 +996,41 @@ in the trace signature file
 can be used to force agreement
 between different instances.
 
-In practice, this means that a leader can simply
-exclude these system calls from fork-points
-and silhouettes copy
-the behavior of the leader: this
-simulates the unlikely 
+For silhouette execution in practice, this means that a leader can simply
+exclude such system calls from fork-points,
+and continue executing past them. 
+Rather than including these system calls in its
+execution signature, the leader should include
+the memory side-effects of these system calls.
+This way, silhouettes do not perform these system calls; rather, they
+automatically copy the behavior of the leader when they replay its 
+writes. This simulates the unlikely 
 but semantically valid scenario
 that the various instances
-executed the time-related system calls
+executed various time-related system calls
 precisely at the same times.
+Replacing such system calls with their memory side-effects
+works because they do not mutate any operating system
+state.
 
 The timestamps returned from
 \texttt{stat} system calls
-are not as straightforward
-to handle. {\em If} we assume
+are not as easily handled. {\em If} we assume
 that all the input, configuration
 and data files are identical
 between various instances of
 a program, then we can 
 simply exclude \texttt{stat}
-system calls from fork-points.
+system calls from fork-points
+and include them 
+in the execution signature file instead.
 A leader can assume
-by default that various timestamps
+by default that only the various timestamps
 returned by \texttt{stat} will
 be different and mark
 them as tainted.
 In our experiences,
-the timestamps are typically
+these timestamps are typically
 ignored in an overwhelming 
 majority of cases. Thus, 
 tainting these values by
@@ -1036,23 +1046,28 @@ the timestamps from \texttt{stat}
 system calls are actually read,
 they are typically compared to
 determine ``freshness''
-(i.e. while file is newer).
+(i.e. which file is newer).
 When we assume that all
 the files accessed by a program
 have similar initial contents,
 these comparisons can also
 be excluded from 
 fork-points because timestamps
-retain the same order across different
+retain the same ordering across different
 instances of a program
-in our experiments. 
-Alternatively, when tainted
-\texttt{stat} timestamps are compared,
-the leader could treat the read as a fork-point
-and reexecute the \texttt{stat} system
-calls in silhouettes and verify that
-the results are the same. In either case, this is clearly a risky
-optimization and must be used with care. \newline
+in our experiments. This can be a risky
+optimization, so to be absolutely sure, 
+the leader could treat these comparisons as fork-points
+and verify that the comparison results are the same
+in all instances instead. 
+
+To model this in our simulations, we do not include
+\texttt{stat} system calls that contain
+different time-stamps across instances in our
+count of fork-points. However, comparisons of
+timestamps from \texttt{stat} system
+calls are included in our definition of fork-points.
+\newline
 
 \noindent {\bf Signal Delivery} \newline
 In order to overcome the unpredictable timing and 
@@ -1061,7 +1076,6 @@ an application and ensure they are delivered
 at precisely the same instruction counts
 and in the same order as that indicated
 in the trace signature file.
-
 Unlike record-and-replay systems, we only
 deliver signals that are {\em actually}
 received. Thus, signals that are received earlier
@@ -1075,23 +1089,38 @@ must diverge. In our experiments,
 this final case does not occur as long
 as other sources of nondeterminism are controlled. 
 
-In practice, this means that a leader can treat 
-received signals as fork-points (as before),
-but rather than diverging in control-flow,
-it should let silhouettes catch-up with it
-and make them wait for the same signal.
+For silhouette execution in practice, this means that a leader can exclude
+received signals from fork-points (unlike before),
+and simply include them in the execution signature sent to silhouettes
+instead. When silhouettes bypass execution using the execution signature,
+they delay, reorder and deliver signals at precisely the 
+same times as the leader and thus avoid any control-flow divergences. 
+This technique, {\em signal alignment}, 
+requires each silhouette to temporarily
+resume execution from the instruction before which the signal is
+expected to be received, and then insert \texttt{nops}
+until the signal is received or deliver a previously
+received (and withheld) signal.
 This can prevent control
 flow divergences and subsequent fork-points that arise from 
-variable signal timing and order.
+variable signal timing and ordering.
 Of course, if the expected
 signal is not received in a silhouette
-after a long wait, control flow must inevitably diverge.
+within a reasonable time interval, 
+control flow must inevitably diverge.
 \newline
 
 \noindent {\bf Process IDs} \newline
 In our simulations, nondeterminism from process IDs
-can be controlled by virtualizing the process ID
-layer, as shown by Figure \ref{ch3:pidfig}.
+can be controlled by {\em virtualizing the process ID layer}, 
+as shown by Figure \ref{ch3:pidfig}.
+Using dynamic instrumentation, we can replace
+real and unpredictable process IDs from kernel space
+with virtual and unpredictable process IDs in user space.
+As outlined in Section \ref{ch3:pid}, all interfaces
+which use process IDs need to be carefully monitored
+so that process IDs can be translated back and forth
+for correctness. 
 
 \begin{figure}[t]
   \center
@@ -1107,95 +1136,139 @@ layer, as shown by Figure \ref{ch3:pidfig}.
   \label{ch3:pidfig}
 \end{figure} 
 
-Using dynamic instrumentation, we can replace
-real and unpredictable process IDs from kernel space
-with virtual and unpredictable process IDs in user space.
-As outlined in Section \ref{ch3:pid}, all interfaces
-which use process IDs need to be carefully monitored
-so that process IDs can be translated back and forth
-for correctness. 
-
 In practice, this is equivalent
 to using an operating system that assigns
 process IDs in a determininstic fashion.
+In a complete implementation of silhouette
+execution, we could expect the leader VM
+to store process IDs in its execution 
+signature; silhouettes would assign process IDs
+in the same order as the leader.
 
-
-
-\newline
+For silhouette execution purely in 
+user-space, we could add some logic to the silhouettes 
+and virtualize their process IDs as described
+in Figure \ref{ch3:pidfig}.
+Instead of treating instructions that deal with process IDs as 
+fork-points (e.g. \texttt{fork} or \texttt{clone}), the leader
+would execute past them, and simply flag them before
+including them in its execution signature.
+When silhouettes would arrive at these 
+instructions, they would simply translate
+between real and virtual process IDs.
+This clearly adds complexity and translation overhead
+whenever an instance interacts 
+with an operating system interface using 
+virtual process IDs. However, virtualizing
+the process ID layer prevents
+a considerable number of user-space instructions 
+that propagate differences
+in process IDs (e.g. in \texttt{libc} or \texttt{pthreads}) from being labeled at fork-points
+due to taint propagation.
+Note that,  for correctness, silhouettes
+must pretend to use the same virtual process IDs
+that they have already used before even after they completely 
+diverge execution.\newline
 
 \noindent {\bf File I/O} \newline
 Differences in input file contents across
 executions would inevitably cause execution
-to diverge, but overcoming nondeterminism arising
+to diverge, but reducing fork-points arising
 from time, randomization or process ID system calls
 is typically sufficient to ensure that
-file contents rarely differ in Linux services,
-if at all. Some files that may differ
+file contents evolve identically in Linux services. 
+Some files that may differ
 between two instances on start up (e.g. 
 cache files or logs) can simply be 
 deleted or replaced without sacrificing correctness.
 Also, as mentioned already, \texttt{stat} 
 timestamps are frequently not read, so
-they can be replaced with fixed constants;
-when they are read and only compared with other
-\texttt{stat} timestamps, they can be replaced with 
-ordinal numbers that perserve ordering;  
-in all other cases, \texttt{stat} system calls 
-can be faithfully replayed. \newline
+they can be excluded from fork-points until
+they are actually compared with
+other timestamps.
+
+For file contents that are inherently and minimally different
+(e.g. they contain different timestamps),
+taint propagation otherwise suffices to ensure that 
+they do not cause execution to diverge permanently. \newline
 
 \noindent{\bf Network I/O} \newline
 The content of network configuration files
-does not change in our experiments, so the strategies 
-described to handle \texttt{stat} timestamps 
-are sufficient for them. In the same vein, whenever an address is resolved
-differently between execution instances because of DNS-based dynamic load balancing, 
-we can intercept and replace resolved IPs with those
-stored in the execution signature file.
+does not change over a booting period in our experiments,
+so we can mark them as immutable
+during the boot process and
+arrange for their \texttt{stat} timestamps
+to return identical values across different
+instances. In practice,
+this means that a leader can 
+exclude the \texttt{stat}
+calls for network files
+or their comparisons from its
+set of fork-points without
+sacrificing correctness.
+
+In the same vein, the leader can exclude 
+IP address resolution instructions from its definition
+of fork-points, and execute past them. This disables DNS-based 
+dynamic load balancing during the boot process and forces silhouettes
+to use the same resolved IP addresses as the leader.
+DNS-based load balancing typically uses low TTLs, so once 
+the boot process is finished and execution diverges
+permanently, the IP addresses will be refreshed 
+quickly.
 
 If bytes read from sockets differ across different executions,
 we need to understand the {\em context} to determine whether the
 differences are serious (e.g. due to different requests)
-or synthetic (e.g. due to timestamps). This can
-can complicate design of the dynaminc instrumentation
-layer because it 
-may have to re-execute application or \texttt{libc}
-logic to understand differences in raw bytes read from system calls.
-We handle nondeterminism from \texttt{Netlink}
-sockets in this way: the dynamic instrumentation layer 
-re-executes \texttt{libc} logic associated
-with understanding contents of \texttt{RTM\_NEWLINK}
-messages to detect nondeterminsm from source/destination 
-IDs, sequence numbers or interface statistics.
-To handle variability in interface statistics,
-we can simply overwrite them with fixed values.
-This scheme can be generalized to handle
-other kinds of network protocols as well.
+or synthetic (e.g. due to timestamps). Simply tainting 
+the bytes that are different between
+the instances is sufficient to tolerate
+minor differences from external data.
+In some specific cases, we can avoid marking
+socket \texttt{read}s as fork-points:
+for \texttt{Netlink} sockets, typically the only differences
+in bytes across different instances
+arise from interface statistics (\texttt{RTM\_NEWLINK}), 
+sequence numbers or end-point IDs.
+To handle variability in interface statistics (which are rarely read, if at all),
+we can simply overwrite them with identical fixed values
+across instances; sequence numbers
+and end-points IDs are generated by 
+\texttt{time} system calls and process IDs
+respectively, which we already handle.
+Thus, a leader can execute a socket 
+\texttt{read} on \texttt{Netlink} sockets
+and simply add memory operations that 
+replace any statistics read by the silhouette
+with what the leader read. 
+This simulates the unlikely but semantically valid execution
+scenario that all instances have the same network 
+statistics (e.g. packets dropped/transmitted) when the 
+system call is made.
+Using this approach, while we introduce instrumentation overhead
+in the leader for handling \texttt{Netlink} sockets, we reduce the number of expensive
+fork-points requiring byte-by-byte comparisons related to \texttt{Netlink} socket \texttt{reads}
+across all instances.
 
-As an alternative, we could
-aggressively intercept Linux socket calls
-and blindly replay them in all followers.
-When many concurrent executions are reading data from the
-same network source, this simulates the possibility
-that all instances see the same results over the network
-as the first instance. Such an approach, however,
-can break correctness (Section \ref{ch3:issues}).
-          
-\newpage 
-To overcome nondeterminism from ephemeral ports, 
-we monitor the \texttt{bind} or \texttt{connect} 
-system calls and change their arguments to explicitly request ports
+To overcome fork-points related to ephemeral port assignments, 
+the leader can monitor the \texttt{bind} or \texttt{connect} 
+system calls and changes their arguments to explicitly request ports
 in the ephemeral range rather than let the kernel 
-assign them; if necessary,
-we can also virtualize ephemeral ports
+assign them. These system calls, then,
+are no longer fork-points; the silhouettes
+derive and use the same arguments as the leader from
+the execution signature files sent to them,
+so there are no execution differences.
+This allows us to avoid virtualizing ephemeral ports
 in a similar fashion to how we virtualize process IDs. \newline
-
 
 \noindent{\bf Scalable I/O Schemes} \newline
 To handle nondeterminism caused by unpredictable
 ordering of I/O events,
 we use techniques similar to those used 
-for reordering signals,
+for reordering signals in our simulations,
 as described by Figure \ref{ch3:reorderfig}.
+We name our approach {\em I/O stalling}.
 
 \begin{figure}[h]
   \center
@@ -1254,15 +1327,35 @@ dynamic instrumentation layer.
 In our experiments, this approach has been sufficient 
 for overcoming nondeterminsm from event-based I/O
 schemes.
-
 For asynchronous I/O schemes (e.g. \texttt{aio\_read}), strategies
 similar to those used for reordering
 and precisely-timing signals would be necessary to hide
 variable I/O latency and ordering.
-\newline
+
+For silhouette execution in practice,
+we would implement this technique -- {\em I/O alignment} -- by excluding \texttt{epoll} system calls
+from fork-points. An \texttt{epoll}
+call and its expected results
+would be stored in the execution signature;
+a silhouette would execute \texttt{epoll}
+and not not let differences in the observed results 
+let execution branch immediately. Instead,
+the silhouette would repeatedly call
+\texttt{epoll} until it gets the desired
+event set, taking care to delay
+and reorder I/O events as necessary
+to align with the leader.
+The same approach
+can be used for determining 
+how many bytes are available
+from a \texttt{read}. While this 
+adds overhead to the instructions
+executed by a silhouette, it eliminates control-flow 
+divergences and subsequent fork-points created from
+inherent I/O nondeterminism. \newline
 
 \noindent {\bf Concurrency} \newline
-Nondeterminism due to multi-threading
+Execution variability resulting from multi-threading
 has been extensively documented; there
 is a significant body of work that
 attempts to overcome such nondeterminism
@@ -1270,58 +1363,40 @@ by using deterministic logical clocks
 or record-and-replay approaches. 
 For our experiments, we did not attempt to enforce
 a total order on the instructions executed in multi-threaded
-programs and just measured nondeterminism inside 
+programs and just measured fork-points inside 
 the main process for each Linux service.
-To overcome nondeterminism caused
-by multi-threading, we could incorporate
+To reduce fork-points from multi-threading, we could incorporate
 deterministic logical clocks 
-into our design by augmenting the
-execution signature file.
+into our design.
 
 As mentioned before, a nondeterministic system scheduler
-can cause variable timing of signals
-or I/O events, which
-can be handled using reordering and
-timing strategies.
-Work on deterministic
-operating systems can
+can cause variable timing of signals or I/O events, which
+we handle using signal and I/O alignment strategies. 
+Work on deterministic operating systems can
 be extended to overcome this issue
 in a more systematic manner. \newline
 
 \noindent {\bf {\em Procfs}: The \texttt{`/proc/directory'}} \newline
-Using the techniques described
-already, I/O operations on {\em procfs} can be intercepted
-and modified. We can 
-replay reads from {\em procfs} using the execution signature
-file if necessary or replace any statistics with fixed and 
-reasonable values. The dynamic instrumentation layer 
-must respect differences in virtual and real processes:
-it must modify all \texttt{open} system calls with paths
-of the form \texttt{`proc/[PID]'}
-by switching real and virtual process IDs,
-and a process must see its 
-parent's virtual process ID when it reads
-\texttt{`/proc/[PID]/status'}.
+A leader can exclude reads from {\em procfs}
+for statistics from fork-points; instead, the leader can simply replace
+them with memory operations that simulate
+identical results in silhouettes. A leader
+must be careful to flag reads from {\em procfs}
+use process IDs, so that silhouettes
+can translate between real and virtual process IDs
+accordingly.
 
-%\section{Results after Using Deterministic Execution} \label{ch3:data}
-%We were able to achieve {\em fully} deterministic execution (i.e.
-%user-mode execution traces that were 100\% identical) in several
-%Linux services including \texttt{cron}, \texttt{ntp} and
-%\texttt{cups} using these approaches.
+\newpage
+\section{Evaluation of Improved Silhouette Execution} \label{sileval}
 
-%The next chapter describes the context in which nondeterminism
-%occured in these services and the relative
-%signficance of the various factors we have outline 
-%as sources of nondeterminism in programs.
+% [RECOMPUTE CONSTANTS WHEREVER NECESSARY]
+
+% outright reduction of fork-points e.g. canary, randomization, time system-calls
+
+% pid + stat + network
+
+% i/o + signal alignment
+
+% all
 
 
-
-
-
-
-
-
-\section{Evaluation of Simulation} \label{sileval}
-In order to evaluate the feasibility of this design,
-we need to 
-\section {Summary}

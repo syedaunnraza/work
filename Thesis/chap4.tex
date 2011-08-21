@@ -13,8 +13,8 @@ It also describes the simple simulation techniques we used
 to model the effectiveness of silhouette
 execution using our design sketches
 (Section \ref{silsimulation}).
-From the results of our simulations, we present design ideas
-that can improve the effectiveness of
+From the results of our simulations, we present strategies
+to improve the effectiveness of
 silhouette execution (Section \ref{silimprove})
 and evaluate them (Section \ref{sileval}).
 Our simulations show that the proposed designs can be successful
@@ -24,7 +24,7 @@ in mitigating the bootstorm problem.
 The previous few chapters showed that
 distinct executions of the same Linux service
 generally execute the same number of instructions
-across identical VMs. If the number of booting VMs for
+across identical VMs when they start up. If the number of booting VMs for
 the same physical host is large (as is 
 the case in VDI deployments),
 then executing many instructions over
@@ -70,7 +70,7 @@ suggested or implemented before.
 To study whether this approach
 can be effective in reducing CPU pressure
 in concurrently booting VMs,
-we evaluate some design sketches for implementing silhouette
+we present some design sketches for implementing silhouette
 execution for Linux services in the rest of this chapter. Admittedly,
 user-mode instruction streams 
 from Linux services capture
@@ -102,7 +102,7 @@ while the silhouettes execute a much smaller subset
 of these instructions.  
 
 \newpage
-To maintain correctness,
+To maintain correctness in user-space,
 silhouettes need only execute: 
 
 \begin{itemize}
@@ -113,7 +113,7 @@ silhouettes need only execute:
 \item instructions that write to memory;
 \item system calls that have side-effects to entities
   outside a user-space program
-  (e.g. the \texttt{read} system call mutates operating system 
+  (e.g. the \texttt{read} system call mutates hidden operating system 
   state associated with file descriptors).
 \end{itemize}
 
@@ -122,24 +122,24 @@ execution and a silhouette's, then the silhouette would only
 execute the system calls and store instructions
 executed by the leader until the login screen is shown.
 Executing all the memory writes from the leader
-in the silhouettes ensures that the memory image of the two instances
+in the silhouettes ensures that the address space and memory
+contents of the two instances
 evolves in an identical manner. Executing all the system
 calls with the same arguments also ensures
 that the silhouette's execution is {\em faithful}
 to its semantics, that is, the side-effects to the underlying
 operating system are maintained till the end.
-Once we restore the register contents
-at the end, a silhouette can simply continue
+After we restore the register contents, a silhouette can simply continue
 execution independently of the leader.
-When the number of system calls and memory read/writes
-are much less than all instructions executed,
-this approach can, in theory, reduce the stress
+When the number of system calls and memory writes
+is a small fraction of the leader's execution,
+this approach can theoretically reduce the stress
 placed on the host CPU. 
 
 More generally, when there are instructions
 with conflicting side-effects in the leader
 and a silhouette, then these instructions
-need to be executed by the silhouette as well.
+need to be executed by each silhouette independently.
 This ensures that the silhouette's execution
 semantics are retained. 
 It is not known {\em apriori} which instructions in the
@@ -151,6 +151,7 @@ allows us to identify such potential sources of
 execution divergence via dynamic 
 program inspection.
 
+\newpage
 Note that silhouette execution for user-space programs is fundamentally different
 from record-and-replay approaches because it
 does not semantically alter subsequent executions
@@ -937,7 +938,7 @@ used by programs to seed PRNGs.
 In our simulations, values read by the leader from \texttt{`/dev/urandom'}, the
 \texttt{AT\_RANDOM} bytes, or the \texttt{rdtsc} instruction 
 can be intercepted and recorded in the trace execution file using
-dynamic instrumentation in our simulation;
+dynamic instrumentation;
 for other subsequent instances, we simply
 intercept and replace the return values to match
 those from the leader.

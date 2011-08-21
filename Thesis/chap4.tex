@@ -33,8 +33,8 @@ and over again during boot represents a waste of scarce CPU cycles.
 redundant execution of the same instructions across distinct but
 identical virtual machines in order to reduce CPU pressure in bootstorm
 scenarios. 
-\newpage
 
+\newpage
 \begin{figure} []
   \centering
   \includegraphics[scale=0.8, trim=2cm 0cm -5cm 0cm]{overcommit.pdf}
@@ -110,7 +110,7 @@ silhouettes need only execute:
   execution to differ from the silhouettes (e.g. the \texttt{rdtsc}
   instruction); 
 \item instructions that propagate any earlier differences in execution; 
-\item instructions that read or write to memory;
+\item instructions that write to memory;
 \item system calls that have side-effects to entities
   outside a user-space program
   (e.g. the \texttt{read} system call mutates operating system 
@@ -119,13 +119,11 @@ silhouettes need only execute:
 
 If there are no differences between the leader's
 execution and a silhouette's, then the silhouette would only
-execute the system calls or load/store instructions
+execute the system calls and store instructions
 executed by the leader until the login screen is shown.
-Assuming that the leader and a silhouette start from the same
-memory image in user-space (which is the case when the loader 
-our Pin tool gets injected into the target process), executing all the loads and stores
-ensures that the memory image of the two instances
-remain identical. Executing all the system
+Executing all the memory writes from the leader
+in the silhouettes ensures that the memory image of the two instances
+evolves in an identical manner. Executing all the system
 calls with the same arguments also ensures
 that the silhouette's execution is {\em faithful}
 to its semantics, that is, the side-effects to the underlying
@@ -328,7 +326,7 @@ In this design:
   to tolerate minor differences in instruction side-effects.
 
 \item Unlike before, silhouettes do not branch off permanently
-  from the leader at the sign of the first control-flow divergence:
+  from the leader at the sign of the first control flow divergence:
 
 \begin{itemize}
 \item The leader uses dynamic instrumentation to
@@ -503,7 +501,7 @@ differences cataloged in the previous chapter.
 Once we can identify individual fork-points, we can compute:
 \begin{itemize}
 \item The number and distribution of fork-points -- both latent and active -- in a program,
-\item The number and distribution of control-flow divergences in a program,
+\item The number and distribution of control flow divergences in a program,
 \item The proportion of memory and system-call instructions between successive fork-points,
 \item Size estimates for execution trace files that need to be communicated between
   the leader and its silhouettes.
@@ -568,7 +566,7 @@ for precise silhouetting. \newline
   \label{psoverhead}
 \end{figure}
 
-\noindent {\bf Optimistic Silhouetting (Excluding Control-Flow)} \newline 
+\noindent {\bf Optimistic Silhouetting (Excluding Control Flow)} \newline 
 Instructions in the longest common subsequence ($LCS$)
 of multiple traces {\em before} a control flow
 divergence broadly represent the savings from 
@@ -591,14 +589,14 @@ for this variant of optimistic silhouetting. \newline
   \label{osncoverhead}
 \end{figure}
 
-\noindent {\bf Optimistic Silhouetting (Including Control-Flow)} \newline
+\noindent {\bf Optimistic Silhouetting (Including Control Flow)} \newline
 Instructions in the longest common subsequence ($LCS$)
 of multiple traces before execution
 diverges permanently represent the savings from 
 this variant of optimistic silhouetting.
 Figure \ref{oscoverhead} summarizes
 how $T_{S}$ and $\vec K$ can be computed
-for this design. \newline
+for this design. 
 
 \begin{figure}
   \centering
@@ -616,9 +614,8 @@ for this design. \newline
 \end{figure}
 
 \subsection{Caveats}
-Before we present the results of modeling
-silhouette execution, we note a
-few limitations of our
+Before we present our results, we
+note a few limitations of our
 methods for evaluating 
 silhouette execution:
 
@@ -633,9 +630,10 @@ by dynamic inspection of program execution and inter-instance communication
 can eclipse the potential latency reduction from reduced CPU load
 and bypassing execution in silhouette
 execution or not. In practice,
-the hypervisor layer would implement silhouette execution,
-rather than a dynamic instrumentation
-layer for lower performance overhead.
+the hypervisor layer 
+rather than a dynamic instrumentation layer
+would implement silhouette execution,
+to reduce performance overhead.
 
 \item Our dynamic instrumentation tool
 can only inspect user-mode instructions
@@ -686,7 +684,6 @@ instruction streams from Linux services,
 and conservatively factor in the possible overhead
 from silhouette execution.
 
-
 \subsection{Initial Results}
 \noindent {\bf Precise Silhouetting} \newline
 Table \ref{ps:inittbl} shows the results of modeling 
@@ -713,8 +710,8 @@ $k2 = 1000$ and $k3 = 20$ as reasonably
 conservative values for the overhead constants.
 
 \begin{table}[h]
-  \caption{\hspace{0.2in}Preliminary Results from Modeling Silhouette Execution. \newline \newline 
-  Note that $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
+  \caption{\hspace{0.2in}Preliminary Results from Modeling Precise Silhouetting \newline \newline 
+  $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
   $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under
   precise silhouetting. $\vec K$ represents overhead constants; $M$ is the number
   of system calls and memory operations made by the leader before the first active fork-point; $F$
@@ -723,85 +720,144 @@ conservative values for the overhead constants.
 \label{ps:inittbl}
 \begin{center}
 \begin{tabular}{|l||c|c||c||c|c|c|c||c||c|}\hline
-  Program & $N$ & I & $T_O$ & $p$ & $\vec K$ & $M$ & $F$ & $T_S$ & $A$ \\
+  Program & $N$ & I & $T_O$ & $p$ & $\vec K$ & $M$ & $F$ & $T_S$ & $A$ \\\hline
   \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
   \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
   \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
   \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
+
   \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
 \end{tabular}
 \end{center}
 \end{table}
 
-\noindent {\bf Optimistic Silhouetting (Excluding Control-FLow)} \newline
-Table \ref{ps:inittbl} shows the results of modeling 
-precise silhouetting on a few Linux services.
-For simplicity, we include
-all system calls in our definition
+Because $p$ is very small on average for our sample of Linux services, 
+this version of optimistic silhouetting does not offer any savings.
+The value of $A$ is 0.40
+on average, again representing a {\em degradation}
+on CPU load.
+ 
+\noindent {\bf Optimistic Silhouetting (Excluding Control FLow)} \newline
+Table \ref{osnc:inittbl} shows the results of modeling 
+optimistic silhouetting (without control flow) on our sample of Linux services.
+As before, we include all system calls in our definition
 of fork-points.
-This assumption increases the number of fork-points ($F$);
-it also increases the overhead associated with determining 
-if execution has diverged or not after a fork-point
-because the inspection layer has to presumably
-understand the logic of each system call
-to determine its side effects ($k2$). However,
-this assumption reduces $k1$ because an overwhelming majority
-of instructions that only use register operands are easily
-excluded from fork-points. Instructions
-that are system calls are also easily identifiable;
-instructions with memory operands need
-their memory addresses to be 
-compared to tainted addresses (e.g. \texttt{gs:0x14} or \texttt{gs:0x18})
-to determine whether they are fork points or not.
-For our evaluation, we chose $k1 = 20$,
-$k2 = 1000$ and $k3 = 20$ as reasonably
-conservative values for the overhead constants.
+We use the same values of $k1 = 20$, $k3 = 1000$, $k4 = 20$
+to model overheads from detection of fork-points in the leader,
+execution of forking instructions to distinugish
+active and latent fork-points in the silhouettes and
+bypassing execution in silhouettes respectively.
+We use $k2 = 2k1 = 40$ to model the additional
+overhead from taint propagation after the first
+divergence.
 
 \begin{table}[h]
-  \caption{\hspace{0.2in}Preliminary Results from Modeling Silhouette Execution. \newline \newline 
-  Note that $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
+  \caption{Preliminary Results from Modeling Optimistic Silhouetting (Excluding Control Flow). \newline \newline 
+  $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
   $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under
-  precise silhouetting. $\vec K$ represents overhead constants; $M$ is the number
+  this variant of optimistic silhouetting. $\vec K$ represents overhead constants; $M$ is the number
   of system calls and memory operations made by the leader before the first active fork-point; $F$
-  is the number of latent fork-points before the first active fork-point. $p = P/I$
-  the prefix ratio of the execution. }
-\label{ps:inittbl}
+  is the number of latent fork-points before the first active fork-point. $d = D/I$
+  the portion of the execution before the first control-flow divergence. }
+\label{osnc:inittbl}
 \begin{center}
 \begin{tabular}{|l||c|c||c||c|c|c|c||c||c|}\hline
-  Program & $N$ & I & $T_O$ & $p$ & $\vec K$ & $M$ & $F$ & $T_S$ & $A$ \\
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
+  Program & $N$ & I & $T_O$ & $d$ & $\vec K$ & $M$ & $F$ & $T_S$ & $A$ \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
 \end{tabular}
 \end{center}
 \end{table}
 
+While $d$ is not as small as $p$
+for these Linux services, this version of 
+optimistic silhouetting does not offer any savings.
+The value of $A$ is 0.50
+on average, again representing a {\em degradation}
+on CPU load.
+This is largely because of a large 
+number of fork points and the high overhead
+in tracking their side-effects. \newline
 
+\noindent {\bf Optimistic Silhouetting (Including Control FLow)} \newline
+Table \ref{osc:inittbl} shows the results of modeling 
+optimistic silhouetting (including control flow) on our sample of Linux services.
+As before, we include all system calls in our definition
+of fork-points. We use the same values of $k1 = 20$, $k2 = 40$, $k3 = 1000$, $k4 = 20$
+to model overheads from detection of fork-points in the leader,
+taint propagation, execution of forking instructions to distinguish
+active and latent fork-points in the silhouettes and
+bypassing execution in silhouettes respectively.
+We use $k5 = 20$ to model the additional
+overhead from execution reconciliation
+after a branch interval.
 
+\begin{table}[h]
+  \caption{Preliminary Results from Modeling Optimistic Silhouetting (Including Control Flow). \newline \newline 
+  $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
+  $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under
+  this variant of precise silhouetting. $\vec K$ represents overhead constants; $M$ is the number
+  of system calls and memory operations made by the leader before the first active fork-point; $F$
+  is the number of latent fork-points before the first active fork-point;
+  $C$ and $L_C$ represent the number of control-flow divergences and their average length
+  respectively.  $d = D/I$
+  the portion of the execution before permanent execution divergence. }
+\label{osc:inittbl}
+\begin{center}
+\begin{tabular}{|l||c|c||c||c|c|c|c|c|c||c||c|}\hline
+  Program & $N$ & I & $T_O$ & $d$ & $\vec K$ & $M$ & $F$ & $C$& $L_C$ &$T_S$ & $A$ \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
+  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
+\end{tabular}
+\end{center}
+\end{table}
 
+While $d$ is larger when we allow for control flow divergences
+in these Linux services, this version of 
+optimistic silhouetting does not offer any savings.
+The value of $A$ is 0.30
+on average, again representing a {\em degradation}
+on CPU load.
+This is again because of a large 
+number of fork points and the high overhead
+in tracking their side-effects. 
 
+\newpage
+\section{Improving Silhouette Execution} \label{silimprove}
+When we analyzed the execution
+traces collected by our data collection scheme,
+we found that several causes of execution
+divergence across our sample
+of Linux services were synthetic i.e. they were an artefact
+of external sources of nondeterminism
+rather than semantic differences in program execution.
+We thus decided to introduce a determininstic
+execution layer to our previous
+designs to eliminate as many sources of 
+fork-points as possible, to 
+improve the feasibility
+of silhouette execution.
 
-
-
-
-
-
+\subsection{Modified Data Collection Scheme}
 We modified our data collection scheme from Chapter \ref{ch:boot} 
 (shown in Figure \ref{data:naive}) to simulate and
 evaluate silhouette execution in the bootstorm scenario.
 
-
-
 \begin{figure}[]
   \center
-  \includegraphics[scale=0.7, trim=1cm 0cm 1cm 0cm]
+  \includegraphics[scale=0.75, trim=2cm 0cm 1cm 0cm]
                   {simulation.pdf}
   \caption[Simulation of {\em Silhouette Execution} in a bootstorm scenario]%
   {Simulation of {\em Silhouette Execution} in a bootstorm scenario.
     We use dynamic instrumentation to 
-    generate an execution signature file for the leader.
+    generate a trace signature file for the leader.
     While we do not bypass execution in the 
     silhouettes, try to reduce the number of fork-points 
     and record information about them.
@@ -813,107 +869,197 @@ evaluate silhouette execution in the bootstorm scenario.
 \end{figure}
 
 
-
-
-
 As shown by Figure \ref{ch3:figsimulation}, we run one instance of the
-program -- the {\em leader} -- before all others.
-For the leader, we generate an {\em execution log}, as before,
+program -- the leader -- before all others.
+For the leader, we generate an execution log, as before,
 but we also augment the log by summarizing information about the sources of nondeterminism
 described in Section \ref{ch3:sources}. For instance, we record
 information about signal timing, process IDs, time-related system calls
-in the {\em execution signature} file. Our dynamic instrumentation tool
-uses the execution signature of the leader
-to modify the instruction sequences executed by subsequently
-executions (the {\em followers}), to boost determinism as much as possible.
-Even though we use specific terminology, this simulation scheme can be
-reconciled with multiple possible solutions to the 
-boot storm scenario that involve:
-\begin{itemize}
-\item
-booting one VM before others,
-then using its execution trace to {\em speed-boot} other VMs
-in a less hardware-intensive manner, or
-\item 
-running VMs concurrently but with an assigned leader;
-the VMs communicate with each other to overcome
-nondeterminism.
-\end{itemize}
+in the trace signature file. Our Pin tool
+uses the trace signature of the leader
+to modify the instruction sequences executed by subsequent
+executions (the silhouettes) and reduce the number of fork-points
+as much as possible.
 
-In the first case, the execution signature file
-conceptually represents the trace of the first VM used to speed-boot
-other VMs. In the second case, it represents a log of the communications 
-sent from the leader sent to concurrently booting VMs. Possible
-design ideas for the bootstorm scenario are described 
-in Chapter \ref{ch:design}.
+We run the leader to completion before the silhouettes.
+As before, we also do not bypass instructions in silhouettes
+so our modified data collection scheme still requires us
+to analyze these traces to simulate and evaluate
+silhouette execution.
 
-\section{Improving Silhouette Execution} \label{silimprove}
-We now briefly describe how dynamic instrumentation can be used to overcome
-the sources of nondeterminism described in \ref{ch3:sources}. \newline
+\subsection{Reducing Execution Differences across Instances}
+We now describe how dynamic instrumentation can be used to reduce
+the source of execution differences from the sources described in \ref{ch3:sources}.
+While we modify
+the instances that execute after the leader, 
+in practice many of our techniques eliminate fork-points altogether 
+i.e. the leader can continue execution past
+the forking instruction,
+or avoid control flow differences by navigating
+around variability of I/O timing and latency. \newline
 
-\noindent {\bf Address Space Layout Randomization (ASLR)} \newline
-Existing record-and-replay systems get around ASLR by
-forcing the operating system to use the same address space layout across
-different runs. A slightly more complex approach 
-would use base/offset computations to translate two equivalent 
-addresses between different executions. 
-For our experiments, we simply disabled ASLR using the command
-\texttt {sudo kernel.randomize\_va\_space=0} to simulate the 
-case where we nudge the operating system to construct
-similar address spaces for the same process. \newline
+%\noindent {\bf Address Space Layout Randomization (ASLR)} \newline
+%Existing record-and-replay systems get around ASLR by
+%forcing the operating system to use the same address space layout across
+%different runs. A slightly more complex approach 
+%would use base/offset computations to translate two equivalent 
+%addresses between different executions. 
+%For our experiments, we simply disabled ASLR using the command
+%\texttt {sudo kernel.randomize\_va\_space=0} to simulate the 
+%case where we nudge the operating system to construct
+%similar address spaces for the same process. \newline
 
 \noindent {\bf Canary and Pointer Guard Values} \newline
-Dynamic instrumentation can be used to force canary (\texttt{gs:0x14})
-and pointer guard (\texttt{gs:0x18}) values
-to agree across distinct executions of the same program:
+The values of the canary (\texttt{gs:0x14}) and the pointer guard (\texttt{gs:0x18})
+are initialized in user-space, so dynamic instrumentation can be used to force 
+these values to agree across distinct executions of the same program:
 instructions that initialize them can be
-modified or replaced; the \texttt{AT\_RANDOM} bytes 
-provided by the kernel can be
-modified before they are read by the application; 
-values read from \texttt{`/dev/urandom'} can be 
-intercepted and modified; the \texttt{rdtsc} instruction can be emulated.
-The last three approaches are needed to control nondeterminism
-from randomization anyway and suffice for our purpose. \newline
+modified or replaced or the sources used to compute
+these values (e.g. \texttt{rdtsc}, \texttt{`/dev/urandom'}
+or \texttt{AT\_RANDOM}) bytes
+can be intercepted.
 
-\noindent {\bf Randomization and Time} \newline
-To overcome nondeterminism resulting from randomization,
+In practice, all this means that a leader can simply choose to
+not treat the instructions that initialize \texttt{gs:0x14} or
+\texttt{gs:0x18} as fork-points and simply
+continue executing past them. The silhouettes will follow the 
+leader's execution signature and store the same canary or pointer guard
+as the leader into memory. All subsequent instructions
+that load the canary or pointer guard values 
+from memory will also be identical and thus
+can be excluded from fork-points. 
+\newline
+
+\noindent {\bf Randomization} \newline
+To overcome execution differences resulting from randomization,
 we need to intercept the standard techniques
 used by programs to seed PRNGs.
-As already mentioned, values read from \texttt{`/dev/urandom'}
-or the \texttt{rdtsc} instruction can be easily replaced
-using the execution signature file for the first instance.
+In our simulations, values read by the leader from \texttt{`/dev/urandom'}, the
+\texttt{AT\_RANDOM} bytes, or the \texttt{rdtsc} instruction 
+can be intercepted and recorded in the trace execution file using
+dynamic instrumentation in our simulation;
+for other subsequent instances, we simply
+intercept and replace the return values to match
+those from the leader.
 
-Time-related system calls can
-be intercepted in the same manner:
+In practice, this means that the leader can simply
+exclude \texttt{rdtsc} instructions 
+or \texttt{read}s from \texttt{`dev/urandom'}
+from fork-points and continue executing past them. 
+Semantically, when silhouettes replay 
+the leader's memory writes, this simulates
+the unlikely but possible case that they
+received the same random values as the leader.
+
+We need a slightly different approach in practice for \texttt{AT\_RANDOM} bytes because they
+are not initialized in user-space.
+Simply excluding reads 
+of \texttt{AT\_RANDOM} bytes from fork-points
+is not sufficient for correctness:
+when execution diverges permanently,
+a silhouette may read \texttt{AT\_RANDOM}
+bytes again and they will be different 
+from those read earlier (which is impossible). 
+To solve this minor issue, we can make the leader transmit
+its \texttt{AT\_RANDOM} bytes
+in its execution signature;
+the silhouettes overwrite
+their own \texttt{AT\_RANDOM}
+bytes with the leader's values
+before starting execution.
+This eliminates
+any fork-points or tainted memory
+locations that result
+from external
+sources of randomization
+in programs; while
+eliminating such randomization
+can change execution
+semantics of a Linux service,
+we are still simulating a valid
+(and possible) execution path
+for each silhouette. \newline
+
+\noindent {\bf Time} \newline
+In our simulations, 
+system calls that return 
+some measurement of the 
+current time, the CPU or program execution time, or a time interval 
+(e.g. \texttt{time} or \texttt{gettimeofday})
+can be intercepted in the same manner
+as randomization:
 the timestamps logged
-in the execution signature file
+in the trace signature file
 can be used to force agreement
-between different executions.
-For most time-related system calls,
-high-fidelity replay is not necessary:
-several timestamps generated
-during program execution are simply ignored
-(e.g. from \texttt{stat} calls),
-so they can actually be replaced with any 
-fixed value. Many timestamps
-returned from system calls are only compared to
-determine ``freshness'': they
-can be replaced with deterministic ordinal values (e.g 0 or 1) that 
-perserve the original comparison result.
+between different instances.
 
-Conceptually, these approaches simulate the possible but highly
-unlikely case that all the instances of the same program
-executed time-related system calls
-at precisely the same times,
-and several randomly generated values independently agreed. \newline
+In practice, this means that a leader can simply
+exclude these system calls from fork-points
+and silhouettes copy
+the behavior of the leader: this
+simulates the unlikely 
+but semantically valid scenario
+that the various instances
+executed the time-related system calls
+precisely at the same times.
+
+The timestamps returned from
+\texttt{stat} system calls
+are not as straightforward
+to handle. {\em If} we assume
+that all the input, configuration
+and data files are identical
+between various instances of
+a program, then we can 
+simply exclude \texttt{stat}
+system calls from fork-points.
+A leader can assume
+by default that various timestamps
+returned by \texttt{stat} will
+be different and mark
+them as tainted.
+In our experiences,
+the timestamps are typically
+ignored in an overwhelming 
+majority of cases. Thus, 
+tainting these values by
+default creates little overhead
+because these values are seldom
+read or propagated. At the same time,
+we avoid the overhead associated
+with treating \texttt{stat}
+system calls as fork-points.
+
+In the rare cases where
+the timestamps from \texttt{stat}
+system calls are actually read,
+they are typically compared to
+determine ``freshness''
+(i.e. while file is newer).
+When we assume that all
+the files accessed by a program
+have similar initial contents,
+these comparisons can also
+be excluded from 
+fork-points because timestamps
+retain the same order across different
+instances of a program
+in our experiments. 
+Alternatively, when tainted
+\texttt{stat} timestamps are compared,
+the leader could treat the read as a fork-point
+and reexecute the \texttt{stat} system
+calls in silhouettes and verify that
+the results are the same. In either case, this is clearly a risky
+optimization and must be used with care. \newline
 
 \noindent {\bf Signal Delivery} \newline
 In order to overcome the unpredictable timing and 
-order of signals, we intercept all signals received by 
+order of signals in our simulations, we intercept all signals received by 
 an application and ensure they are delivered
 at precisely the same instruction counts
 and in the same order as that indicated
-in the execution signature file.
+in the trace signature file.
 
 Unlike record-and-replay systems, we only
 deliver signals that are {\em actually}
@@ -926,14 +1072,27 @@ desired signal is received. If a signal simply
 refuses to appear for a long time, execution
 must diverge. In our experiments,
 this final case does not occur as long
-as other sources of nondeterminism are controlled. \newline
+as other sources of nondeterminism are controlled. 
+
+In practice, this means that a leader can treat 
+received signals as fork-points (as before),
+but rather than diverging in control-flow,
+it should let silhouettes catch-up with it
+and make them wait for the same signal.
+This can prevent control
+flow divergences and subsequent fork-points that arise from 
+variable signal timing and order.
+Of course, if the expected
+signal is not received in a silhouette
+after a long wait, control flow must inevitably diverge.
+\newline
 
 \noindent {\bf Process IDs} \newline
-Nondeterminism from process IDs
+In our simulations, nondeterminism from process IDs
 can be controlled by virtualizing the process ID
 layer, as shown by Figure \ref{ch3:pidfig}.
 
-\begin{figure}[h]
+\begin{figure}[t]
   \center
   \includegraphics[trim=0cm 1cm 0cm 0.5cm, scale=0.60]{pid.pdf}
   \caption[Virtualizing the process ID layer using Pin]% 
@@ -953,7 +1112,15 @@ with virtual and unpredictable process IDs in user space.
 As outlined in Section \ref{ch3:pid}, all interfaces
 which use process IDs need to be carefully monitored
 so that process IDs can be translated back and forth
-for correctness. \newline
+for correctness. 
+
+In practice, this is equivalent
+to using an operating system that assigns
+process IDs in a determininstic fashion.
+
+
+
+\newline
 
 \noindent {\bf File I/O} \newline
 Differences in input file contents across

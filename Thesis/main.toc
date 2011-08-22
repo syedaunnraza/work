@@ -1,48 +1,6 @@
 \contentsline {chapter}{\numberline {1}Introduction}{13}
 \contentsline {section}{\numberline {1.1}Motivation}{13}
-\contentsline {section}{\numberline {1.2}Goal of Thesis}{15}
-\contentsline {section}{\numberline {1.3}Contributions}{15}
-\contentsline {section}{\numberline {1.4}Importance of Deterministic Execution}{16}
-\contentsline {section}{\numberline {1.5}Thesis Organization}{17}
-\contentsline {chapter}{\numberline {2}Execution Profile of Linux Services}{19}
-\contentsline {section}{\numberline {2.1}The Linux Boot Process}{19}
-\contentsline {section}{\numberline {2.2}Data Collection Scheme}{22}
-\contentsline {subsection}{\numberline {2.2.1}Measuring nondeterminism in a simple $C$ program}{23}
-\contentsline {subsection}{\numberline {2.2.2}Quantifying Nondeterminism}{28}
-\contentsline {section}{\numberline {2.3}Results for Linux services}{29}
-\contentsline {section}{\numberline {2.4}Summary}{33}
-\contentsline {chapter}{\numberline {3}Overcoming Nondeterminism in Linux services}{35}
-\contentsline {section}{\numberline {3.1}Sources of Nondeterminism}{35}
-\contentsline {subsection}{\numberline {3.1.1}Linux Security Features}{36}
-\contentsline {subsection}{\numberline {3.1.2}Randomization Schemes}{37}
-\contentsline {subsection}{\numberline {3.1.3}Process Identification Layer}{39}
-\contentsline {subsection}{\numberline {3.1.4}Time}{40}
-\contentsline {subsection}{\numberline {3.1.5}File I/O}{41}
-\contentsline {subsection}{\numberline {3.1.6}Network I/O}{42}
-\contentsline {subsection}{\numberline {3.1.7}Scalable I/O Schemes}{43}
-\contentsline {subsection}{\numberline {3.1.8}Signals}{45}
-\contentsline {subsection}{\numberline {3.1.9}Concurrency}{45}
-\contentsline {subsection}{\numberline {3.1.10}{\em Procfs}: The `/proc/' directory}{46}
-\contentsline {subsection}{\numberline {3.1.11}Architecture Specific Instructions}{46}
-\contentsline {section}{\numberline {3.2}Simulating Deterministic Execution}{47}
-\contentsline {section}{\numberline {3.3}Limitations of Deterministic Execution}{47}
-\contentsline {section}{\numberline {3.4}Summary}{48}
-\contentsline {chapter}{\numberline {4}{\em Silhouette} Execution}{49}
-\contentsline {section}{\numberline {4.1}What is {\em Silhouette} execution?}{49}
-\contentsline {section}{\numberline {4.2}Silhouette Execution for Linux Services}{50}
-\contentsline {subsection}{\numberline {4.2.1}{\em Precise Silhouetting}}{53}
-\contentsline {subsection}{\numberline {4.2.2}\em Optimistic Silhouetting (excluding control flow)}{54}
-\contentsline {subsection}{\numberline {4.2.3}\em Optimistic Silhouetting (including control flow)}{55}
-\contentsline {section}{\numberline {4.3}Evaluation Scheme}{57}
-\contentsline {subsection}{\numberline {4.3.1}Computed Metrics}{59}
-\contentsline {subsection}{\numberline {4.3.2}Caveats}{60}
-\contentsline {subsection}{\numberline {4.3.3}Initial Results}{65}
-\contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{68}
-\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{68}
-\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{68}
-\contentsline {section}{\numberline {4.5}Evaluation of Simulation}{77}
-\contentsline {section}{\numberline {4.6}Summary}{77}
-\contentsline {chapter}{\numberline {5}Related Work}{79}
-\contentsline {section}{\numberline {5.1}Summary}{79}
-\contentsline {chapter}{\numberline {6}Conclusion}{81}
-\contentsline {section}{\numberline {6.1}Future Work}{81}
+\contentsline {section}{\numberline {1.2}Goal of Thesis}{16}
+\contentsline {section}{\numberline {1.3}Contributions}{16}
+\contentsline {section}{\numberline {1.4}Importance of Deterministic Execution}{17}
+\contentsline {section}{\numberline {1.5}Thesis Organization}{18}

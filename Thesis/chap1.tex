@@ -6,6 +6,45 @@
 %% prompt when you run the file main.tex through LaTeX.
 \chapter{Introduction}
 \section{Motivation}
+Large organizations increasingly use virtualization to consolidate server 
+applications in data centers. This reduces operating costs, simplifies administrative
+tasks and improves performance scalability. One reason for the success of 
+server virtualization is that it resolves the tension between typically conflicting
+goals of high isolation and effective resource utilization.
+Ideally, organizations prefer to assign each server
+application is own dedicated machine to achieve high isolation.
+However, each application typically utilizes only a modest fraction of a 
+machine's hardware resources, so this can waste hardware resources.
+With the development of virtualization technology, applications
+can be assigned dedicated virtual machines (VMs) for isolation,
+while many such VMs can be hosted by the same physical
+host for high resource utilization.
+
+The ability to consolidate numerous server applications
+on fewer physical hosts is important to the success
+of server virtualization and is measured
+by {\em VM density per host}. T
+
+
+
+
+organizations can isolate different server
+applications by assigning dedicated virtual machines (VMs)
+to them.
+
+
+
+For isolation, each server application is typically
+assigned a dedicated virtual machine (VM),
+but this can 
+
+Because a single VM would typically 
+desireable in most cases for effective resource utilization. 
+
+
+
+
+
 Data centers increasingly use server virtualization to
 reduce operating costs, simplify administrative tasks and improve 
 performance scalability. Through virtualization, it is
@@ -36,9 +75,9 @@ are expected to increase in the future, not only because of
 improvements in virtualization technology, but also because
 newer generations of processors support more cores and 
 memory \cite{hansen2010lithium}. 
-Because a single VM would typically utilize only a modest fraction of a 
-host's hardware resources, a high VM density per host is
-desireable in most cases for effective resource utilization. 
+
+
+
 However, correlated spikes in the CPU/memory usage of many VMs can suddenly 
 cripple host machines. For instance, a \emph{boot storm} \cite{hansen2010lithium, 
 liao2011vmstore, meng2010tide, rajan2010vdc, vaghani2010virtual}

@@ -37,16 +37,16 @@ host for high resource utilization.
           \label{balloon}
 \end{figure}
 
-
 The ability to consolidate many VMs
 on the same physical host is so important to the success
 of server virtualization that many companies 
-aggressively try to increase {\em VM density per host}.
-For instance, transparent page sharing, ballooning
-and hypervisor swapping (Figures \ref{pagesharing} and \ref{balloon})
+aggressively try to increase {\em VM density per host},
+even in production environments.
+For instance, {\em transparent page sharing}, {\em ballooning}
+and {\em hypervisor swapping} (Figures \ref{pagesharing} and \ref{balloon})
 allow a host to run many VMs with
 combined memory requirements
-that exceed the total physical memory
+that {\em exceed} the total physical memory
 available on the host machine \cite{waldspurger2002memory}.
 
 Apart from improvements in virtualization technology, two trends 
@@ -55,6 +55,7 @@ VM density per host in the future:
 newer generations of processors are expected to support more cores and 
 memory \cite{hansen2010lithium} and the use of virtualization technology
 for desktop machines \cite{vmwarevdi} in data centers.
+
 
 In a Virtual Desktop Infrastructure \cite{vmwarevdi} (VDI), 
 desktop operating systems and applications are hosted in 

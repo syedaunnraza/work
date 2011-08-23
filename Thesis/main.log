@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  23 AUG 2011 13:52
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  23 AUG 2011 14:17
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -268,30 +268,30 @@ LaTeX Warning: Float too large for page by 12.05936pt on input line 38.
 
 
 ] [14 <./pagesharing.pdf> <./balloon.pdf>] [15]
-Underfull \hbox (badness 10000) in paragraph at lines 141--145
+Underfull \hbox (badness 10000) in paragraph at lines 142--146
 
  []
 
 [16] [17]
-Underfull \hbox (badness 10000) in paragraph at lines 173--181
+Underfull \hbox (badness 10000) in paragraph at lines 174--182
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 182--192
+Underfull \hbox (badness 10000) in paragraph at lines 183--193
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 193--202
+Underfull \hbox (badness 10000) in paragraph at lines 194--203
 
  []
 
 
-LaTeX Warning: Reference `ch:case' on page 18 undefined on input line 217.
+LaTeX Warning: Reference `ch:case' on page 18 undefined on input line 218.
 
 
-LaTeX Warning: Reference `ch:design' on page 18 undefined on input line 219.
+LaTeX Warning: Reference `ch:design' on page 18 undefined on input line 220.
 
 ) [18] [19]
 \openout2 = `chap2.aux'.
@@ -782,7 +782,7 @@ type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/type1/public/
 amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm
 /cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt12.pfb
 >
-Output written on main.pdf (88 pages, 1552132 bytes).
+Output written on main.pdf (88 pages, 1552218 bytes).
 PDF statistics:
  787 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

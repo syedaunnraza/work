@@ -6,58 +6,56 @@
 %% prompt when you run the file main.tex through LaTeX.
 \chapter{Introduction}
 \section{Motivation}
-Large organizations increasingly use virtualization to consolidate server 
-applications in data centers, reduce operating costs, simplify administrative
-tasks and improve performance scalability. One reason for the success of 
-server virtualization is that it resolves the tension between typically conflicting
+Large organizations increasingly use virtualization to consolidate server
+and desktop applications in data centers, reduce operating costs, simplify administrative
+tasks and improve performance scalability. As a key 
+enabling technology behind {\em Cloud Computing}, virtualization
+is shaping how computers will be used in the future.
+
+An important reason for the success of server virtualization 
+is that it resolves the tension between typically conflicting
 goals of high isolation and effective resource utilization.
-Ideally, organizations prefer to assign each server
-application is own dedicated machine to achieve high isolation.
-However, each application typically utilizes only a modest fraction of a 
-machine's hardware resources, so this can waste hardware resources.
+Ideally, organizations would prefer to isolate each server
+application by assigning it to a dedicated machine.
+However, this approach entails inefficient resource allocation
+because each application typically utilizes only a modest fraction of a 
+machine's hardware.
 With the development of virtualization technology, applications
-can be assigned dedicated virtual machines (VMs) for isolation,
+can be assigned dedicated virtual machines (VMs),
 while many such VMs can be hosted by the same physical
 host for high resource utilization.
 
-The ability to consolidate numerous server applications
-on fewer physical hosts is important to the success
-of server virtualization and is measured
-by {\em VM density per host}. T
+\begin{figure}[p]
+  \centering
+  \includegraphics[scale=0.55, trim=1cm 0cm 2cm 0cm]{pagesharing.pdf}  
+  \caption[{\em Transparent Page Sharing}]%
+          {{\em Transparent Page Sharing}}
+          \label{pagesharing}
+  \includegraphics[scale=0.58, trim=1cm 0cm 1cm 0cm]{balloon.pdf}   
+  \caption[{\em Ballooning} and {\em Hypervisor Swapping}]%
+          {{\em Ballooning} and {\em Hypervisor Swapping}}
+          \label{balloon}
+\end{figure}
 
 
+The ability to consolidate many VMs
+on the same physical hosts is so important to the success
+of server virtualization that many companies 
+aggressively try to increase {\em VM density per host}.
+For instance, transparent page sharing, ballooning
+and hypervisor swapping (Figures \ref{pagesharing} and \ref{balloon})
+allow a host to run many VMs with
+combined memory requirements
+that exceed the total physical memory
+available on the host machine \cite{waldspurger2002memory}.
 
+Apart from improvements in virtualization technology, two trends 
+are expected to contribute to continually increase
+VM density per host in the future:
+newer generations of processors are expected to support more cores and 
+memory \cite{hansen2010lithium} and the use of virtualization technology
+for desktop machines \cite{vmwarevdi} in data centers.
 
-organizations can isolate different server
-applications by assigning dedicated virtual machines (VMs)
-to them.
-
-
-
-For isolation, each server application is typically
-assigned a dedicated virtual machine (VM),
-but this can 
-
-Because a single VM would typically 
-desireable in most cases for effective resource utilization. 
-
-
-
-
-
-Data centers increasingly use server virtualization to
-reduce operating costs, simplify administrative tasks and improve 
-performance scalability. Through virtualization, it is
-possible to achieve high resource utilization and isolation at the same time:
-each application is typically assigned a dedicated server virtual machine (VM), 
-while many VMs are consolidated on powerful host computers
-to reduce wasted cycles. The use of techniques such as memory overcommitment (including 
-\emph{transparent page sharing, ballooning} and \emph{hypervisor swapping}) \cite{waldspurger2002memory} 
-has further improved the consolidation ratios and cost-effectiveness 
-of server virtualization, and augurs well for the future of the technology.
-
-Given the success of server virtualization, many companies are 
-extending the use of virtualization to their desktop computers.
 In a Virtual Desktop Infrastructure \cite{vmwarevdi} (VDI), 
 desktop operating systems and applications are hosted in 
 virtual machines that reside in a data center; 
@@ -71,10 +69,6 @@ because desktop virtual machines typically require
 less resources than server virtual machines.
 
 Consolidation ratios (measured by VM density per host) in data centers
-are expected to increase in the future, not only because of
-improvements in virtualization technology, but also because
-newer generations of processors support more cores and 
-memory \cite{hansen2010lithium}. 
 
 
 

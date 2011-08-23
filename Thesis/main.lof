@@ -1,6 +1,6 @@
 \addvspace {10\p@ }
-\contentsline {figure}{\numberline {1-1}{\ignorespaces \em Transparent Page Sharing}}{14}
-\contentsline {figure}{\numberline {1-2}{\ignorespaces {\em Ballooning} and {\em Hypervisor Swapping}}}{14}
+\contentsline {figure}{\numberline {1-1}{\ignorespaces \em Transparent Page Sharing}}{19}
+\contentsline {figure}{\numberline {1-2}{\ignorespaces {\em Ballooning} and {\em Hypervisor Swapping}}}{19}
 \addvspace {10\p@ }
 \contentsline {figure}{\numberline {2-1}{\ignorespaces CPU and disk activity for a booting Ubuntu VM in the first 35 seconds after \texttt {init} is spawned}}{22}
 \contentsline {figure}{\numberline {2-2}{\ignorespaces (... continued) CPU and disk activity for a booting VM 35 seconds after \texttt {init} is spawned. }}{22}

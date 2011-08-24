@@ -68,7 +68,7 @@ these VMs can be centrally added, deleted, upgraded and patched.
 Organizations are increasingly investing in VDIs to reap the same benefits
 that are offered by server virtualization.
 
-In fact, VDI deployments promise even higher VM density per
+VDI deployments promise even higher VM density per
 host than those achieved via server virtualization
 because desktop virtual machines typically require
 considerably less resources than server virtual machines.
@@ -89,7 +89,7 @@ Concurrently booting VMs create unusually high I/O traffic,
 generate numerous disk and memory allocation requests,
 and can saturate the host CPU. Without any idle
 CPU cycles, the host cannot use transparent page sharing
-to retain a high VM density per host. Bootstorms can be
+to retain a high VM density per host. Boot storms can be
 particularly frequent in VDIs because users typically show up to
 work at roughly the same time in the morning each day. 
 
@@ -108,18 +108,18 @@ fibre channel, bus infrastructure or controller resources
 and simply turn them into bottlenecks instead \cite{netappstorm}. 
 
 With the spread of virtualization, we believe that it is important to address the
-bootstorm problem in a way that does not skirt around the issue
-and enables data centers to sustain a high VM density per host
-during bootstorms. {\em Page sharing} is effective
-because many VMs use similar pages during execution.
+boot storm problem in a way that does not skirt around the issue
+and enables data centers to sustain a high VM density per host even
+during boot storms. {\em Page sharing} is effective
+in general because many VMs use similar pages during execution.
 Inspired by this idea, we pose a few simple questions: 
 if many identical VMs concurrently boot up on the same host,
 do they execute the same set of instructions? Even if there are
 some differences in the instructions executed, are they caused by
 controllable sources of nondeterminism? Ultimately, if there is a way
-to ensure that concurrently booting VMs execute mostly the same set of instructions
-and perform the same I/O requests, one way to retain a high VM density 
-per host in bootstorms may be remarkable simple in essence:
+to ensure that concurrently booting VMs execute mostly the same set of instructions,
+ one way to retain a high VM density 
+per host in boot storms may be remarkable simple in essence:
 the hypervisor could identify the overlap in the instruction streams of concurrently
 booting identical VMs to avoid repetitive execution and reduce
 CPU pressure. Just like {\em page sharing} (i.e. eliminating page
@@ -147,7 +147,7 @@ booting VMs?
 
 The answers to these questions are clearly crucial in determining
 the feasibility of \emph{silhouette execution} as a possible solution
-to the bootstorm problem. 
+to the boot storm problem. 
 
 \section{Contributions}
 For this work, we used Pin \cite{luk2005pin},

@@ -1,5 +1,6 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.18)  23 AUG 2011 16:34
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  23 AUG 2011 22:31
 entering extended mode
+ restricted \write18 enabled.
  %&-line parsing enabled.
 **main
 (./main.tex
@@ -268,33 +269,28 @@ LaTeX Warning: Float too large for page by 12.05936pt on input line 39.
 
 ] [14 <./pagesharing.pdf> <./balloon.pdf>]
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <12> not available
-(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 58.
- [15] [16]
-Underfull \hbox (badness 10000) in paragraph at lines 154--158
-
- []
-
-[17]
-Underfull \hbox (badness 10000) in paragraph at lines 186--194
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 57.
+ [15] [16] [17]
+Underfull \hbox (badness 10000) in paragraph at lines 192--200
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 195--205
+Underfull \hbox (badness 10000) in paragraph at lines 201--211
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 206--215
+Underfull \hbox (badness 10000) in paragraph at lines 212--221
 
  []
 
 [18]
 
-LaTeX Warning: Reference `ch:case' on page 19 undefined on input line 230.
+LaTeX Warning: Reference `ch:case' on page 19 undefined on input line 236.
 
 
-LaTeX Warning: Reference `ch:design' on page 19 undefined on input line 232.
+LaTeX Warning: Reference `ch:design' on page 19 undefined on input line 238.
 
 ) [19]
 \openout2 = `chap2.aux'.
@@ -763,7 +759,7 @@ LaTeX Warning: There were multiply-defined labels.
  ) 
 Here is how much of TeX's memory you used:
  4068 strings out of 495061
- 60181 string characters out of 1182621
+ 60181 string characters out of 1182622
  139725 words of memory out of 3000000
  7138 multiletter control sequences out of 15000+50000
  12291 words of font info for 42 fonts, out of 3000000 for 9000
@@ -782,7 +778,7 @@ type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/type1/public/
 amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm
 /cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt12.pfb
 >
-Output written on main.pdf (88 pages, 1552685 bytes).
+Output written on main.pdf (88 pages, 1552836 bytes).
 PDF statistics:
  787 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

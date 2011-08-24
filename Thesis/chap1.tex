@@ -15,11 +15,11 @@ is shaping how computers will be used in the future.
 An important reason for the success of server virtualization 
 is that it resolves the tension between typically conflicting
 goals of high isolation and effective resource utilization.
-Ideally, any organization would assign dedicated
+Ideally, organizations would assign dedicated
 machines for individual server applications
-to effectively isolate them. 
+to isolate them. 
 However, this approach is inefficient
-because individual applications tend to utilize only a modest fraction of 
+because each application tends to utilize only a modest fraction of 
 the underlying hardware.
 With the development of virtualization technology, applications
 can be assigned dedicated virtual machines (VMs),
@@ -39,48 +39,47 @@ host for high resource utilization.
 \end{figure}
 
 
-The ability to consolidate many VMs
-on the same physical host is so important to the success
+The ability to host many VMs
+on the same physical machine is so important to the success
 of server virtualization that many companies 
 aggressively try to increase {\em VM density per host} by
 designing hypervisors for scalability.
 For instance, {\em transparent page sharing}, {\em ballooning}
 and {\em hypervisor swapping} (see Figures \ref{pagesharing} and \ref{balloon})
-allow a host to run VMs with
+allow a host to use {\em memory overcommit} i.e. run VMs with
 combined memory requirements
 that exceed the total underlying physical memory
-available \cite{waldspurger2002memory}. This scenario 
-is called {\em memory overcommit}.
+available \cite{waldspurger2002memory}. 
 
 Apart from improvements in virtualization technology, two additional trends 
 are expected to boost the attainable VM density per host in the future:
 \begin{itemize}
-\item improvements in hardware available (i.e. hosts with
-more avalaible memory and processor cores) \cite{hansen2010lithium},
+\item improvements in hardware available i.e. hosts with
+more avalaible memory and processor cores \cite{hansen2010lithium},
 and 
 \item the anticipated use of Virtual Desktop Infrastructures (VDIs) \cite{vmwarevdi}.
 \end{itemize}
-In a VDI, {\em virtual desktops} are hosted in
-VMs that reside in a data center. 
-Users access virtual desktops via a remote display protocol. 
-VDIs provides simplicity 
-in administration and management: applications on virtual
-desktops can be centrally added, deleted, upgraded and patched. 
-After using server virtualization successfully, organizations 
-are increasingly interested in investing in VDIs.
 
-VDI deployments promise even higher VM density per
+In a Virtual Desktop Infrastructure (or a VDI), user {\em desktops} are hosted in
+VMs that reside in a data center. 
+Users -- typically company employees -- access their virtual desktops via a remote display protocol. 
+VDIs provide simplicity in administration and management: applications on 
+these VMs can be centrally added, deleted, upgraded and patched. 
+Organizations are increasingly investing in VDIs to reap the same benefits
+that are offered by server virtualization.
+
+In fact, VDI deployments promise even higher VM density per
 host than those achieved via server virtualization
 because desktop virtual machines typically require
 considerably less resources than server virtual machines.
 Because of VDIs, hundreds or thousands of identical VMs already are -- or soon
 will be -- hosted on individual hosts within data centers.
-This is possible because of the very low steady-state CPU
-overhead of a single virtual desktop and the aggressive
+This is possible because of the low steady-state CPU
+usage of a single virtual desktop and the aggressive
 use of memory overcommit.
 
 While the {\em steady-state} behavior of desktop VMs
-allows many of them to be hosted on a single host,
+allows many of them to be hosted on a single machine,
 correlated spikes in the CPU/memory usage of many VMs can suddenly 
 cripple host machines. For instance, a \emph{boot storm} \cite{hansen2010lithium, 
 liao2011vmstore, meng2010tide, rajan2010vdc, vaghani2010virtual}
@@ -89,8 +88,8 @@ or thousands of identical VMs to reboot at the same time.
 Concurrently booting VMs create unusually high I/O traffic,
 generate numerous disk and memory allocation requests,
 and can saturate the host CPU. Without any idle
-CPU cycles, the host cannnot use transparent page sharing
-effectively to retain a high VM density per host either. Bootstorms can be
+CPU cycles, the host cannot use transparent page sharing
+to retain a high VM density per host. Bootstorms can be
 particularly frequent in VDIs because users typically show up to
 work at roughly the same time in the morning each day. 
 
@@ -98,88 +97,96 @@ To avoid the prohibitively high boot latencies that
 result from boot storms, data centers usually
 boot VMs in a staggered fashion, or invest in specialized,
 expensive and/or extra-provisioned hardware for network/storage \cite{highperfnas, liao2011vmstore}.
-There is also anecdotal evidence that VDI users sometimes leave their desktop computers running
+Anecdotal evidence suggests that VDI users sometimes leave their desktop computers running
 overnight to avoid morning boot storms; this practice
 represents an unnecessary addition to already exorbitant
 data center energy bills \cite{qureshi2009bills}. 
 While data deduplication \cite{clements2009deduplication}
-can mitigate the stress on the storage subsystem in
+can mitigate the stress on the storage layer in
 a boot storm, lowered memory latency can in turn overwhelm the CPU, 
 fibre channel, bus infrastructure or controller resources 
 and simply turn them into bottlenecks instead \cite{netappstorm}. 
 
 With the spread of virtualization, we believe that it is important to address the
 bootstorm problem in a way that does not skirt around the issue
-and also allows data centers to sustain a high VM density per host. 
-
-
-Data deduplication is partly effective because identical VMs load
-the same data from disk when they boot up. In this thesis, we pose the following question: 
-is it possible to generalize deduplication of data to deduplication of \emph{execution}?
-If many identical VMs are concurrently booting up in a data center, 
+and enables data centers to sustain a high VM density per host
+during bootstorms. {\em Page sharing} is effective
+because many VMs use similar pages during execution.
+Inspired by this idea, we pose a few simple questions: 
+if many identical VMs concurrently boot up on the same host,
 do they execute the same set of instructions? Even if there are
 some differences in the instructions executed, are they caused by
-controllable sources of non-determinism? Ultimately, if there is a way
+controllable sources of nondeterminism? Ultimately, if there is a way
 to ensure that concurrently booting VMs execute mostly the same set of instructions
-and perform the same I/O requests, one way to solve the boot storm
-problem may be remarkable simple in essence: instead of booting
-$N$ identical VMs concurrently, we can boot one VM as a leader; the remaining $(N-1)$ VMs 
-follow the leader by executing a tiny subset of the instructions they would otherwise execute;
-we split execution into $N$ different instances as late as possible into the boot process. This approach
-could potentially reduce pressure on the underlying host hardware,
-and thereby enable data centers to handle boot storms effectively.
+and perform the same I/O requests, one way to retain a high VM density 
+per host in bootstorms may be remarkable simple in essence:
+the hypervisor could identify the overlap in the instruction streams of concurrently
+booting identical VMs to avoid repetitive execution and reduce
+CPU pressure. Just like {\em page sharing} (i.e. eliminating page
+duplication) allows hosts to use memory resources in a scalable fashion,
+perhaps {\em silhouette exection} (i.e. eliminating
+instruction duplication) will allow hosts
+to use CPUs in a more scalable fashion.
 
 \section{Goal of Thesis}
 This thesis aims to address the following questions:
 
 \begin{enumerate}
 
-\item When identical VMs boot up concurrently, how similar
+\item When identical VMs boot up at the same time, how similar
 are the sets of instructions executed? What is the statistical
 profile of any differences in the executed instructions?
 
 \item What are the source(s) of any differences in
-the instruction streams of concurrently booting VMs?
-Are there ways to minimize the non-determinism in
+the multiple instruction streams of concurrently booting VMs?
+
+\item Are there ways to minimize the nondeterminism in
 booting VMs?
 
 \end{enumerate}
 
 The answers to these questions are clearly crucial in determining
-the feasibility of \emph{deduplication of execution} as a possible solution
-to the boot storm problem. 
+the feasibility of \emph{silhouette execution} as a possible solution
+to the bootstorm problem. 
 
 \section{Contributions}
-For this work, we used dynamic instrumentation frameworks such as
-DynamoRio \cite{bruening2004dr} and Pin \cite{luk2005pin}
-to study user-level instruction streams from 
-a few representative Linux services at boot-time. \newline
-
-In this document, we:
+For this work, we used Pin \cite{luk2005pin},
+a dynamic instrumentation framework,
+to study user-mode instruction streams from 
+a few Linux services at boot-time. 
+Specifically, we:
 \begin {enumerate}
-\item quantify nondeterminism in Linux services, and show that it is
+\item quantify nondeterminism in some Linux services, and show that it is
   bursty and rare;
-\item document the sources of nondeterminism in Linux services -- both obvious and obscure --
-  and specify strategies for overcoming them in the boot storm scenario;
-\item use simple dynamic instrumentation techniques to show that \emph{fully} deterministic execution is achievable
-  without \emph{any} modifications to Linux or an executing service.
+\item document the sources of nondeterminism in Linux services -- both obvious and obscure;
+\item mathematically model the effectiveness
+  of {\em silhouette execution} in user-space. We estimate, conservatively, the possible change in the number of instructions
+  executed in user-space because of silhouette execution;
+\item propose several simple techniques (such as {\em I/O} and {\em signal alignment}, {\em process ID virtualization})
+  to reduce the overhead in silhouette execution from controllable nondeterminism.
 \end {enumerate}
 
-Strategies to achieve deterministic execution have been studied at the operating system layer \cite{bergan2010dos} before,
-but they require modifications to Linux. Deterministic execution can be achieved in multi-threaded programs 
-using record-and-replay approaches \cite{patil2010pinplay} or deterministic logical clocks \cite{marek2011scaling}. 
-Our study of non-determinism has different goals from from both approaches: we wish to avoid changing existing 
+Through our simple models, we estimate that silhouette execution {\em increases} the number
+of instructions executed in user-space by 50 percent (for 10 VMs) and 40 percent
+(for 100 VMs) and 30 percent (for 1000 VMs) over the status-quo. However, after we
+use our proposed strategies to reduce synthetic execution differences
+between VMs, silhouette execution {\em reduces} then number of instructions executed
+by 15 percent (for 10 VMs), 40 percent (for 100 VMs) and 100 percent (for 1000 VMs)
+over the status-quo.
+
+Strategies to achieve deterministic execution have been proposed at the operating system layer \cite{bergan2010dos} before,
+but they require modifications to Linux. Nondeterminism in multi-threaded programs 
+can be reduced via record-and-replay approaches \cite{patil2010pinplay} or deterministic logical clocks \cite{marek2011scaling}. 
+Our study has different goals from from both approaches: we wish to avoid changing existing 
 software (to ease adoption); we also wish to make several distinct -- and potentially different -- executions \emph{overlap} as much as possible, 
-rather than replay one execution over and over. In our case, we do not know \emph{a priori} whether two executions 
+rather than replay one execution over and over.
+In our case, we do not know \emph{a priori} whether two executions 
 will behave identically or not. That the behavior of system calls or signals in Linux can lead to different results or side-effects across
 multiple executions of an application is well known: what is not documented is the application \emph{context} in
 which these sources of nondeterminism originate. To the best of our knowledge, this is
 the first attempt to study the statistical profile and context of nondeterminism in Linux services
-in such detail. While we we hope
-this work ultimately proves the basis for an implementation of our proposed solution to the boot storm
-problem, we also note that deterministic execution can immediately improve
-the effectiveness of existing virtualization technologies such as transparent page sharing
-and data deduplication.
+in such detail. We hope this work ultimately proves the basis for a complete implementation of {\em silhouette execution}.
+
 
 \section{Importance of Deterministic Execution}
 While our study of nondeterminism is driven by a specfic application,
@@ -222,11 +229,11 @@ than traditional record-and-replay approaches.
 \section{Thesis Organization} 
 In what follows, Chapter \ref{ch:boot} presents an overview of
 the Linux boot process, along with the dynamic instrumentation
-techniques we used to profile non-determinism in Linux services.
+techniques we used to profile nondeterminism in Linux services.
 Chapter \ref{ch:src} presents a summary of the sources of nondeterminism
 discovered in this work and the strategies we used
 to eliminate them. 
 Chapter \ref{ch:case} presents a detailed case study of three Linux services
-to identify the common context in which non-determinism arises.
+to identify the common context in which nondeterminism arises.
 Chapter \ref{ch:design} presents design ideas for an implementation of deduplication of execution.
 Finally, Chapter \ref{ch:conc} concludes this thesis and discusses future work.

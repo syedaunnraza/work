@@ -85,20 +85,23 @@ cripple host machines. For instance, a \emph{boot storm} \cite{hansen2010lithium
 liao2011vmstore, meng2010tide, rajan2010vdc, vaghani2010virtual}
 can occur after some software is installed or updated, requiring hundreds 
 or thousands of identical VMs to reboot at the same time.
+Boot storms can be particularly frequent in VDIs because users typically show up to
+work at roughly the same time in the morning each day. 
 Concurrently booting VMs create unusually high I/O traffic,
 generate numerous disk and memory allocation requests,
-and can saturate the host CPU. Without any idle
-CPU cycles, the host cannot use transparent page sharing
-to retain a high VM density per host. Boot storms can be
-particularly frequent in VDIs because users typically show up to
-work at roughly the same time in the morning each day. 
+and can saturate the host CPU. 
+Without any idle CPU cycles, the host cannot use transparent page sharing,
+which also increases memory pressure.
+Many data centers thus simply cannot sustain a high VM density 
+per host during boot storms without incurring
+prohibitively high boot latencies that result
+from saturated CPUs and stressed hardware.
 
-To avoid the prohibitively high boot latencies that  
-result from boot storms, data centers usually
+To mitigate boot storms, data centers usually
 boot VMs in a staggered fashion, or invest in specialized,
-expensive and/or extra-provisioned hardware for network/storage \cite{highperfnas, liao2011vmstore}.
+expensive and/or extra-provisioned hardware \cite{highperfnas, liao2011vmstore}.
 Anecdotal evidence suggests that VDI users sometimes leave their desktop computers running
-overnight to avoid morning boot storms; this practice
+overnight to prevent morning boot storms; this practice
 represents an unnecessary addition to already exorbitant
 data center energy bills \cite{qureshi2009bills}. 
 While data deduplication \cite{clements2009deduplication}
@@ -111,7 +114,7 @@ With the spread of virtualization, we believe that it is important to address th
 boot storm problem in a way that does not skirt around the issue
 and enables data centers to sustain a high VM density per host even
 during boot storms. {\em Page sharing} is effective
-in general because many VMs use similar pages during execution.
+in general because many VMs access similar pages during execution.
 Inspired by this idea, we pose a few simple questions: 
 if many identical VMs concurrently boot up on the same host,
 do they execute the same set of instructions? Even if there are
@@ -120,13 +123,12 @@ controllable sources of nondeterminism? Ultimately, if there is a way
 to ensure that concurrently booting VMs execute mostly the same set of instructions,
  one way to retain a high VM density 
 per host in boot storms may be remarkable simple in essence:
-the hypervisor could identify the overlap in the instruction streams of concurrently
-booting identical VMs to avoid repetitive execution and reduce
+the hypervisor could identify the overlap in the instruction streams of 
+the VMs to avoid repetitive execution and reduce
 CPU pressure. Just like {\em page sharing} (i.e. eliminating page
-duplication) allows hosts to use memory resources in a scalable fashion,
-perhaps {\em silhouette exection} (i.e. eliminating
-instruction duplication) will allow hosts
-to use CPUs in a more scalable fashion.
+duplication) allows hosts to use memory resources in a scalable fashion in
+the steady-state, perhaps {\em silhouette exection} (i.e. eliminating
+instruction duplication) will allow hosts to use CPUs in a more scalable fashion during boot storms.
 
 \section{Goal of Thesis}
 This thesis aims to address the following questions:
@@ -140,8 +142,8 @@ profile of any differences in the executed instructions?
 \item What are the source(s) of any differences in
 the multiple instruction streams of concurrently booting VMs?
 
-\item Are there ways to minimize the nondeterminism in
-booting VMs?
+\item Are there ways to minimize the execution differences (or {\em nondeterminism})
+across multiple booting VMs?
 
 \end{enumerate}
 
@@ -156,22 +158,21 @@ to study user-mode instruction streams from
 a few Linux services at boot-time. 
 Specifically, we:
 \begin {enumerate}
-\item quantify nondeterminism in some Linux services, and show that it is
+\item quantify nondeterminism in Linux services, and show that it is
   bursty and rare;
 \item document the sources of nondeterminism in Linux services -- both obvious and obscure;
 \item mathematically model the effectiveness
-  of {\em silhouette execution} in user-space. We estimate, conservatively, the possible change in the number of instructions
-  executed in user-space because of silhouette execution;
-\item propose several simple techniques (such as {\em I/O} and {\em signal alignment}, {\em process ID virtualization})
+  of {\em silhouette execution} in user-space. Using simulations, we provide conservative estimates for the possible change in the number of instructions
+  executed in user-space by a host CPU when many VMs boot up with silhouette execution than without it;
+\item propose several simple techniques (e.g. {\em I/O} and {\em signal alignment}, {\em process ID virtualization})
   to reduce the overhead in silhouette execution from controllable nondeterminism.
 \end {enumerate}
-
 Through our simple models, we estimate that silhouette execution {\em increases} the number
-of instructions executed in user-space by 50 percent (for 10 VMs) and 40 percent
-(for 100 VMs) and 30 percent (for 1000 VMs) over the status-quo. However, after we
+of instructions executed in user-space by 50\% (for 10 VMs) and 40\%
+(for 100 VMs) and 30\% (for 1000 VMs) over the status-quo. However, after we
 use our proposed strategies to reduce synthetic execution differences
-between VMs, silhouette execution {\em reduces} then number of instructions executed
-by 15 percent (for 10 VMs), 40 percent (for 100 VMs) and 100 percent (for 1000 VMs)
+between VMs, silhouette execution {\em reduces} the number of instructions executed
+by 15\% (for 10 VMs), 40\% (for 100 VMs) and 100\% (for 1000 VMs)
 over the status-quo.
 
 Strategies to achieve deterministic execution have been proposed at the operating system layer \cite{bergan2010dos} before,
@@ -183,25 +184,48 @@ rather than replay one execution over and over.
 In our case, we do not know \emph{a priori} whether two executions 
 will behave identically or not. That the behavior of system calls or signals in Linux can lead to different results or side-effects across
 multiple executions of an application is well known: what is not documented is the application \emph{context} in
-which these sources of nondeterminism originate. To the best of our knowledge, this is
-the first attempt to study the statistical profile and context of nondeterminism in Linux services
-in such detail. We hope this work ultimately proves the basis for a complete implementation of {\em silhouette execution}.
+which these sources of nondeterminism originate, which we had to investigate to identify
+ways to improve silhouette execution. \newline
 
+\noindent To the best of our knowledge,
+\begin {itemize}
+\item this is the first attempt to study the statistical profile and context of execution differences
+  across multiple instances of Linux services during boot;
+\item exploiting overlap in instruction streams to reduce CPU pressure (i.e. {\em silhouette execution}) is a novel 
+  design idea, and we are the first to introduce designs for it and mathematically model its effectiveness.
+\end {itemize}
+
+\noindent Ultimately, we hope that our work will be the foundation for a real-world implementation of {\em silhouette execution},
+and in turn, a long-term solution to the VM boot storm problem. 
 
 \section{Importance of Deterministic Execution}
-While our study of nondeterminism is driven by a specfic application,
+Our study of nondeterminism was driven by a specific application,
 deterministic execution is desirable in a variety of scenarios.
-%Our work complements existing
-%work because it focuses on deterministic execution of primarily single-threaded services in Linux,
-%at the granularity of individual instructions and their side-effects in
-%memory.
 The motivations for deterministic multhreading listed in
 \cite{marek2011scaling, patil2010pinplay} apply to our work as well. \newline
 
-\noindent {\bf Mainstream Computing, Security and Performance:}
+\noindent {\bf Silhouette Execution} \newline 
+Controlling nondeterminism in the execution of concurrently
+booting VMs greatly improves silhouette execution, because the hypervisor
+can hypothetically exploit the greater overlap or redundancy
+across distinct instruction streams to use the CPU
+in a scalable way during boot storms. \newline
+
+\noindent {\bf Transparent Page Sharing} \newline
+Idle CPU cycles in the hypervisor are necessary for transparent page sharing
+to be effective in the background. Thus, reducing CPU 
+pressure through determinism and silhouette execution clearly facilitates
+transparent page sharing during boot storms.
+More generally, removing synthetic differences due to controllable nondeterminism in the execution
+of concurrently running VMs can improve transparent page sharing
+as well, because the contents of data accessed/written are more likey
+to be similar when minor differences due to e.g. process IDs,
+timestamps or execution statistics are eliminated. \newline
+
+\noindent {\bf Mainstream Computing, Security and Performance} \newline
 If distinct executions of the same program can be
-expected to execute the same set of instructions, then
-any significant deviations can be used to detect security
+expected to execute similar sets of instructions, then
+significant deviations can be used to detect security
 attacks. Runtime detection of security attacks through the
 identification of anomalous executions is the focus of \emph{mainstream computing} \cite{stephenson2010mainstream},
 and deterministic execution obviously helps in reducing false
@@ -209,17 +233,17 @@ positives.
 Anomalous executions can also be flagged for performance
 debugging. \newline
 
-\noindent {\bf Testing:} 
+\noindent {\bf Testing}  \newline
 Deterministic execution in general facilitates testing,
 because outputs and internal state can be checked at 
-certain points with respect to expected values. Our version
-of determinism allows for a particularly strong kind
-of test case that may be necessary for safety-critical 
+certain points with respect to expected values. 
+Sometimes, a particularly strong 
+test case may be necessary for safety-critical 
 systems: a program 
 must execute the exact same instructions 
 across different executions (for the same inputs). \newline 
 
-\noindent {\bf Debugging:} 
+\noindent {\bf Debugging} \newline 
 Erroneous behavior can be more easily reproduced
 via determininstic execution, which
 helps with debugging. Deterministic
@@ -231,9 +255,12 @@ In what follows, Chapter \ref{ch:boot} presents an overview of
 the Linux boot process, along with the dynamic instrumentation
 techniques we used to profile nondeterminism in Linux services.
 Chapter \ref{ch:src} presents a summary of the sources of nondeterminism
-discovered in this work and the strategies we used
-to eliminate them. 
-Chapter \ref{ch:case} presents a detailed case study of three Linux services
-to identify the common context in which nondeterminism arises.
-Chapter \ref{ch:design} presents design ideas for an implementation of deduplication of execution.
+discovered in this work.
+Chapter \ref{ch:sil} introduces {\em silhouette execution},
+outlines the simple simulations we used to model
+and evaluate its feasibility in user-space,
+and presents simple design strategies to remove
+synthetic sources of execution differences across
+different instances of Linux services that
+improve its effectiveness.
 Finally, Chapter \ref{ch:conc} concludes this thesis and discusses future work.

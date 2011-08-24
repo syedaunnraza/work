@@ -1,6 +1,5 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  23 AUG 2011 22:31
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.18)  24 AUG 2011 12:51
 entering extended mode
- restricted \write18 enabled.
  %&-line parsing enabled.
 **main
 (./main.tex
@@ -759,7 +758,7 @@ LaTeX Warning: There were multiply-defined labels.
  ) 
 Here is how much of TeX's memory you used:
  4068 strings out of 495061
- 60181 string characters out of 1182622
+ 60181 string characters out of 1182621
  139725 words of memory out of 3000000
  7138 multiletter control sequences out of 15000+50000
  12291 words of font info for 42 fonts, out of 3000000 for 9000

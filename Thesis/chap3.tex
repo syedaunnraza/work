@@ -8,16 +8,8 @@
 {\begin{list}{}{\setlength{\leftmargin}{1em}}\item\scriptsize\bfseries}
 {\end{list}}
 
-\chapter{Overcoming Nondeterminism in Linux services} \label{ch:src}
-This chapter summarizes the sources of nondeterminism
-in Linux services discovered through our experiments (Section \ref{ch3:sources}).
-It also explains the techniques we used to simulate 
-deterministic execution (Section \ref{ch3:simulation}). 
-Finally, it briefly discusses some of the inherent
-limitations of deterministic execution (Section \ref{ch3:issues}).
-
-\section{Sources of Nondeterminism} \label{ch3:sources}
-In this section, we describe the sources of nondeterminism
+\chapter{Sources of Nondeterminism in Linux services} \label{ch:src}
+In this chapter, we describe the sources of nondeterminism
 discovered using the data collection scheme
 described in Chapter \ref{ch:boot}.
 This study of nondeterminism reveals
@@ -29,9 +21,9 @@ set of complex programs, they include
 all sources of application-level nondeterminism that 
 have been described in literature. Unlike existing work,
 however, we cover the various interfaces between user-mode programs
-and the Linux kernel in considerable detail.
+and the Linux kernel in considerably more detail.
 
-\subsection{Linux Security Features} \label{ch3:security}
+\section{Linux Security Features} \label{ch3:security}
 \noindent {\bf Address Space Layout Randomization (ASLR)} \newline
 Address Space Layout Randomization (ASLR) involves random arrangement of
 key memory segments of an executing program. When ASLR is enabled,
@@ -39,7 +31,8 @@ virtual addresses for the base executable, shared libraries,
 the heap, and the stack are different across multiple executions.
 ASLR hinders several kinds of security attacks in which attackers have to predict
 program addresses in order to redirect execution (e.g. \emph{return-to-libc} attacks). 
-As mentioned earlier, two execution traces of even a
+
+\noindent As mentioned earlier, two execution traces of even a
 simple program in $C$ are almost entirely different
 when ASLR is enabled because of different
 instruction and memory addresses. \newline
@@ -66,11 +59,10 @@ If randomization is disabled, \texttt{libc} will store a fixed
 terminator canary value in \texttt{gs:0x14}; this does not lead to any nondeterminism.
 When randomization is enabled, however,  
 some versions of \texttt{libc} store an unpredictable value in \texttt{gs:0x14} 
-by reading from \texttt{`/dev/urandom'}
+by reading from \texttt{/dev/urandom}
 or by using the \texttt{AT\_RANDOM} bytes provided by the kernel (see
-Section \ref{ch3:rand}). 
+Section \ref{ch3:rand}). \newline
 
-\newpage
 \noindent {\bf Pointer Encryption} \newline
 Many stateless APIs return data pointers to clients 
 that the clients are supposed to supply as arguments
@@ -111,24 +103,24 @@ a random word (e.g. the return value of the \texttt{rdtsc} x86 instruction),
 or reading other \texttt{AT\_RANDOM} bytes provided by the kernel
  (Section \ref{ch3:rand}).
 
-\subsection{Randomization Schemes} \label{ch3:rand}
+\section{Randomization Schemes} \label{ch3:rand}
 As already clear from Section \ref{ch3:security}, 
 randomization schemes can lead to significant nondeterminism 
 in programs. Applications generally employ pseudorandom number
 generators (PRNGs), so they need only a few random
 bytes to {\em seed} PRNGs. 
-
 These few random bytes are
 usually read from one of few popular sources:
+
 \begin{itemize}
-\item {\em The} \texttt{`/dev/urandom'}{\em special file}. Linux allows
+\item {\em The} \texttt{/dev/urandom} {\em special file}. Linux allows
 running processes to access a random number generator through this
 special file. The entropy generated from environmental noise (including
 device drivers) is used in some implementations of the kernel random number generator.
-
+\newpage
 \item \texttt{AT\_RANDOM} {\em bytes}.
 Using \texttt{open}, \texttt{read} and \texttt{close} system-calls 
-to read only a few random bytes from \texttt{`/dev/urandom'} 
+to read only a few random bytes from \texttt{/dev/urandom} 
 can be computationally expensive. 
 To remedy this, some 
 recent versions of the Linux kernel supply
@@ -145,7 +137,7 @@ on x86 processors. Computing the difference between two successive
 calls to \texttt{rdtsc} can be used for timing whereas a single
 value returned from \texttt{rdtsc} lacks any useful context.  
 The instruction has low-overhead, which makes it suitable for generating a random value
-instead of reading from \texttt{`/dev/urandom'}. 
+instead of reading from \texttt{/dev/urandom}. 
 
 \item {\em The current time or process ID}. 
 System calls that return the current
@@ -167,7 +159,7 @@ if the seeds are different across multiple
 executions, PRNGs further propagate this
 nondeterminism.
 
-\subsection{Process Identification Layer} \label{ch3:pid}
+\section{Process Identification Layer} \label{ch3:pid}
 % pid, signal(pid), /proc/ filesystem layer
 
 In the absence of a deterministic operating system layer, process IDs for
@@ -215,15 +207,14 @@ and user-space, and some of its APIs
 use process IDs to identify communication
 end-points (Section \ref{ch3:netio}). \end{itemize}
 
-\newpage 
 Nondeterminism arising from the unpredictability of process IDs can be
 further propagated when an application uses process IDs to seed PRNGs 
-(Section \ref{ch3:rand}), access the \texttt{`/proc/[PID]'} directory
+(Section \ref{ch3:rand}), access the \texttt{/proc/[PID]} directory
 (Section \ref{ch3:procfs}), name application-specific files
-(e.g. \texttt{`myapp-[pid].log'}) or log some information to files
-(e.g. \emph{`process [pid] started at [04:23]'}) (Section \ref{ch3:fileio}). 
+(e.g. \texttt{myapp-[pid].log}) or log some information to files
+(e.g. \emph{process [pid] started at [04:23]}) (Section \ref{ch3:fileio}). 
 
-\subsection{Time} \label{ch3:time}
+\section{Time} \label{ch3:time}
 Concurrent runs of the same program will typically
 execute instructions at (slightly) different times.
 Clearly, any interactions of a program with timestamps
@@ -239,7 +230,7 @@ by clock synchronization programs (e.g. \texttt{ntp})
 and returns a kernel timestamp indirectly via 
 a \texttt{timex} structure.
 \item Programs can access the hardware clock
-through \texttt{`/dev/rtc'} and read the current time
+through \texttt{/dev/rtc} and read the current time
 through the \texttt{RTC\_RD\_TIME} \texttt{ioctl}
 operation.
 \item Many system calls that specify a timeout
@@ -260,7 +251,7 @@ or unpredictable timing of
 external events relative
 to program execution (Sections \ref{ch3:sig} and \ref{ch3:poll}).
 
-\subsection{File I/O} \label{ch3:fileio}
+\section{File I/O} \label{ch3:fileio}
 \noindent {\bf File contents} \newline
 If two executions of the same program read different
 file contents (e.g. cache files), then
@@ -314,17 +305,17 @@ must be controlled.
 %different executions of a program, then 
 %execution will inevitably diverge. 
 
-\subsection{Network I/O} \label{ch3:netio}
+\section{Network I/O} \label{ch3:netio}
 \noindent {\bf Network Configuration Files} \newline
 The \texttt{libc} network initialization
 code loads several configuration files
-into memory (e.g. \texttt{`/etc/resolv.conf'}). 
+into memory (e.g. \texttt{/etc/resolv.conf}). 
 Differences in the content, timestamps or lengths
 of such configuration files can clearly cause nondeterminism.
-Background daemons (e.g. \texttt{dhclient} for \texttt{`/etc/resolv.conf'}) 
+Background daemons (e.g. \texttt{dhclient} for \texttt{/etc/resolv.conf}) 
 usually update these files periodically in the background.
 Calls to \texttt{libc} functions such as \texttt{getaddrinfo} use \texttt{stat} 
-to determine if relevant configuration files (e.g. \texttt{`/etc/gai.conf'})
+to determine if relevant configuration files (e.g. \texttt{/etc/gai.conf})
 have been modified since they were last read. 
 In our experiments, typically the file modification timestamps 
 -- and not the actual contents -- of these configuration files 
@@ -399,7 +390,7 @@ port numbers used by Linux services
 tend to be different across multiple 
 runs. 
 
-\subsection{Scalable I/O Schemes} \label{ch3:poll}
+\section{Scalable I/O Schemes} \label{ch3:poll}
 \noindent {\bf Polling Engines} \newline
 Complex programs like Linux services have
 many file descriptors open at a given time.
@@ -414,7 +405,7 @@ file descriptors could correspond to:
   these child processes communicate
   with the main process (e.g. for status
   updates) through pipes.
-
+\newpage
 \item A {\em listener socket}:
   If the program is a server,
   this is the socket that accepts incoming connections.
@@ -483,7 +474,7 @@ has been completed (e.g. \texttt{aio\_return}). While such APIs are in limited
 usage, they introduce nondeterminism because of the
 variable latency and unpredictable relative timing of I/O events.
 
-\subsection{Signals}\label{ch3:sig}
+\section{Signals}\label{ch3:sig}
 A signal is an event generated by Linux
 in response to some condition, which may cause
 a process to take an action in response.
@@ -507,7 +498,7 @@ same order between different executions,
 they can be received at different times
 into the execution of a program.
 
-\subsection{Concurrency} \label{ch3:concurrency}
+\section{Concurrency} \label{ch3:concurrency}
 Multiple possible instruction-level interleavings of 
 threads within a single program, 
 or of different processes within 
@@ -520,7 +511,7 @@ documented and can cause
 significant control flow differences
 across different executions of the same
 program.
-\newpage
+
 Nondeterminism in the system
 scheduler is external to 
 program execution, and manifests itself
@@ -529,38 +520,7 @@ inter-process communication e.g.
 through pipes (Section \ref{ch3:poll}), signals (Section \ref{ch3:sig}), or 
 values written to shared files or logs (Section \ref{ch3:fileio}).
 
-\subsection{{\em Procfs}: The `/proc/' directory}\label{ch3:procfs}
-Instead of relying on system-calls, user-space programs
-can access kernel data much more easily using {\em procfs}, a hierarchical 
-directory mounted at \texttt{`/proc/'}.
-This directory is an interface
-to kernel data and system information
-that would otherwise be available
-via system calls (if at all);
-thus, many of the sources of nondeterminsm
-already described can be propagated
-through it.
-
-For instance, \texttt{`/proc/uptime'} contains time statistics about how
-long the system has been running;
-\texttt{`/proc/meminfo'} contains statistics about kernel memory management;
-\texttt{`/proc/net/'} contains statistics and information for system
-network interfaces;
-\texttt{`/proc/diskstats/'} contains statistics about any attached disks.
-These files will differ across multiple executions
-of a program because of nondeterminism in the underlying operating system. 
-
-Apart from accessing system-wide information, a process can access 
-information about its open file descriptors through
-\texttt{`/proc/[PID]/fdinfo'} (e.g. cursor offsets and status).
-Similarly, \texttt{`/proc/[PID]/status'} contains
-process-specific and highly unpredictable statistics,
-e.g. number of involuntary context switches,
-memory usage, and parent process ID.
-Performing a \texttt{stat} on files in \texttt{`/proc/[PID]/'}
-can reveal the process creation time.
-
-\subsection{Architecture Specific Instructions}
+\section{Architecture Specific Instructions}
 Architecture specific instructions such as \texttt{rdtsc}
 and \texttt{cpuid} can return different
 results across program executions. As mentioned before
@@ -569,97 +529,41 @@ the computer was last reset, which
 will differ across executions. The \texttt{cpuid} instruction
 can return conflicting hardware information too.
 
-\section{Simulating Deterministic Execution} \label{ch3:simulation}
+\section{{\em Procfs}: The /proc/ directory}\label{ch3:procfs}
+Instead of relying on system-calls, user-space programs
+can access kernel data much more easily using {\em procfs}, a hierarchical 
+directory mounted at \texttt{/proc/}.
+This directory is an interface
+to kernel data and system information
+that would otherwise be available
+via system calls (if at all);
+thus, many of the sources of nondeterminsm
+already described can be propagated
+through it.
 
+For instance, \texttt{/proc/uptime} contains time statistics about how
+long the system has been running;
+\texttt{/proc/meminfo} contains statistics about kernel memory management;
+\texttt{/proc/net/} contains statistics and information for system
+network interfaces;
+\texttt{/proc/diskstats/} contains statistics about any attached disks.
+These files will differ across multiple executions
+of a program because of nondeterminism in the underlying operating system. 
 
-
-\section{Limitations of Deterministic Execution} \label{ch3:issues}
-This section describes some of the drawbacks
-of deterministic execution. \newline
-
-\noindent \textbf{Security} \newline
-To achieve deterministic execution,
-we have to disable ASLR. We also have to fix 
-canary (\texttt{gs:0x14}) or pointer guard (\texttt{gs:0x18})
- values across many different VMs.
-Disabling ASLR increases the vulnerability of
-applications to external attacks. 
-Though canary and pointer guard
-values are still dynamically chosen in
-our brand of deterministic execution, 
-they must agree across all VMs. Thus,
-an adversary  who can compromise one VM by
-guessing its canary could easily attack the other VMs.
-The fact that we can choose different
-canary or guard values between different successive bootstorms
-is some consolation and provides some security. \newline
-
-\noindent \textbf{Randomization} \newline
-Randomization can be essential for security (e.g. random values
-may be used to generate keys or certificates),
-performance, and sometimes simply correctness (e.g. 
-clients may choose random IDs for themselves).
-Making PRNG seeds agree across all VM instances can entail
-a compromise on all of these fronts.
-Thankfully, we have not yet discovered any such
-issues in the Linux services. Technically,
-our approach simulates the extremely unlikely 
--- yet possible -- scenario that all concurrently executing
-instances somehow generated the same seeds
-from external sources. \newline
-
-\noindent \textbf{Time and Correctness} \newline
-Any programs that rely on precise
-measurements of time (e.g. through \texttt{rdtsc})
-will lose correctness. 
-Some Linux services such as \texttt{ntp} 
-do need to measure time accurately in order to synchronize the system clock
-Our semantics can cause such services to 
-behave incorrectly at start up,
-because we may give incorrect values
-of time to \texttt{ntp}.
-Thankfully, this is not a huge correctness problem because network 
-clock synchronization programs are self-healing and
-because we ultimately do provide monotonically
- increasing time values. After the booting process is over,
-and all VMs branch in execution, \texttt{ntp} will synchronize
-the current time correctly. \newline
-
-\noindent \textbf{I/O aggregation in Network} \newline
-As indicated earlier, when file contents
-or bytes read over sockets differ, 
-these could be because of synthetic differences (e.g.
-timestamps in headers), or because of 
-semantic differences (e.g. different requests or data).
-We can study application code and use dynamic instrumentation
-to reconstruct file contents or network packets and overcome synthetic nondeterminism
-from such sources. In our experiments, we used this approach
-for \texttt{Netlink} packets and application files, but generalizing it
-to all network sockets and protocols, while possible, would clearly
-complicate the design of the dynamic instrumentation
-layer. For semantic differences in I/O, 
-execution would have to branch out.
-
-One possible approach for fixing nondeterminism from external
-socket \texttt{reads} would be to forcibly
-conform these reads to be identical by replaying
-them. This approach would work for many 
-Linux services and would simulate the possibility
-that these services received responses from
-an external source at the exact same time containing
-precisely the same data. However, these semantics can
-also be problematic in terms of correctness for other services
-e.g. if a network 
-response essentially says {\em ``you have the lock''} or 
-{\em ``your print job was successfully queued''} or
-{\em ``your client id is 134''},
-this approach falls apart.
+Apart from accessing system-wide information, a process can access 
+information about its open file descriptors through
+\texttt{/proc/[PID]/fdinfo} (e.g. cursor offsets and status).
+Similarly, \texttt{/proc/[PID]/status} contains
+process-specific and highly unpredictable statistics,
+e.g. number of involuntary context switches,
+memory usage, and parent process ID.
+Performing a \texttt{stat} on files in \texttt{/proc/[PID]/}
+can reveal the process creation time.
 
 \section {Summary}
-This chapter described sources of non-determinism in Linux
-services and ways to overcome them in detail.
-It also discussed some of the limitations of deterministic
-execution.
-Chapter \ref{ch:case} describes the effectiveness
-of the techniques described in this section
-by presenting a case study of three Linux services.
+This chapter described sources of nondeterminism in Linux
+services discovered through our experimentation.
+Chapter \ref{ch:sil} describes how
+knowledge of the sources of nondeterminism in these services
+can be used to theoretically increase the effectiveness
+of silhouette execution.

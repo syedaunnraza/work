@@ -7,12 +7,6 @@ T.~Bergan, N.~Hunt, L.~Ceze, and S.D. Gribble.
 \newblock Deterministic process groups in dos.
 \newblock {\em 9th OSDI}, 2010.
 
-\bibitem{bruening2004dr}
-D.L. Bruening.
-\newblock {\em Efficient, transparent, and comprehensive runtime code
-  manipulation}.
-\newblock PhD thesis, Citeseer, 2004.
-
 \bibitem{clements2009deduplication}
 A.T. Clements, I.~Ahmad, M.~Vilayannur, and J.~Li.
 \newblock Decentralized deduplication in san cluster file systems.
@@ -61,6 +55,12 @@ S.~Meng, L.~Liu, and V.~Soundararajan.
 \newblock \url{http://ctistrategy.com/2009/11/01/vmware-boot-storm-netapp/},
   2009.
 \newblock [Accessed 29-July-2011].
+
+\bibitem{newsome2005dynamic}
+J.~Newsome and D.~Song.
+\newblock Dynamic taint analysis for automatic detection, analysis, and
+  signature generation of exploits on commodity software.
+\newblock Citeseer, 2005.
 
 \bibitem{marek2011scaling}
 M.~Olszewski, J.~Ansel, and S.~Amarasinghe.

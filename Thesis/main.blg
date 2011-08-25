@@ -6,42 +6,42 @@ A level-1 auxiliary file: chap1.aux
 A level-1 auxiliary file: chap2.aux
 A level-1 auxiliary file: chap3.aux
 A level-1 auxiliary file: chap4.aux
-A level-1 auxiliary file: appa.aux
-A level-1 auxiliary file: appb.aux
+A level-1 auxiliary file: chap5.aux
 A level-1 auxiliary file: biblio.aux
 The style file: plain.bst
 Database file #1: main.bib
 Warning--can't use both volume and number fields in luk2005pin
+Warning--empty booktitle in newsome2005dynamic
 You've used 18 entries,
             2118 wiz_defined-function locations,
-            608 strings with 7304 characters,
-and the built_in function-call counts, 6471 in all, are:
-= -- 659
-> -- 293
+            606 strings with 7356 characters,
+and the built_in function-call counts, 6544 in all, are:
+= -- 662
+> -- 299
 < -- 8
-+ -- 119
-- -- 100
-* -- 429
-:= -- 1011
++ -- 121
+- -- 102
+* -- 433
+:= -- 1016
 add.period$ -- 61
 call.type$ -- 18
-change.case$ -- 107
+change.case$ -- 109
 chr.to.int$ -- 0
-cite$ -- 19
-duplicate$ -- 250
-empty$ -- 518
-format.name$ -- 100
-if$ -- 1410
+cite$ -- 20
+duplicate$ -- 254
+empty$ -- 530
+format.name$ -- 102
+if$ -- 1430
 int.to.chr$ -- 0
 int.to.str$ -- 18
-missing$ -- 13
+missing$ -- 14
 newline$ -- 94
 num.names$ -- 28
-pop$ -- 130
+pop$ -- 137
 preamble$ -- 2
-purify$ -- 90
+purify$ -- 91
 quote$ -- 0
-skip$ -- 185
+skip$ -- 186
 stack$ -- 0
 substring$ -- 370
 swap$ -- 78
@@ -49,8 +49,8 @@ text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 72
-warning$ -- 1
+warning$ -- 2
 while$ -- 57
 width$ -- 20
-write$ -- 203
-(There was 1 warning)
+write$ -- 202
+(There were 2 warnings)

@@ -11,22 +11,19 @@
 \contentsline {subsection}{\numberline {2.2.2}Quantifying Nondeterminism}{31}
 \contentsline {section}{\numberline {2.3}Results for Linux services}{33}
 \contentsline {section}{\numberline {2.4}Summary}{37}
-\contentsline {chapter}{\numberline {3}Overcoming Nondeterminism in Linux services}{39}
-\contentsline {section}{\numberline {3.1}Sources of Nondeterminism}{39}
-\contentsline {subsection}{\numberline {3.1.1}Linux Security Features}{40}
-\contentsline {subsection}{\numberline {3.1.2}Randomization Schemes}{41}
-\contentsline {subsection}{\numberline {3.1.3}Process Identification Layer}{43}
-\contentsline {subsection}{\numberline {3.1.4}Time}{44}
-\contentsline {subsection}{\numberline {3.1.5}File I/O}{45}
-\contentsline {subsection}{\numberline {3.1.6}Network I/O}{46}
-\contentsline {subsection}{\numberline {3.1.7}Scalable I/O Schemes}{47}
-\contentsline {subsection}{\numberline {3.1.8}Signals}{49}
-\contentsline {subsection}{\numberline {3.1.9}Concurrency}{49}
-\contentsline {subsection}{\numberline {3.1.10}{\em Procfs}: The `/proc/' directory}{50}
-\contentsline {subsection}{\numberline {3.1.11}Architecture Specific Instructions}{50}
-\contentsline {section}{\numberline {3.2}Simulating Deterministic Execution}{51}
-\contentsline {section}{\numberline {3.3}Limitations of Deterministic Execution}{51}
-\contentsline {section}{\numberline {3.4}Summary}{52}
+\contentsline {chapter}{\numberline {3}Sources of Nondeterminism in Linux services}{39}
+\contentsline {section}{\numberline {3.1}Linux Security Features}{39}
+\contentsline {section}{\numberline {3.2}Randomization Schemes}{41}
+\contentsline {section}{\numberline {3.3}Process Identification Layer}{42}
+\contentsline {section}{\numberline {3.4}Time}{44}
+\contentsline {section}{\numberline {3.5}File I/O}{44}
+\contentsline {section}{\numberline {3.6}Network I/O}{46}
+\contentsline {section}{\numberline {3.7}Scalable I/O Schemes}{47}
+\contentsline {section}{\numberline {3.8}Signals}{49}
+\contentsline {section}{\numberline {3.9}Concurrency}{49}
+\contentsline {section}{\numberline {3.10}Architecture Specific Instructions}{50}
+\contentsline {section}{\numberline {3.11}{\em Procfs}: The /proc/ directory}{50}
+\contentsline {section}{\numberline {3.12}Summary}{51}
 \contentsline {chapter}{\numberline {4}{\em Silhouette} Execution}{53}
 \contentsline {section}{\numberline {4.1}What is {\em Silhouette} execution?}{53}
 \contentsline {section}{\numberline {4.2}Silhouette Execution for Linux Services}{54}
@@ -42,4 +39,5 @@
 \contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{72}
 \contentsline {section}{\numberline {4.5}Evaluation of Improved Silhouette Execution}{83}
 \contentsline {chapter}{\numberline {5}Conclusion}{85}
-\contentsline {section}{\numberline {5.1}Summary}{85}
+\contentsline {section}{\numberline {5.1}Limitations of Deterministic Execution}{85}
+\contentsline {section}{\numberline {5.2}Summary}{87}

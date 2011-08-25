@@ -40,42 +40,44 @@ non-operating system services and structures in order to allow
 a user environment to be created, and then presents the user with a login screen.
 \end{enumerate}
 
-\begin{figure}[h]
+\begin{figure}
   \centering
-  \includegraphics[scale=0.64, trim=1cm 0cm 1cm 0cm]{boot_first35seconds.png}
-  \caption[CPU and disk activity for a booting Ubuntu VM in the first 35
-  seconds after \texttt{init} is spawned]%
-  {CPU and disk activity for a booting Ubuntu VM in the first 35 seconds after \texttt{init} is spawned.
-  The first few seconds show no activity because
-  the data collection daemon takes a few seconds to start.}
-  \label{boot:first35}
+  \subfloat[Part 1][CPU utilization immediately after \texttt{init} is started.] 
+           {\includegraphics[width=\textwidth, trim=2cm 8cm 2cm 8cm]{cpu-boot.pdf} \label{fig:a}} \\
+  \subfloat[Part 2][CPU utilization 5 minutes after \texttt{init} is started.] 
+           {\includegraphics[width=\textwidth, trim=2cm 8cm 2cm 8cm]{cpu-ss.pdf} \label{fig:b}} 
+  \caption[CPU utilization profile for a sample Ubuntu VM during boot and post-boot.]%
+          {CPU utilization profile for a sample Ubuntu VM during boot and post-boot.}
+  \label{data:bootcpu}
 \end{figure}
 
-\begin{figure}[h]
-  \center
-  \includegraphics[scale=0.6, trim=1cm 0cm 1cm 0cm]{boot_last35seconds.png}
-  \caption[(... continued) CPU and disk activity for a booting VM
-  35 seconds after \texttt{init} is spawned. ]%
-  {(... continued from Figure \ref{boot:first35}) CPU and disk activity for a booting Ubuntu VM 35 seconds after \texttt{init} is spawned.}
-  \label{boot:last35}
+\begin{figure}
+  \centering
+  \subfloat[Part 1][Disk utilization and throughput immediately after \texttt{init} is started.] 
+           {\includegraphics[width=\textwidth, trim=2cm 8cm 2cm 8cm]{hd-boot.pdf} \label{fig:hda}} \\
+  \subfloat[Part 2][Disk utilization and throughput 5 minutes after \texttt{init} is started.] 
+           {\includegraphics[width=\textwidth, trim=2cm 8cm 2cm 8cm]{hd-ss.pdf} \label{fig:hdb}} 
+  \caption[Disk utilization and throughput profile for a sample Ubuntu VM during boot and post-boot.]%
+          {Disk utilization and throughput profile for a sample Ubuntu VM during boot and post-boot.}
+  \label{data:boothd}
 \end{figure}
 
-Figures \ref{boot:first35} and \ref{boot:last35}
+\noindent Figures \ref{data:bootcpu} and \ref{data:boothd}
 illustrate the CPU usage and disk activity 
-of an Ubuntu 10.10 VM that takes about 70 seconds
-to complete the sixth step of the boot process (i.e. spawning 
+of an Ubuntu 10.10 VM that takes about 22 seconds
+to complete the sixth step of the boot process (i.e. spawn 
 the \texttt{init} process to set up the user environment).
 The Linux kernel version is 2.6.35-27-generic
 and the VM is configured with a single core processor
-with 512 MB RAM. Generated using
+with 2048 Mb RAM. Generated using
 the Bootchart utility \cite{mahkovec2005bootchart},
 the figures illustrate that
 the booting process involves high memory
-and CPU overhead (5-70 seconds); they also 
-show a glimpse of the well-known fact that memory and CPU
+and CPU overhead (Figures \ref{fig:a} and \ref{fig:hda}); they also 
+illustrate the well-known fact that memory and CPU
 overhead typically dimishes greatly after the boot
-process is completed and the machine is
-ready for login (70+ seconds). This disparity
+process is completed and the machine reaches
+its steady-state (Figures \ref{fig:b} and \ref{fig:hdb}). This disparity
 in CPU/memory usage is the source of the boot storm problem;
 a single host can handle many VMs in
 steady-state usage but gets crippled
@@ -87,32 +89,32 @@ runs many scripts located in
 specific directories such as \texttt{`/etc/rc'}
 or \texttt{`/etc/init.d/'}. While the myriad Linux distributions
 can have their own variants of \texttt{init} binaries
-(e.g. \texttt{SysV}, or \texttt{systemd} or \texttt{Upstart}),
-the \texttt{init} process always directly/indirectly launches several 
+(e.g. \texttt{SysV}, \texttt{systemd} or \texttt{Upstart}),
+the \texttt{init} process always directly or indirectly launches several 
 services and daemons to initialize the user desktop
 environment. Figure \ref{boot:services} provides a
 summary of the specific actions performed by \texttt{init} 
 (through the subprocesses or daemons it launches)
 for the same Ubuntu VM used for 
-Figures \ref{boot:first35} and \ref{boot:last35}.
-
-\begin{figure}[h]
-  \center
-  \includegraphics[width=1.0\textwidth, trim=0.5cm 1cm 1cm 1cm]{boottimeline.pdf}
-  \caption[A summary of the actions performed by \texttt{init} for a booting VM]%
-  {A summary of the actions performed by \texttt{init} for a booting VM;
-  this figure has the same timeline (0-70 seconds) as Figures \ref{boot:first35} and 
-  \ref{boot:last35}.}
-  \label{boot:services}
-\end{figure}
-
-In fact, the \texttt{init} process actually launched 361 children processes (directly
-and indirectly) over the 70 second period summarized by Figure \ref{boot:services}.
+Figures \ref{data:bootcpu} and \ref{data:boothd}
+The \texttt{init} process actually launched 361 children processes (directly
+and indirectly) over the 25 second period summarized by Figure \ref{boot:services}.
 Most of them were ephemeral processes; several processes were repeatedly launched
 in different contexts (e.g. \texttt{getty} or \texttt{grep}). The processes singled out
 in Figure \ref{boot:services} are the ones that either 
 stayed alive through most of the boot process till the end, performed important
 boot actions, or spawned many sub-processes themselves.
+
+\begin{figure}[]
+  \center
+  \includegraphics[width=1.0\textwidth, trim=0.5cm 1cm 1cm 1cm]{boottimeline.pdf}
+  \caption[A summary of the actions performed by \texttt{init} for a booting VM]%
+  {A summary of the actions performed by \texttt{init} for a booting VM;
+  this figure has the same timeline (0-25 seconds) as Figures \ref{fig:a} and 
+  \ref{fig:hda}.}
+  \label{boot:services}
+\end{figure}
+
 
 \section{Data Collection Scheme} \label{datacollection}
 \begin{figure}[h]
@@ -127,15 +129,15 @@ boot actions, or spawned many sub-processes themselves.
 Pin and DynamoRio are runtime frameworks that enable inspection
 and arbitrary transformation of user-mode application code as it executes.
 We used both Pin and DynamoRio to study the behavior
-of Linux services in order to verify
-the accuracy of our results. However, we relied on Pin more 
+of Linux services independently; this allowed us to verify
+the accuracy of our results. We relied on Pin more 
 than DynamoRio because it gets injected into application code
 earlier than DynamoRio and thus provides greater
 instruction coverage for our purpose.  Figure \ref{data:naive} shows the simple steps involved
 in collecting data on nondeterminism using
 dynamic instrumentation. The next section 
 explains each of these steps in detail, 
-using a simple ``Hello, world!'' program as an example.
+using a simple ``Hello, world!'' program as an illustrative example.
 
 \subsection{Measuring nondeterminism in a simple $C$ program} \label{ch:hw}
 This section outlines the data collection scheme
@@ -143,7 +145,8 @@ described in Figure \ref{data:naive} in detail with the help
 of an example:  the simple ``Hello, world!'' program
 outlined in Figure \ref{source:hw}.
 For this example, we disabled ASLR (Address Space Layout
-Randomization) on the Ubuntu VM described in section \ref{linuxboot}. \newline
+Randomization) on the Ubuntu VM described in section \ref{linuxboot}
+by using \texttt{sysctl kernel\_randomize\_va\_space=0}. \newline
 
 \begin{figure}[h]
   \lstset{frame=shadowbox, rulesepcolor=\color{Gray},

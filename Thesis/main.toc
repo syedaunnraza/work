@@ -6,40 +6,40 @@
 \contentsline {section}{\numberline {1.5}Thesis Organization}{20}
 \contentsline {chapter}{\numberline {2}Execution Profile of Linux Services}{21}
 \contentsline {section}{\numberline {2.1}The Linux Boot Process}{21}
-\contentsline {section}{\numberline {2.2}Data Collection Scheme}{24}
-\contentsline {subsection}{\numberline {2.2.1}Measuring nondeterminism in a simple $C$ program}{25}
-\contentsline {subsection}{\numberline {2.2.2}Quantifying Nondeterminism}{30}
-\contentsline {section}{\numberline {2.3}Results for Linux services}{31}
-\contentsline {section}{\numberline {2.4}Summary}{35}
-\contentsline {chapter}{\numberline {3}Overcoming Nondeterminism in Linux services}{37}
-\contentsline {section}{\numberline {3.1}Sources of Nondeterminism}{37}
-\contentsline {subsection}{\numberline {3.1.1}Linux Security Features}{38}
-\contentsline {subsection}{\numberline {3.1.2}Randomization Schemes}{39}
-\contentsline {subsection}{\numberline {3.1.3}Process Identification Layer}{41}
-\contentsline {subsection}{\numberline {3.1.4}Time}{42}
-\contentsline {subsection}{\numberline {3.1.5}File I/O}{43}
-\contentsline {subsection}{\numberline {3.1.6}Network I/O}{44}
-\contentsline {subsection}{\numberline {3.1.7}Scalable I/O Schemes}{45}
-\contentsline {subsection}{\numberline {3.1.8}Signals}{47}
-\contentsline {subsection}{\numberline {3.1.9}Concurrency}{47}
-\contentsline {subsection}{\numberline {3.1.10}{\em Procfs}: The `/proc/' directory}{48}
-\contentsline {subsection}{\numberline {3.1.11}Architecture Specific Instructions}{48}
-\contentsline {section}{\numberline {3.2}Simulating Deterministic Execution}{49}
-\contentsline {section}{\numberline {3.3}Limitations of Deterministic Execution}{49}
-\contentsline {section}{\numberline {3.4}Summary}{50}
-\contentsline {chapter}{\numberline {4}{\em Silhouette} Execution}{51}
-\contentsline {section}{\numberline {4.1}What is {\em Silhouette} execution?}{51}
-\contentsline {section}{\numberline {4.2}Silhouette Execution for Linux Services}{52}
-\contentsline {subsection}{\numberline {4.2.1}{\em Precise Silhouetting}}{55}
-\contentsline {subsection}{\numberline {4.2.2}\em Optimistic Silhouetting (excluding control flow)}{56}
-\contentsline {subsection}{\numberline {4.2.3}\em Optimistic Silhouetting (including control flow)}{57}
-\contentsline {section}{\numberline {4.3}Evaluation Scheme}{59}
-\contentsline {subsection}{\numberline {4.3.1}Computed Metrics}{61}
-\contentsline {subsection}{\numberline {4.3.2}Caveats}{62}
-\contentsline {subsection}{\numberline {4.3.3}Initial Results}{67}
-\contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{70}
-\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{70}
-\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{70}
-\contentsline {section}{\numberline {4.5}Evaluation of Improved Silhouette Execution}{81}
-\contentsline {chapter}{\numberline {5}Conclusion}{83}
-\contentsline {section}{\numberline {5.1}Summary}{83}
+\contentsline {section}{\numberline {2.2}Data Collection Scheme}{25}
+\contentsline {subsection}{\numberline {2.2.1}Measuring nondeterminism in a simple $C$ program}{26}
+\contentsline {subsection}{\numberline {2.2.2}Quantifying Nondeterminism}{31}
+\contentsline {section}{\numberline {2.3}Results for Linux services}{33}
+\contentsline {section}{\numberline {2.4}Summary}{37}
+\contentsline {chapter}{\numberline {3}Overcoming Nondeterminism in Linux services}{39}
+\contentsline {section}{\numberline {3.1}Sources of Nondeterminism}{39}
+\contentsline {subsection}{\numberline {3.1.1}Linux Security Features}{40}
+\contentsline {subsection}{\numberline {3.1.2}Randomization Schemes}{41}
+\contentsline {subsection}{\numberline {3.1.3}Process Identification Layer}{43}
+\contentsline {subsection}{\numberline {3.1.4}Time}{44}
+\contentsline {subsection}{\numberline {3.1.5}File I/O}{45}
+\contentsline {subsection}{\numberline {3.1.6}Network I/O}{46}
+\contentsline {subsection}{\numberline {3.1.7}Scalable I/O Schemes}{47}
+\contentsline {subsection}{\numberline {3.1.8}Signals}{49}
+\contentsline {subsection}{\numberline {3.1.9}Concurrency}{49}
+\contentsline {subsection}{\numberline {3.1.10}{\em Procfs}: The `/proc/' directory}{50}
+\contentsline {subsection}{\numberline {3.1.11}Architecture Specific Instructions}{50}
+\contentsline {section}{\numberline {3.2}Simulating Deterministic Execution}{51}
+\contentsline {section}{\numberline {3.3}Limitations of Deterministic Execution}{51}
+\contentsline {section}{\numberline {3.4}Summary}{52}
+\contentsline {chapter}{\numberline {4}{\em Silhouette} Execution}{53}
+\contentsline {section}{\numberline {4.1}What is {\em Silhouette} execution?}{53}
+\contentsline {section}{\numberline {4.2}Silhouette Execution for Linux Services}{54}
+\contentsline {subsection}{\numberline {4.2.1}{\em Precise Silhouetting}}{57}
+\contentsline {subsection}{\numberline {4.2.2}\em Optimistic Silhouetting (excluding control flow)}{58}
+\contentsline {subsection}{\numberline {4.2.3}\em Optimistic Silhouetting (including control flow)}{59}
+\contentsline {section}{\numberline {4.3}Evaluation Scheme}{61}
+\contentsline {subsection}{\numberline {4.3.1}Computed Metrics}{63}
+\contentsline {subsection}{\numberline {4.3.2}Caveats}{64}
+\contentsline {subsection}{\numberline {4.3.3}Initial Results}{69}
+\contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{72}
+\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{72}
+\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{72}
+\contentsline {section}{\numberline {4.5}Evaluation of Improved Silhouette Execution}{83}
+\contentsline {chapter}{\numberline {5}Conclusion}{85}
+\contentsline {section}{\numberline {5.1}Summary}{85}

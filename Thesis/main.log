@@ -1,5 +1,6 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.18)  24 AUG 2011 20:51
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.6)  25 AUG 2011 04:10
 entering extended mode
+ restricted \write18 enabled.
  %&-line parsing enabled.
 **main
 (./main.tex
@@ -312,37 +313,91 @@ Chapter 2.
 
 
 
-] <boot_first35seconds.png, id=158, 700.86844pt x 140.77594pt>
-File: boot_first35seconds.png Graphic file (type png)
+]
 
-<use boot_first35seconds.png>
-<boot_last35seconds.png, id=159, 747.54282pt x 146.04562pt>
-File: boot_last35seconds.png Graphic file (type png)
+pdfTeX warning: pdflatex (file ./cpu-boot.pdf): PDF inclusion: found PDF versio
+n <1.5>, but at most version <1.4> allowed
+<cpu-boot.pdf, id=158, 614.295pt x 794.97pt>
+File: cpu-boot.pdf Graphic file (type pdf)
+ <use cpu-boot.pdf>
+Overfull \hbox (3.91663pt too wide) in paragraph at lines 46--46
+ [][] 
+ []
 
-<use boot_last35seconds.png> [22 <./boot_first35seconds.png (PNG copy)> <./boot
-_last35seconds.png (PNG copy)>]
+
+
+pdfTeX warning: pdflatex (file ./cpu-ss.pdf): PDF inclusion: found PDF version 
+<1.5>, but at most version <1.4> allowed
+<cpu-ss.pdf, id=160, 614.295pt x 794.97pt>
+File: cpu-ss.pdf Graphic file (type pdf)
+ <use cpu-ss.pdf>
+Overfull \hbox (3.91663pt too wide) in paragraph at lines 48--50
+ [][] 
+ []
+
+
+LaTeX Warning: Float too large for page by 20.26234pt on input line 52.
+
+
+
+pdfTeX warning: pdflatex (file ./hd-boot.pdf): PDF inclusion: found PDF version
+ <1.5>, but at most version <1.4> allowed
+<hd-boot.pdf, id=162, 614.295pt x 794.97pt>
+File: hd-boot.pdf Graphic file (type pdf)
+ <use hd-boot.pdf>
+Overfull \hbox (3.91663pt too wide) in paragraph at lines 57--57
+ [][] 
+ []
+
+
+
+pdfTeX warning: pdflatex (file ./hd-ss.pdf): PDF inclusion: found PDF version <
+1.5>, but at most version <1.4> allowed
+<hd-ss.pdf, id=164, 614.295pt x 794.97pt>
+File: hd-ss.pdf Graphic file (type pdf)
+ <use hd-ss.pdf>
+Overfull \hbox (3.91663pt too wide) in paragraph at lines 59--61
+ [][] 
+ []
+
+
+LaTeX Warning: Float too large for page by 20.26234pt on input line 63.
+
+[22] [23 <./cpu-boot.pdf> <./cpu-ss.pdf>] [24 <./hd-boot.pdf> <./hd-ss.pdf>]
+
+LaTeX Warning: No positions in optional float specifier.
+               Default added (so using `tbp') on input line 108.
+
+
 
 pdfTeX warning: pdflatex (file ./boottimeline.pdf): PDF inclusion: found PDF ve
 rsion <1.5>, but at most version <1.4> allowed
-<boottimeline.pdf, id=163, 722.7pt x 542.025pt>
+<boottimeline.pdf, id=221, 722.7pt x 542.025pt>
 File: boottimeline.pdf Graphic file (type pdf)
  <use boottimeline.pdf>
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [23 <./boottimeline.pdf>]
 
 pdfTeX warning: pdflatex (file ./naivedatacollection.pdf): PDF inclusion: found
  PDF version <1.5>, but at most version <1.4> allowed
-<naivedatacollection.pdf, id=178, 722.7pt x 542.025pt>
+<naivedatacollection.pdf, id=223, 722.7pt x 542.025pt>
 File: naivedatacollection.pdf Graphic file (type pdf)
 
-<use naivedatacollection.pdf> [24 <./naivedatacollection.pdf>]
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <14.4> on input line 140.
-LaTeX Font Info:    External font `cmex10' loaded for size
-(Font)              <7> on input line 140.
+<use naivedatacollection.pdf>
 
-Underfull \hbox (badness 10000) in paragraph at lines 141--147
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[25 <./boottimeline.pdf>]
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <14.4> on input line 142.
+LaTeX Font Info:    External font `cmex10' loaded for size
+(Font)              <7> on input line 142.
+
+Overfull \hbox (1.5901pt too wide) in paragraph at lines 143--150
+\OT1/cmr/m/n/12 Ubuntu VM de-scribed in sec-tion 2.1[] by us-ing \OT1/cmtt/m/n/
+12 sysctl kernel[]randomize[]va[]space=0\OT1/cmr/m/n/12 . 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 143--150
 
  []
 
@@ -361,8 +416,12 @@ LaTeX Font Info:    Font shape `OML/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 1.
 LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10.95> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 4.
-) [25]
-Underfull \hbox (badness 10000) in paragraph at lines 188--198
+)
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[26 <./naivedatacollection.pdf>]
+Underfull \hbox (badness 10000) in paragraph at lines 191--201
 
  []
 
@@ -370,63 +429,77 @@ Underfull \hbox (badness 10000) in paragraph at lines 188--198
 
 pdfTeX warning: pdflatex (file ./log.pdf): PDF inclusion: found PDF version <1.
 5>, but at most version <1.4> allowed
-<log.pdf, id=203, 722.7pt x 542.025pt>
+<log.pdf, id=255, 722.7pt x 542.025pt>
 File: log.pdf Graphic file (type pdf)
- <use log.pdf> [26 <./log.pdf>]
+ <use log.pdf>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+[27]
 
 pdfTeX warning: pdflatex (file ./log2.pdf): PDF inclusion: found PDF version <1
 .5>, but at most version <1.4> allowed
-<log2.pdf, id=214, 722.7pt x 542.025pt>
+<log2.pdf, id=262, 722.7pt x 542.025pt>
 File: log2.pdf Graphic file (type pdf)
- <use log2.pdf> [27 <./log2.pdf>]
+ <use log2.pdf>
 
-LaTeX Warning: Reference `ch:design' on page 28 undefined on input line 292.
+LaTeX Warning: `h' float specifier changed to `ht'.
 
-[28] <trace.pdf, id=230, 578.16pt x 433.62pt>
+[28 <./log.pdf>]
+
+LaTeX Warning: Reference `ch:design' on page 29 undefined on input line 295.
+
+[29 <./log2.pdf>] <trace.pdf, id=283, 578.16pt x 433.62pt>
 File: trace.pdf Graphic file (type pdf)
  <use trace.pdf>
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [29 <./trace.pdf>]
+ [30]
 
 pdfTeX warning: pdflatex (file ./liveness.pdf): PDF inclusion: found PDF versio
 n <1.5>, but at most version <1.4> allowed
-<liveness.pdf, id=291, 722.7pt x 542.025pt>
+<liveness.pdf, id=288, 722.7pt x 542.025pt>
 File: liveness.pdf Graphic file (type pdf)
  <use liveness.pdf>
-Underfull \hbox (badness 10000) in paragraph at lines 374--374
+Underfull \hbox (badness 10000) in paragraph at lines 377--377
 
- []
-
-[30 <./liveness.pdf>]
-Overfull \hbox (29.75562pt too wide) in paragraph at lines 410--439
- [] 
  []
 
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-[31] <ntp-ch2.png, id=310, 1606.0pt x 1204.5pt>
+[31 <./trace.pdf>]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [32 <./liveness.pdf>]
+Overfull \hbox (29.75562pt too wide) in paragraph at lines 413--442
+ [] 
+ []
+
+[33] <ntp-ch2.png, id=367, 1606.0pt x 1204.5pt>
 File: ntp-ch2.png Graphic file (type png)
- <use ntp-ch2.png>
-<cron-ch2.png, id=312, 1606.0pt x 1204.5pt>
+ <use ntp-ch2.png> [34 <./ntp-ch2.png>] <cron-ch2.png, id=373, 1606.0pt x 1204.
+5pt>
 File: cron-ch2.png Graphic file (type png)
  <use cron-ch2.png>
 
 pdfTeX warning: pdflatex (file ./cronzoom-ch2.pdf): PDF inclusion: found PDF ve
 rsion <1.5>, but at most version <1.4> allowed
-<cronzoom-ch2.pdf, id=313, 722.7pt x 542.025pt>
+<cronzoom-ch2.pdf, id=374, 722.7pt x 542.025pt>
 File: cronzoom-ch2.pdf Graphic file (type pdf)
  <use cronzoom-ch2.pdf>
-Overfull \hbox (43.75946pt too wide) in paragraph at lines 528--555
+Overfull \hbox (43.75946pt too wide) in paragraph at lines 531--558
  [] 
  []
 
-[32] [33 <./ntp-ch2.png> <./cron-ch2.png>] [34 <./cronzoom-ch2.pdf>]) [35]
+[35 <./cron-ch2.png>] [36 <./cronzoom-ch2.pdf>]) [37]
 \openout2 = `chap3.aux'.
 
-
-(./chap3.tex [36
+ (./chap3.tex [38
 
 
 
@@ -440,18 +513,18 @@ Underfull \hbox (badness 10000) in paragraph at lines 35--46
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [37]
-[38] [39] [40] [41]
+ [39]
+[40] [41] [42] [43]
 Underfull \hbox (badness 10000) in paragraph at lines 264--273
 
  []
 
-[42]
+[44]
 Underfull \hbox (badness 10000) in paragraph at lines 274--289
 
  []
 
-[43]
+[45]
 Underfull \hbox (badness 10000) in paragraph at lines 318--332
 
  []
@@ -471,8 +544,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 351--377
 
 Underfull \vbox (badness 7981) has occurred while \output is active []
 
- [44]
-[45]
+ [46]
+[47]
 Underfull \hbox (badness 10000) in paragraph at lines 463--475
 
  []
@@ -480,13 +553,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 463--475
 
 Underfull \vbox (badness 1014) has occurred while \output is active []
 
- [46]
-[47]
+ [48]
+[49]
 Underfull \hbox (badness 10000) in paragraph at lines 577--579
 
  []
 
-[48]
+[50]
 Underfull \hbox (badness 10000) in paragraph at lines 580--596
 
  []
@@ -504,16 +577,16 @@ Underfull \hbox (badness 10000) in paragraph at lines 611--627
 
 Underfull \vbox (badness 1194) has occurred while \output is active []
 
- [49]
+ [51]
 
-LaTeX Warning: Reference `ch:case' on page 50 undefined on input line 663.
+LaTeX Warning: Reference `ch:case' on page 52 undefined on input line 663.
 
-) [50]
+) [52]
 \openout2 = `chap4.aux'.
 
  (./chap4.tex
 Chapter 4.
-[51
+[53
 
 
 
@@ -526,7 +599,7 @@ LaTeX Warning: No positions in optional float specifier.
 
 pdfTeX warning: pdflatex (file ./overcommit.pdf): PDF inclusion: found PDF vers
 ion <1.5>, but at most version <1.4> allowed
-<overcommit.pdf, id=386, 722.7pt x 542.025pt>
+<overcommit.pdf, id=443, 722.7pt x 542.025pt>
 File: overcommit.pdf Graphic file (type pdf)
  <use overcommit.pdf>
 Overfull \hbox (212.82751pt too wide) in paragraph at lines 40--42
@@ -538,15 +611,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 67--92
 
  []
 
-[52] [53 <./overcommit.pdf>] [54] [55] [56] [57] [58] [59]
+[54] [55 <./overcommit.pdf>] [56] [57] [58] [59] [60] [61]
 Underfull \vbox (badness 1178) has occurred while \output is active []
 
- [60]
+ [62]
 Underfull \hbox (badness 10000) in paragraph at lines 528--548
 
  []
 
-[61]
+[63]
 Underfull \hbox (badness 10000) in paragraph at lines 549--554
 
  []
@@ -555,7 +628,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 549--554
 
 pdfTeX warning: pdflatex (file ./calc.pdf): PDF inclusion: found PDF version <1
 .5>, but at most version <1.4> allowed
-<calc.pdf, id=446, 722.7pt x 542.025pt>
+<calc.pdf, id=503, 722.7pt x 542.025pt>
 File: calc.pdf Graphic file (type pdf)
  <use calc.pdf>
 Overfull \hbox (23.04564pt too wide) in paragraph at lines 557--566
@@ -571,7 +644,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 570--577
 
 pdfTeX warning: pdflatex (file ./calc2.pdf): PDF inclusion: found PDF version <
 1.5>, but at most version <1.4> allowed
-<calc2.pdf, id=448, 722.7pt x 542.025pt>
+<calc2.pdf, id=505, 722.7pt x 542.025pt>
 File: calc2.pdf Graphic file (type pdf)
  <use calc2.pdf>
 Overfull \hbox (23.04564pt too wide) in paragraph at lines 580--589
@@ -582,19 +655,19 @@ Overfull \hbox (23.04564pt too wide) in paragraph at lines 580--589
 
 pdfTeX warning: pdflatex (file ./calc3.pdf): PDF inclusion: found PDF version <
 1.5>, but at most version <1.4> allowed
-<calc3.pdf, id=450, 722.7pt x 542.025pt>
+<calc3.pdf, id=507, 722.7pt x 542.025pt>
 File: calc3.pdf Graphic file (type pdf)
  <use calc3.pdf>
 Overfull \hbox (23.04564pt too wide) in paragraph at lines 604--613
  [][] 
  []
 
-[62] [63 <./calc.pdf>] [64 <./calc2.pdf>] [65 <./calc3.pdf>] [66]
+[64] [65 <./calc.pdf>] [66 <./calc2.pdf>] [67 <./calc3.pdf>] [68]
 Underfull \hbox (badness 10000) in paragraph at lines 720--720
 
  []
 
-[67]
+[69]
 Underfull \hbox (badness 10000) in paragraph at lines 763--763
 
  []
@@ -604,7 +677,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 777--786
 
  []
 
-[68]
+[70]
 Underfull \hbox (badness 10000) in paragraph at lines 809--809
 
  []
@@ -614,7 +687,7 @@ Overfull \hbox (35.95897pt too wide) in paragraph at lines 812--820
  [] 
  []
 
-[69]
+[71]
 
 LaTeX Warning: No positions in optional float specifier.
                Default added (so using `tbp') on input line 854.
@@ -623,7 +696,7 @@ LaTeX Warning: No positions in optional float specifier.
 
 pdfTeX warning: pdflatex (file ./simulation.pdf): PDF inclusion: found PDF vers
 ion <1.5>, but at most version <1.4> allowed
-<simulation.pdf, id=574, 722.7pt x 542.025pt>
+<simulation.pdf, id=631, 722.7pt x 542.025pt>
 File: simulation.pdf Graphic file (type pdf)
  <use simulation.pdf>
 Overfull \hbox (44.38516pt too wide) in paragraph at lines 857--868
@@ -635,17 +708,17 @@ Underfull \hbox (badness 10000) in paragraph at lines 892--901
 
  []
 
-[70] [71 <./simulation.pdf>]
+[72] [73 <./simulation.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 923--933
 
  []
 
-[72]
+[74]
 Underfull \hbox (badness 10000) in paragraph at lines 973--985
 
  []
 
-[73]
+[75]
 Underfull \hbox (badness 10000) in paragraph at lines 1064--1071
 
  []
@@ -658,13 +731,13 @@ Underfull \hbox (badness 10000) in paragraph at lines 1092--1112
 
 Underfull \vbox (badness 1675) has occurred while \output is active []
 
- [74]
+ [76]
 
 pdfTeX warning: pdflatex (file ./pid.pdf): PDF inclusion: found PDF version <1.
 5>, but at most version <1.4> allowed
-<pid.pdf, id=608, 722.7pt x 542.025pt>
+<pid.pdf, id=665, 722.7pt x 542.025pt>
 File: pid.pdf Graphic file (type pdf)
- <use pid.pdf> [75 <./pid.pdf>]
+ <use pid.pdf> [77 <./pid.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 1148--1172
 
  []
@@ -677,7 +750,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 1190--1194
 
 Underfull \vbox (badness 1675) has occurred while \output is active []
 
- [76]
+ [78]
 Underfull \hbox (badness 10000) in paragraph at lines 1253--1264
 
  []
@@ -685,21 +758,21 @@ Underfull \hbox (badness 10000) in paragraph at lines 1253--1264
 
 Underfull \vbox (badness 5652) has occurred while \output is active []
 
- [77]
+ [79]
 
 pdfTeX warning: pdflatex (file ./epoll.pdf): PDF inclusion: found PDF version <
 1.5>, but at most version <1.4> allowed
-<epoll.pdf, id=657, 722.7pt x 542.025pt>
+<epoll.pdf, id=715, 722.7pt x 542.025pt>
 File: epoll.pdf Graphic file (type pdf)
  <use epoll.pdf>
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
- [78 <./epoll.pdf>]
+ [80 <./epoll.pdf>]
 Underfull \hbox (badness 10000) in paragraph at lines 1335--1356
 
  []
 
-[79]
+[81]
 Overfull \hbox (1.15605pt too wide) in paragraph at lines 1357--1371
 \OT1/cmr/m/n/12 Execution vari-abil-ity re-sult-ing from multi-threading has be
 en ex-ten-sively doc-u-mented;
@@ -710,19 +783,19 @@ Underfull \hbox (badness 10000) in paragraph at lines 1372--1378
 
  []
 
-[80]) [81]
+[82]) [83]
 \openout2 = `chap5.aux'.
 
- (./chap5.tex [82
+ (./chap5.tex [84
 
 
 
 ]
 Chapter 5.
-) [83]
+) [85]
 \openout2 = `biblio.aux'.
 
- (./biblio.tex (./main.bbl [84
+ (./biblio.tex (./main.bbl [86
 
 
 
@@ -744,13 +817,13 @@ Underfull \hbox (badness 1454) in paragraph at lines 60--64
 tistrategy . com / 2009 / 11 / 01 /
  []
 
-[85]
+[87]
 Underfull \hbox (badness 2707) in paragraph at lines 100--104
 []\OT1/cmr/m/n/12 VMware Vir-tual Desk-top In-fras-truc-ture.  $\OT1/cmtt/m/n/1
 2 http : / / www . vmware . com / pdf /
  []
 
-)) [86] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
+)) [88] (./main.aux (./cover.aux) (./contents.aux) (./chap1.aux) (./chap2.aux)
 (./chap3.aux) (./chap4.aux) (./chap5.aux) (./biblio.aux))
 
 LaTeX Warning: There were undefined references.
@@ -760,13 +833,13 @@ LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 4060 strings out of 495061
- 60104 string characters out of 1182621
- 139256 words of memory out of 3000000
- 7137 multiletter control sequences out of 15000+50000
- 12291 words of font info for 42 fonts, out of 3000000 for 9000
+ 4082 strings out of 495061
+ 60283 string characters out of 1182622
+ 136521 words of memory out of 3000000
+ 7156 multiletter control sequences out of 15000+50000
+ 12459 words of font info for 43 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
- 44i,9n,54p,897b,1416s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 44i,10n,54p,897b,1416s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/sha
 re/texmf-texlive/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texmf-te
 xlive/fonts/type1/public/amsfonts/cm/cmbxti10.pfb></usr/share/texmf-texlive/fon
@@ -778,11 +851,11 @@ are/texmf-texlive/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-te
 xlive/fonts/type1/public/amsfonts/cm/cmr17.pfb></usr/share/texmf-texlive/fonts/
 type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/type1/public/
 amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm
-/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt12.pfb
->
-Output written on main.pdf (86 pages, 1553278 bytes).
+/cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb
+></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
+Output written on main.pdf (88 pages, 1496995 bytes).
 PDF statistics:
- 781 PDF objects out of 1000 (max. 8388607)
+ 841 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
- 101 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 111 words of extra memory for PDF output out of 10000 (max. 10000000)
 

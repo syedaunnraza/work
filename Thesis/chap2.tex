@@ -86,9 +86,9 @@ when the same VMs boot up concurrently.
 In the last step of the booting
 process (step 6), \texttt{init} typically
 runs many scripts located in 
-specific directories such as \texttt{`/etc/rc'}
-or \texttt{`/etc/init.d/'}. While the myriad Linux distributions
-can have their own variants of \texttt{init} binaries
+specific directories (such as \texttt{/etc/rc}
+or \texttt{/etc/init.d/}). While different Linux distributions
+typically have their own variants of \texttt{init} binaries
 (e.g. \texttt{SysV}, \texttt{systemd} or \texttt{Upstart}),
 the \texttt{init} process always directly or indirectly launches several 
 services and daemons to initialize the user desktop
@@ -96,7 +96,7 @@ environment. Figure \ref{boot:services} provides a
 summary of the specific actions performed by \texttt{init} 
 (through the subprocesses or daemons it launches)
 for the same Ubuntu VM used for 
-Figures \ref{data:bootcpu} and \ref{data:boothd}
+Figures \ref{data:bootcpu} and \ref{data:boothd}.
 The \texttt{init} process actually launched 361 children processes (directly
 and indirectly) over the 25 second period summarized by Figure \ref{boot:services}.
 Most of them were ephemeral processes; several processes were repeatedly launched

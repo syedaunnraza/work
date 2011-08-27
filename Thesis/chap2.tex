@@ -407,7 +407,7 @@ that are typically launched at boot. \newline
   Application & Prefix (P) & Longest Substring (LS) &
   Determinism (LCS) \\
   \hline \hline
-  \texttt{ntp}, 14 loop iterations & 11.65\% & 22.08\% & 89.21\%
+  \texttt{ntp}, 30 loop iterations & 2.46\% & 4,74\% & 81.66\%
   \\\hline
   \texttt{cron}, 30 loop iterations & 1.58\% & 53.21\% & 98.38\% 
   \\\hline 
@@ -474,7 +474,8 @@ in our sample programs, despite a very high average LCS.
 
 The distribution of the $10\%$ conflicting instructions
 is surprisingly similar across different programs.
-Figure \ref{ntp:tracech2}, an execution profile of \texttt{ntp}, is representative
+Figure \ref{ntp:tracech2}, an execution profile of \texttt{ntp}
+(for its the first 14 out of 30 iterations) is representative
 of most execution traces. Generally,
 conflicting instructions are spread throughout
 the traces but tend to occur more frequently

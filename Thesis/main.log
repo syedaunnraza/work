@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.18)  26 AUG 2011 23:06
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2011.8.18)  28 AUG 2011 20:07
 entering extended mode
  %&-line parsing enabled.
 **main
@@ -488,7 +488,7 @@ Overfull \hbox (43.36464pt too wide) in paragraph at lines 465--471
 <cron-ch2.png, id=369, 1606.0pt x 1204.5pt>
 File: cron-ch2.png Graphic file (type png)
  <use cron-ch2.png>
-Overfull \hbox (3.91663pt too wide) in paragraph at lines 504--504
+Overfull \hbox (3.91663pt too wide) in paragraph at lines 505--505
  [][] 
  []
 
@@ -500,10 +500,10 @@ rsion <1.5>, but at most version <1.4> allowed
 File: cronzoom-ch2.pdf Graphic file (type pdf)
  <use cronzoom-ch2.pdf>
 
-LaTeX Warning: Float too large for page by 3.1707pt on input line 510.
+LaTeX Warning: Float too large for page by 3.1707pt on input line 511.
 
 
-Overfull \hbox (43.75946pt too wide) in paragraph at lines 516--543
+Overfull \hbox (43.75946pt too wide) in paragraph at lines 517--544
  [] 
  []
 
@@ -875,7 +875,7 @@ type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-texlive/fonts/type1/public/
 amsfonts/cm/cmsy10.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm
 /cmti12.pfb></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt10.pfb
 ></usr/share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmtt12.pfb>
-Output written on main.pdf (90 pages, 1498262 bytes).
+Output written on main.pdf (90 pages, 1498296 bytes).
 PDF statistics:
  847 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

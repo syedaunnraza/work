@@ -34,10 +34,14 @@
 \contentsline {subsection}{\numberline {4.3.1}Computed Metrics}{63}
 \contentsline {subsection}{\numberline {4.3.2}Caveats}{64}
 \contentsline {subsection}{\numberline {4.3.3}Initial Results}{69}
-\contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{72}
-\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{72}
-\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{72}
-\contentsline {section}{\numberline {4.5}Evaluation of Improved Silhouette Execution}{83}
-\contentsline {chapter}{\numberline {5}Conclusion}{85}
-\contentsline {section}{\numberline {5.1}Limitations of Deterministic Execution}{85}
-\contentsline {section}{\numberline {5.2}Summary}{87}
+\contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{73}
+\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{73}
+\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{73}
+\contentsline {section}{\numberline {4.5}Evaluation of Improved Silhouette Execution}{84}
+\contentsline {subsection}{\numberline {4.5.1}\texttt {acpid}}{85}
+\contentsline {subsection}{\numberline {4.5.2}\texttt {anacron}}{88}
+\contentsline {subsection}{\numberline {4.5.3}\texttt {cron}}{91}
+\contentsline {subsection}{\numberline {4.5.4}\texttt {cups}}{92}
+\contentsline {chapter}{\numberline {5}Conclusion}{95}
+\contentsline {section}{\numberline {5.1}Limitations of Deterministic Execution}{95}
+\contentsline {section}{\numberline {5.2}Summary}{97}

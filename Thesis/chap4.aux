@@ -26,26 +26,58 @@
 \@writefile{lof}{\contentsline {figure}{\numberline {4-4}{\ignorespaces Modeling CPU overhead from optimistic silhouetting (excluding control flow)}}{67}}
 \newlabel{oscoverhead}{{4-4}{67}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Initial Results}{69}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces \hspace  {0.2in}Preliminary Results from Modeling Precise Silhouetting \newline  \newline  $A$, the advantage ratio is calculated by ${\begingroup T_O\endgroup \over T_S}$. $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under precise silhouetting. $\mathaccent "017E\relax K$ represents overhead constants; $M$ is the number of system calls and memory operations made by the leader before the first active fork-point; $F$ is the number of latent fork-points before the first active fork-point. $p = P/I$ the prefix ratio of the execution. \relax }}{69}}
-\newlabel{ps:inittbl}{{4.1}{69}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Preliminary Results from Modeling Optimistic Silhouetting (Excluding Control Flow). \newline  \newline  $A$, the advantage ratio is calculated by ${\begingroup T_O\endgroup \over T_S}$. $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under this variant of optimistic silhouetting. $\mathaccent "017E\relax K$ represents overhead constants; $M$ is the number of system calls and memory operations made by the leader before the first active fork-point; $F$ is the number of latent fork-points before the first active fork-point. $d = D/I$ the portion of the execution before the first control-flow divergence. \relax }}{70}}
-\newlabel{osnc:inittbl}{{4.2}{70}}
-\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Preliminary Results from Modeling Optimistic Silhouetting (Including Control Flow). \newline  \newline  $A$, the advantage ratio is calculated by ${\begingroup T_O\endgroup \over T_S}$. $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under this variant of precise silhouetting. $\mathaccent "017E\relax K$ represents overhead constants; $M$ is the number of system calls and memory operations made by the leader before the first active fork-point; $F$ is the number of latent fork-points before the first active fork-point; $C$ and $L_C$ represent the number of control-flow divergences and their average length respectively. $d = D/I$ the portion of the execution before permanent execution divergence. \relax }}{71}}
-\newlabel{osc:inittbl}{{4.3}{71}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{72}}
-\newlabel{silimprove}{{4.4}{72}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{72}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{72}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4-5}{\ignorespaces Simulation of {\em  Silhouette Execution} in a bootstorm scenario}}{73}}
-\newlabel{ch3:figsimulation}{{4-5}{73}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4-6}{\ignorespaces Virtualizing the process ID layer using Pin}}{77}}
-\newlabel{ch3:pidfig}{{4-6}{77}}
-\@writefile{lof}{\contentsline {figure}{\numberline {4-7}{\ignorespaces Reordering I/O events using Pin}}{80}}
-\newlabel{ch3:reorderfig}{{4-7}{80}}
-\@writefile{toc}{\contentsline {section}{\numberline {4.5}Evaluation of Improved Silhouette Execution}{83}}
-\newlabel{sileval}{{4.5}{83}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.1}{\ignorespaces \hspace  {0.2in}Preliminary Results from Modeling Precise Silhouetting.\newline  $A$, the advantage ratio is calculated by ${\begingroup T_O\endgroup \over T_S}$. $T_O$ is the total instructions that would be executed in the status quo whereas $T_S$ is the total instructions that would be executed under precise silhouetting. $\mathaccent "017E\relax K$ (not shown in the table), represents overhead constants and was selected conservatively to be $(20,1000,20)$. $M$ is the number of system calls and memory operations made by the leader before the first active fork-point; $F$ is the number of latent fork-points before the first active fork-point. $p = 100P/I$ is the prefix ratio of the execution. \relax }}{70}}
+\newlabel{ps:inittbl}{{4.1}{70}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.2}{\ignorespaces Preliminary Results for Optimistic Silhouetting (Excluding Control Flow). \newline  $A$, the advantage ratio is calculated by ${\begingroup T_O\endgroup \over T_S}$. The variables $T_O$, $T_S$, $M$, $F$ are the same as before (see Table 4.1\hbox {}). $d = 100D/I$ is the portion of the execution before the first control-flow divergence. \relax }}{71}}
+\newlabel{osnc:inittbl}{{4.2}{71}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.3}{\ignorespaces Preliminary Results for Optimistic Silhouetting (Including Control Flow). \newline  We exclude \texttt  {acpid} because it had no control flow differences. $A$, the advantage ratio is calculated by ${\begingroup T_O\endgroup \over T_S}$. The variables $T_O$, $T_S$, $M$, $F$ are the same as before (see Table 4.2\hbox {}). $d = D/I$ is the portion of the execution before the first control-flow divergence. $C$ and $L_C$ represent the number of control-flow divergences and their average length respectively. $d = 100D/I$ the portion of the execution before permanent execution divergence. \relax }}{72}}
+\newlabel{osc:inittbl}{{4.3}{72}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.4}Improving Silhouette Execution}{73}}
+\newlabel{silimprove}{{4.4}{73}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Modified Data Collection Scheme}{73}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Reducing Execution Differences across Instances}{73}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-5}{\ignorespaces Simulation of {\em  Silhouette Execution} in a bootstorm scenario}}{74}}
+\newlabel{ch3:figsimulation}{{4-5}{74}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-6}{\ignorespaces Virtualizing the process ID layer using Pin}}{78}}
+\newlabel{ch3:pidfig}{{4-6}{78}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-7}{\ignorespaces Reordering I/O events using Pin}}{81}}
+\newlabel{ch3:reorderfig}{{4-7}{81}}
+\@writefile{toc}{\contentsline {section}{\numberline {4.5}Evaluation of Improved Silhouette Execution}{84}}
+\newlabel{sileval}{{4.5}{84}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.4}{\ignorespaces Improvements in $A$ for Linux services for $N = 1000$ ($N$ is the number of concurrent instances) and $\mathaccent "017E\relax K$, chosen conservatively, $ = (20, 1000, 20, 40, 1000)$.\relax }}{84}}
+\newlabel{evalsummarytbl1}{{4.4}{84}}
+\@writefile{lot}{\contentsline {table}{\numberline {4.5}{\ignorespaces Improvements in $A$ for Linux services for $N = 1000$ ($N$ is the number of concurrent instances) and $\mathaccent "017E\relax K$, chosen moderately conservatively, $ = (10, 100, 5, 20, 50)$.\relax }}{84}}
+\newlabel{evalsummarytbl2}{{4.5}{84}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.1}\texttt  {acpid}}{85}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-8}{\ignorespaces For \texttt  {acpid}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{85}}
+\newlabel{acpid1}{{4-8}{85}}
+\newlabel{acpid2}{{4-9a}{87}}
+\newlabel{sub@acpid2}{{(a)}{a}}
+\newlabel{acpid3}{{4-9b}{87}}
+\newlabel{sub@acpid3}{{(b)}{b}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-9}{\ignorespaces For \texttt  {acpid}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{87}}
+\newlabel{acpid23}{{4-9}{87}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.2}\texttt  {anacron}}{88}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-10}{\ignorespaces For \texttt  {anacron}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{88}}
+\newlabel{anacron1}{{4-10}{88}}
+\newlabel{anacron2}{{4-11a}{90}}
+\newlabel{sub@anacron2}{{(a)}{a}}
+\newlabel{anacron3}{{4-11b}{90}}
+\newlabel{sub@anacron3}{{(b)}{b}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-11}{\ignorespaces For \texttt  {anacron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{90}}
+\newlabel{anacron23}{{4-11}{90}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.3}\texttt  {cron}}{91}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-12}{\ignorespaces For \texttt  {cron}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{91}}
+\newlabel{cron1}{{4-12}{91}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5.4}\texttt  {cups}}{92}}
+\newlabel{cron2}{{4-13a}{93}}
+\newlabel{sub@cron2}{{(a)}{a}}
+\newlabel{cron3}{{4-13b}{93}}
+\newlabel{sub@cron3}{{(b)}{b}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4-13}{\ignorespaces For \texttt  {cron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{93}}
+\newlabel{cron23}{{4-13}{93}}
 \@setckpt{chap4}{
-\setcounter{page}{84}
+\setcounter{page}{94}
 \setcounter{equation}{1}
 \setcounter{enumi}{4}
 \setcounter{enumii}{0}
@@ -56,14 +88,17 @@
 \setcounter{part}{0}
 \setcounter{chapter}{4}
 \setcounter{section}{5}
-\setcounter{subsection}{0}
+\setcounter{subsection}{4}
 \setcounter{subsubsection}{0}
 \setcounter{paragraph}{0}
 \setcounter{subparagraph}{0}
-\setcounter{figure}{7}
-\setcounter{table}{3}
+\setcounter{figure}{13}
+\setcounter{table}{5}
 \setcounter{savepage}{3}
 \setcounter{lstnumber}{9}
+\setcounter{cp@cnt}{0}
+\setcounter{cp@tempcnt}{0}
+\setcounter{lips@count}{0}
 \setcounter{ContinuedFloat}{0}
 \setcounter{KVtest}{0}
 \setcounter{subfigure}{0}

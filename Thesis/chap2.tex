@@ -407,32 +407,28 @@ that are typically launched at boot. \newline
   Application & Prefix (P) & Longest Substring (LS) &
   Determinism (LCS) \\
   \hline \hline
-  \texttt{ntp}, 30 loop iterations & 2.46\% & 4,74\% & 81.66\%
+  \texttt{acpid}, 20 loop iterations & 20.99\% & 66.84\% & 99.98\%
   \\\hline
-  \texttt{cron}, 30 loop iterations & 1.58\% & 53.21\% & 98.38\% 
+  \texttt{anacron}, 7 loop iterations & 0.65\% & 87.27\% & 99.21\%
+  \\\hline
+  \texttt{cups}, 10 loop iterations & 0.44\% & 12.87\% & 85.08\%
+  \\\hline
+  \texttt{cron}, 5 loop iterations & 1.54\% & 57.11\% & 99.94\% 
   \\\hline 
-  \texttt{cups}, 10 loop iterations & 2.45\% & 25.20\% & 94.25\%
-  \\\hline 
-  \texttt{daemon A}, $i$ loop iterations & $p$\% & $ls$\% & $lcs$\%
-  \\\hline 
-  \texttt{daemon B}, $i$ loop iterations & $p$\% & $ls$\% & $lcs$\%
-  \\\hline 
-  \texttt{daemon C}, $i$ loop iterations & $p$\% & $ls$\% & $lcs$\%
-  \\\hline 
-  \texttt{daemon D}, $i$ loop iterations & $p$\% & $ls$\% & $lcs$\%
-  \\\hline 
-  \texttt{daemon E}, $i$ loop iterations & $p$\% & $ls$\% & $lcs$\%
-  \\\hline 
-  \texttt{daemon F}, $i$ loop iterations & $p$\% & $ls$\% & $lcs$\%
-  \\\hline 
-  \texttt{daemon G}, $i$ loop iterations & $p$\% & $ls$\% & $lcs$\%
-  \\\hline 
+  \texttt{ntp}, 30 loop iterations & 2.46\% & 4.74\% & 81.66\%
+  \\\hline
   \hline 
-  {\bf Aggregate} & {\bf $x$}\% & {\bf $y$}\% & {\bf $z$}\%
+  {\bf Weighted Average} & {\bf 0.84}\% & {\bf 26.41}\% & {\bf 87.89}\%
   \\\hline 
 \end{tabular}
-\caption{Nondeterminism profile of Linux services and daemons (ASLR disabled)}
-\label{linux:stats}
+\caption{Nondeterminism profile of Linux services and daemons (ASLR disabled). \newline
+The average reported here is weighted-average computed based on the number of instructions
+executed by each program. The period over which the 
+programs were profiled was selected to be representative
+of their execution typically till the login screen is shown.
+Typically, the programs ran for 3-5 {\em true} (i.e without
+instrumentation overhead) minutes.}
+\label{linux:stats} 
 \end{center}
 \end{table}
 
@@ -440,31 +436,31 @@ that are typically launched at boot. \newline
 We can immediately see that:
 \begin{enumerate}
 \item The common prefix (P) 
-in our sample of Linux services is on average about $3\%$,
+in our sample of Linux services is on average about $1\%$,
 which is quite small and indicates that nondeterminism 
 typically surfaces relatively early in program execution. 
 
-\item The longest substring (LS), usually close to $25\%$,
+\item The longest substring (LS), usually close to $26\%$,
 is substantially larger than the common prefix (P).
 This shows that execution typically does not permanently
 diverge after the initial differences.
 
 \item The longest common subsequence (LCS) or general determinism
-is in general much higher -- about $90\%$ on average -- 
+is in general much higher -- about $88\%$ on average -- 
 which indicates that a large majority of instructions 
 in the Linux services overlap across
 different executions. 
 \end{enumerate}
 
 \noindent Given the discussion in Section \ref{alt:stats}, a conflict ratio
-of about $10\%$ on average hints that there is little but non-trivial nondeterminism 
+of about $12\%$ on average hints that there is little but non-trivial nondeterminism 
 in our sample programs, despite a very high average LCS.
 
 \begin{figure}
   \center
   \includegraphics[trim=4cm 0cm 0cm 0cm, width=1.1\textwidth]{ntp-ch2.png}
-  \caption[Visualization of \texttt{ntp} program execution]% 
-          {Visualization of \texttt{ntp} program execution.
+  \caption[Visualization of \texttt{ntp} program execution (14 iterations)]% 
+          {Visualization of \texttt{ntp} program execution (14 iterations).
           The thin black lines represent conflicts between
           the two instances of the program, whereas
           the thin blue or red lines represent control flow
@@ -472,17 +468,17 @@ in our sample programs, despite a very high average LCS.
   \label{ntp:tracech2}
 \end{figure} 
 
-The distribution of the $10\%$ conflicting instructions
+The distribution of the $12\%$ conflicting instructions
 is surprisingly similar across different programs.
 Figure \ref{ntp:tracech2}, an execution profile of \texttt{ntp}
-(for its the first 14 out of 30 iterations) is representative
+(for the first 14 out of 30 iterations) is representative
 of most execution traces. Generally,
 conflicting instructions are spread throughout
 the traces but tend to occur more frequently
 towards the end. Nondeterminism does not seem to cause permanent 
 execution divergences, even though there is significant
 control-flow divergence in some programs. In fact, execution seems to
-diverge and reconverge very frequently.
+diverge and reconverge very frequently (i.e. nondeterminism is bursty).
 The execution profile of \texttt{cron} is somewhat unique
 because it has a higher LCS and LS than other traces. It is
 difficult to reconcile the low measured conflict ratio for \texttt{cron} (less
@@ -497,7 +493,7 @@ it is common to all the services we profiled. Table \ref{burst:stats}
 shows that the longest control flow divergence 
 or the longest string of consecutive conflicts
 is typically very small (i.e. $<<1\%$) 
-in our sample programs.
+for most of our sample programs.
 
 \begin{figure}
   \centering
@@ -505,43 +501,40 @@ in our sample programs.
            {\includegraphics[width=1.0\textwidth, trim=4cm 0cm 0cm 2cm]{cron-ch2.png} \label{ch2:crona}} \\
   \subfloat[Part 2][Looking closely at the \texttt{cron} program execution reveals that conflicts occur in short bursts that visually group together.]
            {\includegraphics[width=0.7\textwidth, trim=2cm 0cm 0cm 0.5cm]{cronzoom-ch2.pdf} \label{ch2:cronb}} 
-  \caption[Visualization of execution differences in \texttt{cron}.]%
-          {Visualization of execution differences in \texttt{cron}.}
+  \caption[Visualization of execution differences in \texttt{cron} (20 iterations).]%
+          {Visualization of execution differences in \texttt{cron} (20 iterations).}
   \label{cron:ch2}
 \end{figure}
 
 \begin{table}
-\caption{Measuring burstiness of nondeterminism in Linux services} 
-\label{burst:stats}
 \begin{center}
 \begin{tabular}{||l|c|c|c||}\hline
   Application & Max. Consecutive Conflicts & Max. Control Flow Divergence \\
   \hline \hline
-  \texttt{ntp}, 14 loop iterations & 0.03\% & 2\% 
+  \texttt{acpid}, 20 loop iterations & 0.0000\% & 0.0019\% 
   \\\hline
-  \texttt{cron}, 30 loop iterations & 0.08\% & 0.003\% 
+  \texttt{anacron}, 7 loop iterations & 0.0335\% & 0.0021\% 
   \\\hline 
-  \texttt{cups}, 10 loop iterations & $c$\% & $c$\% 
+  \texttt{cups}, 10 loop iterations & 0.0120\% & 1.8500\% 
   \\\hline 
-  \texttt{daemon A}, $i$ loop iterations & $p$\% & $ls$\% 
+  \texttt{cron}, 5 loop iterations & 0.0004\% & 0.0002\% 
   \\\hline 
-  \texttt{daemon B}, $i$ loop iterations & $p$\% & $ls$\% 
-  \\\hline 
-  \texttt{daemon C}, $i$ loop iterations & $p$\% & $ls$\% 
-  \\\hline 
-  \texttt{daemon D}, $i$ loop iterations & $p$\% & $ls$\% 
-  \\\hline 
-  \texttt{daemon E}, $i$ loop iterations & $p$\% & $ls$\% 
-  \\\hline 
-  \texttt{daemon F}, $i$ loop iterations & $p$\% & $ls$\% 
-  \\\hline 
-  \texttt{daemon G}, $i$ loop iterations & $p$\% & $ls$\% 
+  \texttt{ntp}, 30 loop iterations & 0.0523\% & 0.3223\% 
   \\\hline 
   \hline 
-  {\bf Aggregate} & {\bf $x$}\% & {\bf $y$}\% %
+  {\bf Weighted Average} & {\bf 0.0185}\% & {\bf 1.290}\% %
   \\\hline 
 \end{tabular}
 \end{center}
+\caption{Measuring burstiness of nondeterminism in Linux services. \newline
+The table shows the maximum number of consecutive instructions that conflict
+in their side-effects or control-flow as a fraction of 
+the total instructions of a program. These numbers are
+only a small fraction of the 12\% conflicting
+instructions in a program (see Table \ref{linux:stats}),
+which establishes that execution differences are short-lived in our 
+sample programs.} 
+\label{burst:stats}
 \end{table}
 
 

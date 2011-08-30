@@ -689,9 +689,8 @@ from silhouette execution.
 \noindent {\bf Precise Silhouetting} \newline
 Table \ref{ps:inittbl} shows the results of modeling 
 precise silhouetting on a few Linux services.
-For simplicity, we include
-all system calls in our definition
-of fork-points.
+For simplicity, we treat
+all system calls as fork-points.
 This assumption increases the number of fork-points ($F$);
 it also increases the overhead associated with determining 
 if execution has diverged or not after a fork-point
@@ -701,7 +700,7 @@ to determine its side effects ($k2$). However,
 this assumption reduces $k1$ because an overwhelming majority
 of instructions that only use register operands are easily
 excluded from fork-points. Instructions
-that are system calls are also easily identifiable;
+that are system calls are also easily identifiable (i.e. \texttt{int 0x80} or \texttt{call *gs:0x10});
 instructions with memory operands need
 their memory addresses to be 
 compared to tainted addresses (e.g. \texttt{gs:0x14} or \texttt{gs:0x18})
@@ -710,125 +709,209 @@ For our evaluation, we chose $k1 = 20$,
 $k2 = 1000$ and $k3 = 20$ as reasonably
 conservative values for the overhead constants.
 
-\begin{table}[h]
-  \caption{\hspace{0.2in}Preliminary Results from Modeling Precise Silhouetting \newline \newline 
-  $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
-  $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under
-  precise silhouetting. $\vec K$ represents overhead constants; $M$ is the number
-  of system calls and memory operations made by the leader before the first active fork-point; $F$
-  is the number of latent fork-points before the first active fork-point. $p = P/I$
-  the prefix ratio of the execution. }
-\label{ps:inittbl}
+\begin{table} [t]
 \begin{center}
-\begin{tabular}{|l||c|c||c||c|c|c|c||c||c|}\hline
-  Program & $N$ & I & $T_O$ & $p$ & $\vec K$ & $M$ & $F$ & $T_S$ & $A$ \\\hline
-  \texttt{cron} (30 iter) & 214 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
+\begin{tabular}{|l||c|c||c||c|c|c||c||c|}\hline
+  Program & $N$ & I & $T_O$ & $p$ & $M$ & $F$ & $T_S$ & $A$ \\\hline \hline
+  \texttt{acpid} & 8 & 1.69\texttt{E}5 & 1.35\texttt{E}6 & 20.9\% & 4838 & 55 & 2.88\texttt{E}6 & 0.469 \\\hline
+  \texttt{acpid} & 128 & 1.69\texttt{E}5 & 2.16\texttt{E}7 & 20.9\% & 4838 & 55 & 3.72\texttt{E}7 & 0.581 \\\hline
+  \texttt{acpid} & 1024 & 1.69\texttt{E}5 & 1.73\texttt{E}8 & 20.9\% & 4838 & 55 & 2.94\texttt{E}8 & 0.589 \\\hline
+  \hline
 
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3) & 499 & 299 & 90000 & 1.11  \\\hline
+  \texttt{anacron} & 8 & 5.47\texttt{E}6 & 4.38\texttt{E}7 & 0.649\% & 4686 & 50 & 4.52\texttt{E}7 & 0.967  \\\hline
+  \texttt{anacron} & 128 & 5.47\texttt{E}6 & 7.00\texttt{E}8 & 0.649\% & 4686 & 50 & 7.14\texttt{E}8 & 0.979  \\\hline
+  \texttt{anacron} & 1024 & 5.47\texttt{E}6 & 5.60\texttt{E}9 & 0.649\% & 4686 & 50 & 5.71\texttt{E}9 & 0.967  \\\hline
+  \hline
+
+  \texttt{cron} & 8 & 2.31\texttt{E}6 & 1.84\texttt{E}7 & 1.54\% & 6329 & 60 & 2.02\texttt{E}7 & 0.912  \\\hline
+  \texttt{cron} & 128 & 2.31\texttt{E}6 & 2.96\texttt{E}8 & 1.54\% & 6329 & 60 & 3.15\texttt{E}8 & 0.937  \\\hline
+  \texttt{cron} & 1024 & 2.31\texttt{E}6 & 2.37\texttt{E}9 & 1.54\% & 6329 & 60 & 2.46\texttt{E}9 & 0.938  \\\hline
+  \hline
+
+  \texttt{cupsd} & 8 & 2.45\texttt{E}7 & 1.96\texttt{E}8 & 0.445\% & 20114 & 139 & 2.01\texttt{E}8 & 0.974  \\\hline
+  \texttt{cupsd} & 128 & 2.45\texttt{E}7 & 3.14\texttt{E}9 & 0.445\% & 20114 & 139 & 3.19\texttt{E}9 & 0.982  \\\hline
+  \texttt{cupsd} & 1024 & 2.45\texttt{E}7 & 2.51\texttt{E}10 & 0.445\% & 20114 & 139 & 2.56\texttt{E}10 & 0.983  \\\hline
+  \hline
+
+  \texttt{ntp} & 8 & 3.61\texttt{E}6 & 2.88\texttt{E}7 & 2.54\% & 11255 & 72 & 3.22\texttt{E}7 & 0.897  \\\hline
+  \texttt{ntp} & 128 & 3.61\texttt{E}6 & 4.62\texttt{E}8 & 2.54\% & 11255 & 72 & 4.91\texttt{E}8 & 0.939  \\\hline
+  \texttt{ntp} & 1024 & 3.61\texttt{E}6 & 3.69\texttt{E}9 & 2.54\% & 11255 & 72 & 3.92\texttt{E}9 & 0.942  \\\hline
+  
 \end{tabular}
+  \caption{\hspace{0.2in}Preliminary Results from Modeling Precise Silhouetting.\newline 
+    $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
+    $T_O$ is the total instructions that would be executed in the status quo whereas $T_S$ is the total instructions that would be executed under
+    precise silhouetting. $\vec K$ (not shown in the table), represents overhead constants and was selected conservatively
+    to be $(20,1000,20)$. $M$ is the number of system calls and memory operations made by the leader before the first active fork-point; $F$
+    is the number of latent fork-points before the first active fork-point. $p = 100P/I$ is
+    the prefix ratio of the execution. }
+
+\label{ps:inittbl}
+
 \end{center}
 \end{table}
 
-Because $p$ is very small on average for our sample of Linux services, 
-this version of optimistic silhouetting does not offer any savings.
-The value of $A$ is 0.40
-on average, again representing a {\em degradation}
-on CPU load.
- 
+Table \ref{ps:inittbl} shows that precise silhouetting has 
+values for $A$ that are less than 1 for all of the Linux
+services we sampled. In fact, $A$ is less than 1 regardless
+of whether we consider 8, 128 or 1024 instances. 
+The value of $A$ is close to 0.90 on average which represents a {\em degradation}
+on CPU load i.e. precise silhouetting would execute more instructions
+in user-space than the status quo.
+Note that:
+\begin{itemize}
+\item Because $p$ is very small on average for our sample of Linux services, 
+  execution diverges very quickly in the simulation. This explains
+  why, for small values of $p$, we get values of $A$ that are very
+  close to 1. There is little difference between 
+  precise silhouetting with a small value of $p$ than
+  the status quo.
+\item The higher the value of $p$, the greater the degradation
+  on CPU load. Thus, the longer precise silhouetting remains
+  active, the worse results we get. For instance,
+  \texttt{acpid} has a higher value of $p$ than the other
+  services, and its value of $A$ is correspondingly smaller. 
+  This means that precise silhouetting is ineffective
+  in reducing CPU load because of the high overhead
+  from executing the memory operations and fork-points.
+\item The scheme exhibits some, but very limited
+  scalability, again because of the small values of $p$.
+  As the number of instances goes up, the values of $A$ 
+  increase a little. For \texttt{acpid}, $A$ increases
+  from 0.469 to 0.589 as the number of instances
+  increases from 8 to 1024. However,
+  for most services, the scalability is very limited
+  and $A$ increases by very little as the number of instances
+  goes up from 128 to 1024.
+\end{itemize}
+
+\noindent Thus, precise silhouetting, from our first 
+evaluation, causes CPU load degradation. 
+We need to find a way to reduce the overhead
+from memory operations and fork-points,
+and increase the prefix ratio $p$
+to improve the values for $A$ and
+the scalability of $A$ with respect to $N$,
+the number of instances.
+
+\newpage
 \noindent {\bf Optimistic Silhouetting (Excluding Control Flow)} \newline
 Table \ref{osnc:inittbl} shows the results of modeling 
 optimistic silhouetting (without control flow) on our sample of Linux services.
-As before, we include all system calls in our definition
-of fork-points.
+As before, we treat all system calls as fork-points.
 We use the same values of $k1 = 20$, $k3 = 1000$, $k4 = 20$
 to model overheads from detection of fork-points in the leader,
-execution of forking instructions to distinugish
-active and latent fork-points in the silhouettes and
-bypassing execution in silhouettes respectively.
-We use $k2 = 2k1 = 40$ to model the additional
+comparisons of side-effects of forking instructions 
+and emulation of system calls and memory writes in silhouettes respectively.
+We use $k2 = 40$ to model the additional
 overhead from taint propagation after the first
-divergence.
+active fork-point.
 
-\begin{table}[h]
-  \caption{Preliminary Results from Modeling Optimistic Silhouetting (Excluding Control Flow). \newline \newline 
-  $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
-  $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under
-  this variant of optimistic silhouetting. $\vec K$ represents overhead constants; $M$ is the number
-  of system calls and memory operations made by the leader before the first active fork-point; $F$
-  is the number of latent fork-points before the first active fork-point. $d = D/I$
-  the portion of the execution before the first control-flow divergence. }
-\label{osnc:inittbl}
+\begin{table} [h]
 \begin{center}
-\begin{tabular}{|l||c|c||c||c|c|c|c||c||c|}\hline
-  Program & $N$ & I & $T_O$ & $d$ & $\vec K$ & $M$ & $F$ & $T_S$ & $A$ \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4) & 499 & 299 & 90000 & 1.11  \\\hline
+\begin{tabular}{|l||c|c||c||c|c|c||c||c|}\hline
+  Program & $N$ & I & $T_O$ & $d$ & $M$ & $F$ & $T_S$ & $A$ \\\hline \hline
+  \texttt{acpid} & 8 & 1.69\texttt{E}5 & 1.35\texttt{E}6 & 100\% & 16323 & 102 & 9.22\texttt{E}6 & 0.146 \\\hline
+  \texttt{acpid} & 128 & 1.69\texttt{E}5 & 2.16\texttt{E}7 & 100\% & 16323 & 102 & 6.08\texttt{E}7 & 0.356 \\\hline
+  \texttt{acpid} & 1024 & 1.69\texttt{E}5 & 1.73\texttt{E}8 & 100\% & 16323 & 102 & 4.45\texttt{E}8 & 0.388 \\\hline
+  \hline
+
+  \texttt{anacron} & 8 & 5.47\texttt{E}6 & 4.38\texttt{E}7 & 6.11\% & 36095 & 309 & 6.15\texttt{E}7 & 0.714  \\\hline
+  \texttt{anacron} & 128 & 5.47\texttt{E}6 & 7.03\texttt{E}8 & 6.11\% & 36095 & 309 & 8.05\texttt{E}8 & 0.874  \\\hline
+  \texttt{anacron} & 1024 & 5.47\texttt{E}6 & 5.63\texttt{E}9 & 6.11\% & 36095 & 309 & 6.36\texttt{E}9 & 0.886  \\\hline
+  \hline
+
+  \texttt{cron} & 8 & 2.31\texttt{E}6 & 1.84\texttt{E}7 & 98.12\% & 320075 & 814 & 1.43\texttt{E}8 & 0.129  \\\hline
+  \texttt{cron} & 128 & 2.31\texttt{E}6 & 2.96\texttt{E}8 & 98.12\% & 320075 & 814 & 1.01\texttt{E}9 & 0.292  \\\hline
+  \texttt{cron} & 1024 & 2.31\texttt{E}6 & 2.37\texttt{E}9 & 98.12\% & 320075 & 814 & 7.52\texttt{E}9 & 0.315  \\\hline
+  \hline
+
+  \texttt{cupsd} & 8 & 2.45\texttt{E}7 & 1.96\texttt{E}8 & 34.21\% & 1037608 & 1176873 & 8.85\texttt{E}9 & 0.022  \\\hline
+  \texttt{cupsd} & 128 & 2.45\texttt{E}7 & 3.14\texttt{E}9 & 34.21\% & 1037608 & 1176873 & 1.54\texttt{E}11 & 0.020  \\\hline
+  \texttt{cupsd} & 1024 & 2.45\texttt{E}7 & 2.51\texttt{E}10 & 34.21\% & 1037608 & 1176873 & 1.24\texttt{E}12 & 0.020  \\\hline
+  \hline
+
+  \texttt{ntp} & 8 & 3.61\texttt{E}6 & 2.88\texttt{E}7 & 15.08\% & 59853 & 3201 & 7.58\texttt{E}7 & 0.380  \\\hline
+  \texttt{ntp} & 128 & 3.61\texttt{E}6 & 4.62\texttt{E}8 & 15.08\% & 59853 & 3201 & 9.71\texttt{E}8 & 0.475  \\\hline
+  \texttt{ntp} & 1024 & 3.61\texttt{E}6 & 3.69\texttt{E}9 & 15.08\% & 59853 & 3201 & 7.65\texttt{E}9 & 0.482  \\\hline
+  
 \end{tabular}
+\caption{Preliminary Results for Optimistic Silhouetting (Excluding Control Flow). \newline 
+  $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
+  The variables $T_O$, $T_S$, $M$, $F$ are the same as before (see Table \ref{ps:inittbl}).
+  $d = 100D/I$ is the portion of the execution before the first control-flow divergence. }
+\label{osnc:inittbl}
 \end{center}
 \end{table}
 
-While $d$ is not as small as $p$
-for these Linux services, this version of 
-optimistic silhouetting does not offer any savings.
-The value of $A$ is 0.50
-on average, again representing a {\em degradation}
-on CPU load.
-This is largely because of a large 
-number of fork points and the high overhead
-in tracking their side-effects. \newline
+\noindent Because $d$ in Table \ref{osnc:inittbl} is significantly larger on average than $p$ in Table \ref{ps:inittbl},
+we no longer get values of $A$ that are close to 1.0. The values of $A$ seen are much
+lower than 1.0 (as low as 0.022 for \texttt{cups}); this indicates
+that this version of optimistic silhouetting would lead to 
+significant CPU performance {\em degradation}. This is largely
+because of the increase in fork-points 
+that result from tainted memory accesses,
+and the high volume of memory operations that silhouettes
+have to emulate.
 
 \noindent {\bf Optimistic Silhouetting (Including Control FLow)} \newline
 Table \ref{osc:inittbl} shows the results of modeling 
 optimistic silhouetting (including control flow) on our sample of Linux services.
-As before, we include all system calls in our definition
-of fork-points. We use the same values of $k1 = 20$, $k2 = 40$, $k3 = 1000$, $k4 = 20$
+As before, we treat all system calls as fork-points. We use the same values of $k1 = 20$, $k2 = 40$, $k3 = 1000$, $k4 = 20$
 to model overheads from detection of fork-points in the leader,
-taint propagation, execution of forking instructions to distinguish
-active and latent fork-points in the silhouettes and
+taint propagation, comparisons of forking instructions and
 bypassing execution in silhouettes respectively.
 We use $k5 = 20$ to model the additional
 overhead from execution reconciliation
 after a branch interval.
 
-\begin{table}[h]
-  \caption{Preliminary Results from Modeling Optimistic Silhouetting (Including Control Flow). \newline \newline 
+
+\begin{table} [h]
+\begin{adjustwidth}{-1cm}{}
+  \centering
+  \begin{tabular}{|l||c|c||c||c|c|c|c|c||c||c|}\hline
+    Program & $N$ & I & $T_O$ & $d$ & $M$ & $F$ & $C$ & $L_C$ & $T_S$ & $A$ \\\hline \hline
+    \texttt{anacron} & 8 & 5.47\texttt{E}6 & 4.38\texttt{E}7 & 100\% & 7.2\texttt{E}5 & 26923 & 299 & 4 & 5.15\texttt{E}8 & 0.085  \\\hline
+    \texttt{anacron} & 128 & 5.47\texttt{E}6 & 7.03\texttt{E}8 & 100\% & 7.2\texttt{E}5 & 26923 & 299 & 4 & 5.49\texttt{E}9 & 0.128  \\\hline
+    \texttt{anacron} & 1024 & 5.47\texttt{E}6 & 5.63\texttt{E}9 & 100\% & 7.2\texttt{E}5 & 26923 & 299 & 4 & 4.26\texttt{E}10 & 0.132  \\\hline
+    \hline
+    
+    \texttt{cron} & 8 & 2.31\texttt{E}6 & 1.84\texttt{E}7 & 100\% & 320075 & 1454 & 5 & 1 & 1.49\texttt{E}8 & 0.124  \\\hline
+    \texttt{cron} & 128 & 2.31\texttt{E}6 & 2.96\texttt{E}8 & 100\% & 320075 & 1454 & 5 & 1 & 1.09\texttt{E}9 & 0.271  \\\hline
+    \texttt{cron} & 1024 & 2.31\texttt{E}6 & 2.37\texttt{E}9 & 100\% & 320075 & 1454 & 5 & 1 & 8.14\texttt{E}9 & 0.291  \\\hline
+    \hline
+    
+    \texttt{cupsd} & 8 & 2.45\texttt{E}7 & 1.96\texttt{E}8 & 100\% & 3.05\texttt{E}6 & 3.53\texttt{E}6 & 1432 & 89 & 2.62\texttt{E}10 & 0.008  \\\hline
+    \texttt{cupsd} & 128 & 2.45\texttt{E}7 & 3.14\texttt{E}9 & 100\% & 3.05\texttt{E}6 & 3.53\texttt{E}6 & 1432 & 89 & 4.59\texttt{E}11 & 0.007  \\\hline
+    \texttt{cupsd} & 1024 & 2.45\texttt{E}7 & 2.51\texttt{E}10 & 100\% & 3.05\texttt{E}6 & 3.53\texttt{E}6 & 1432 & 89 & 3.69\texttt{E}12 & 0.007  \\\hline
+    \hline
+    
+    \texttt{ntp} & 8 & 3.61\texttt{E}6 & 2.88\texttt{E}7 & 100\% & 4.25\texttt{E}5 & 6.06\texttt{E}5 & 812 & 68 & 4.49\texttt{E}9 & 0.006  \\\hline
+    \texttt{ntp} & 128 & 3.61\texttt{E}6 & 4.62\texttt{E}8 & 100\% & 4.25\texttt{E}5 & 6.06\texttt{E}5 & 812 & 68 & 7.89\texttt{E}10 & 0.005  \\\hline
+    \texttt{ntp} & 1024 & 3.61\texttt{E}6 & 3.69\texttt{E}9 & 100\% & 4.25\texttt{E}5 & 6.06\texttt{E}5 & 812 & 68 &  6.35\texttt{E}11  & 0.005  \\\hline
+  
+  \end{tabular}
+\end{adjustwidth}
+
+\caption{Preliminary Results for Optimistic Silhouetting (Including Control Flow). \newline 
+  We exclude \texttt{acpid} because it had no control flow differences.
   $A$, the advantage ratio is calculated by $\frac{T_O}{T_S}$.
-  $T_O$ is the total instructions computed in the status-quo whereas $T_S$ is the total instructions computed under
-  this variant of precise silhouetting. $\vec K$ represents overhead constants; $M$ is the number
-  of system calls and memory operations made by the leader before the first active fork-point; $F$
-  is the number of latent fork-points before the first active fork-point;
+  The variables $T_O$, $T_S$, $M$, $F$ are the same as before (see Table \ref{osnc:inittbl}). 
+  $d = D/I$ is the portion of the execution before the first control-flow divergence. 
   $C$ and $L_C$ represent the number of control-flow divergences and their average length
-  respectively.  $d = D/I$
-  the portion of the execution before permanent execution divergence. }
+  respectively.  $d = 100D/I$  the portion of the execution before permanent execution divergence. }
 \label{osc:inittbl}
-\begin{center}
-\begin{tabular}{|l||c|c||c||c|c|c|c|c|c||c||c|}\hline
-  Program & $N$ & I & $T_O$ & $d$ & $\vec K$ & $M$ & $F$ & $C$& $L_C$ &$T_S$ & $A$ \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
-  \texttt{cupsd} & 10 & 10000 & 100000 & 0.04\% & (1,2,3,4,5) & 499 & 299 & 4 & 100 & 90000 & 1.11  \\\hline
-\end{tabular}
-\end{center}
+
 \end{table}
 
-While $d$ is larger when we allow for control flow divergences
-in these Linux services, this version of 
-optimistic silhouetting does not offer any savings.
-The value of $A$ is 0.30
-on average, again representing a {\em degradation}
-on CPU load.
-This is again because of a large 
-number of fork points and the high overhead
-in tracking their side-effects. 
+\noindent Because there is no permanent execution divergence, $d$ is 100\%
+for our sample services. However, the values of $A$ are much lower than 1
+partly because of the same factors as before: the number
+of memory writes and fork-points is very high,
+leading to prohibitively high overhead. Furthermore,
+the overhead from bursty control flow divergences 
+can also be a problem (as is the case for \texttt{cupsd} and
+\texttt{ntp}).
 
 \newpage
 \section{Improving Silhouette Execution} \label{silimprove}
@@ -842,7 +925,7 @@ rather than semantic differences in program execution.
 We thus decided to introduce a determininstic
 execution layer to our previous
 designs to eliminate as many sources of 
-fork-points as possible, to 
+fork-points as possible and to 
 improve the feasibility
 of silhouette execution.
 
@@ -874,7 +957,7 @@ As shown by Figure \ref{ch3:figsimulation}, we run one instance of the
 program -- the leader -- before all others.
 For the leader, we generate an execution log, as before,
 but we also augment the log by summarizing information about the sources of nondeterminism
-described in Section \ref{ch3:sources}. For instance, we record
+described in Chapter \ref{ch:src}. For instance, we record
 information about signal timing, process IDs, time-related system calls
 in the trace signature file. Our Pin tool
 uses the trace signature of the leader
@@ -889,8 +972,8 @@ to analyze these traces to simulate and evaluate
 silhouette execution.
 
 \subsection{Reducing Execution Differences across Instances}
-We now describe how dynamic instrumentation can be used to reduce
-the source of execution differences from the sources described in \ref{ch3:sources}.
+We now describe how we attempt to reduce
+the source of execution differences from the sources described in Chapter \ref{ch:src}.
 While we modify
 the instances that execute after the leader, 
 in practice many of our techniques eliminate fork-points altogether 
@@ -1388,15 +1471,319 @@ accordingly.
 
 \newpage
 \section{Evaluation of Improved Silhouette Execution} \label{sileval}
+In this section, we show the effectiveness of some of the techniques
+introduced earlier to boost the advantage ratio $A$ in the 
+same Linux services.
 
-% [RECOMPUTE CONSTANTS WHEREVER NECESSARY]
+Tables \ref{evalsummarytbl1} and \ref{evalsummarytbl2} summarize the results of our experiments
+using the modified data collection scheme on a few Linux services.
+When we pick very high values for the overhead constants (represented by $\vec K$),
+our techniques yield an aggregate improvement of 5.33$\times$
+in the advantage ratio $A$. That is, 
+we go from a CPU load {\em increase} of 6\% due
+to silhouette execution to a CPU load {\em reduction} by a 
+{\em factor} of 4.772$\times$ in our simulations. When we pick reasonably conservative
+values of $\vec K$ in our simulations, our techniques boost $A$ by a factor of 19.01$\times$,
+and theoretically reduce the CPU load by a factor of 19.18$\times$.
+The next few subsections analyze some of 
+the Linux services we sampled in our experiments
+individually.
 
-% outright reduction of fork-points e.g. canary, randomization, time system-calls
+\begin{table} [h]
+\begin{center}
+\begin{tabular}{|l||c|c||c||}\hline
+  Program & Preliminary Best $A$ & Current Best $A$ & Relative Improvement \\\hline \hline
+  \texttt{acpid} & 0.589 & 1.16 & 1.96$\times$  \\\hline  
+  \texttt{anacron} & 0.980 & 10.26 & 10.47$\times$  \\\hline  
+  \texttt{cron} & 0.938 & 4.24 & 4.53$\times$  \\\hline
+  \texttt{cupsd} & 0.982 & 5.91 & 6.02$\times$  \\\hline
+  \texttt{ntpd} & 0.942 & 2.04 & 2.17$\times$  \\\hline \hline 
+  \textbf{Average} & \textbf{0.886} & \textbf{4.772} & {\bf 5.33$\times$}  \\\hline
+\end{tabular}
+\caption{Improvements in $A$ for Linux services
+  for $N = 1000$ ($N$ is the number of concurrent instances) and $\vec K$, 
+  chosen conservatively, $ = (20, 1000, 20, 40, 1000)$.}
+\label{evalsummarytbl1}
+\end{center}
+\end{table}
 
-% pid + stat + network
+\begin{table} [h]
+\begin{center}
+\begin{tabular}{|l||c|c||c||}\hline
+  Program & Preliminary Best $A$ & Current Best $A$ & Relative Improvement \\\hline \hline
+  \texttt{acpid} & 1.031 & 6.20 & 6.01$\times$  \\\hline  
+  \texttt{anacron} & 1.01 & 37.92 & 37.90$\times$  \\\hline  
+  \texttt{cron} & 0.999 & 17.39 & 17.41$\times$  \\\hline
+  \texttt{cupsd} & 0.999 & 24.31 & 24.33$\times$  \\\hline
+  \texttt{ntpd} & 1.006 & 10.09 & 10.03$\times$  \\\hline \hline 
+  \textbf{Average} & \textbf{1.009} & \textbf{19.18} & {\bf 19.01$\times$}  \\\hline
+\end{tabular}
+\caption{Improvements in $A$ for Linux services
+  for $N = 1000$ ($N$ is the number of concurrent instances) and $\vec K$, 
+  chosen moderately conservatively, $ = (10, 100, 5, 20, 50)$.}
+\label{evalsummarytbl2}
+\end{center}
+\end{table}
 
-% i/o + signal alignment
+\subsection{\texttt{acpid}}
+The program {\texttt{acpid}} is a user-space daemon
+typically launched at boot and is part of the Advanced Configuration
+and Power Interface (ACPI) implementation in Linux.
+The daemon listens for specific events triggered by 
+external actions (e.g. pressing the power button, unplugging the AC adapter from
+a notebook, or closing the notebook lid). When an event occurs,
+it executes programs to handle that event (which
+are specified through some configuration files).
 
-% all
+\begin{figure}[h]
+  \center
+  \includegraphics[scale=0.80, trim=5cm 3cm 0cm 3cm]{acpid-1.pdf}
+  \caption[For \texttt{acpid}, $A$ as a function of $N$ (highly conservative $\vec K$)]% ]%
+          {
+            For \texttt{acpid}, computing $A$ as a function of $N$ (highly conservative $\vec K$).\newline
+            \texttt{PS} and \texttt{OPT NC} are lines for precise silhouetting and optimistic 
+            silhouetting (excluding control flow) without any improvements; they
+            serve as a baseline to measure the success of our techniques
+            in our simulations. \texttt{Scheme A} represents the improved values of $A$
+            achieved through deterministic silhouette execution. There is no
+            \texttt{OPT C} line for optimistic silhouetting (including 
+            control flow) because there were no control flow divergences 
+            in our \texttt{acpid} traces.
+          }
+  \label{acpid1}
+\end{figure}
+
+\newpage
+\noindent Figure \ref {acpid1} shows the results of our experiments
+to measure any improvements in $A$ from the techniques described in Section \ref{silimprove}.
+Our workload consisted of simple boot-time initialization of \texttt{acpid}
+i.e. a few iterations of its main loop. 
+
+\texttt{Scheme A} includes the techniques we described to reduce
+execution differences that arise from randomization, security and time;
+these are sufficient to eliminate active fork-points in \texttt{acpid}
+entirely. Thus, \texttt{Scheme A} uses precise silhouetting
+in which execution does not diverge till the very end of our workload.
+Unlike the baseline executions, \texttt{Scheme A} also simulates {\em write compression}:
+silhouettes only write the latest values to memory locations instead of wastefully
+replaying all intermediate writes  in {\em execution signatures}.
+
+As shown in Figure \ref{acpid1}, \texttt{Scheme A} improves $A$ and
+takes it above 1, converting a CPU load {\em increase}
+into a CPU load reduction. However, the value of $A$ is not high
+and does not scale too well as $N$ increases;
+this is because of the high design overhead 
+modelled by a highly conservative $\vec K$. In fact, the overhead 
+in \texttt{acpid} from comparing forking instructions across instances, and replaying system calls and memory writes
+across silhouettes is equally significant, unlike
+the overhead from simply detecting fork-points.
+Setting one of $k2$ or $k3$ to 0 immediately boosts $A$ by a factor of 2 for large $N$;
+this factor is small because of generally high design overhead.
+
+Figure \ref{acpid23} shows how $A$ changes with $N$ when we pick less conservative
+values of overhead constants ($\vec K$) i.e. (10, 100, 5, 20, 50) 
+rather than (20, 1000, 20, 40, 100). The achieved values of $A$ 
+exceed 6 for $N < 1000$, which represents a significant
+theoretical reduction in the number of user-space instructions
+executed. The value of $A$ scales well for small $N$
+(Figure \ref{acpid2}).
+However, as $N$ increases, $A$ plateaues because some
+of the design overhead (e.g. executing forking instructions or system
+calls in the execution signature) grows with $N$. 
+
+The highest theoretically possible
+$A$ for our sampled traces is given by $A_{MAX} = \frac{I}{F+M}$,
+which models the possibility that each instance only
+executes system calls and {\em compressed} memory-writes
+rather than $I$ instructions. For our samples of \texttt{acpid}, $A_{MAX}$ 
+is about 40, and we get within a factor of 10 of that number in Figure \ref{acpid3}. 
+
+\begin{figure}
+  \centering
+  \subfloat%[Part 1]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 4.5cm]{acpid-2.pdf} \label{acpid2}} \\
+  \subfloat%[Part 2]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 3cm]{acpid-3.pdf} \label{acpid3}} 
+  \caption[For \texttt{acpid}, $A$ as a function of $N$ (moderately conservative $\vec K$)]% 
+          {For \texttt{acpid}, $A$ as a function of $N$ (moderately conservative $\vec K$).
+          The top graph is a zoomed-in version of the lower graph.}
+  \label{acpid23}
+\end{figure}
+
+
+\subsection{\texttt{anacron}}
+\texttt{Anacron} is a user-space service
+that complements \texttt{cron} by scheduling 
+and executing tasks without requiring
+the system to be continuously running.
+Typically, \texttt{anacron} is used
+to schedule daily, weekly or monthly
+tasks for system-wide maintenance.
+
+\begin{figure}[h]
+  \center
+  \includegraphics[scale=0.80, trim=5cm 3cm 0cm 3cm]{anacron-1.pdf}
+  \caption[For \texttt{anacron}, $A$ as a function of $N$ (highly conservative $\vec K$)]% ]%
+          {
+            For \texttt{anacron}, computing $A$ as a function of $N$ (highly conservative $\vec K$).\newline
+            \texttt{PS}, \texttt{OPT NC} and \texttt{OPT C} are lines for precise silhouetting, optimistic 
+            silhouetting (excluding control flow) and optimistic silhouetting
+            (including control flow) without any improvements; they
+            serve as a baseline to measure the success of our techniques
+            in our simulations. \texttt{Scheme A} and \texttt{Scheme B} represent the improved values of $A$
+            achieved through deterministic silhouette execution:
+            \texttt{Scheme A} reduces execution differences because
+            of security, randomization and architecture-specific instructions;
+            \texttt{Scheme B} incrementally adds the techniques used to
+            virtualize the process ID layer on top of \texttt{Scheme A}.            
+          }
+  \label{anacron1}
+\end{figure}
+
+\newpage
+\noindent Figure \ref{anacron1} shows the results of our experiments
+to measure any improvements in $A$ from the techniques described in Section \ref{silimprove}.
+Our workload consisted of simple boot-time initialization of \texttt{anacron}
+for the case when \texttt{cron.weekly} tasks need to be executed.
+
+\texttt{Scheme A} includes the techniques we described to reduce
+execution differences that arise from randomization, security and time.
+\texttt{Scheme B} adds {\em process ID virtualization}
+to \texttt{Scheme A}; \texttt{anacron} interacts
+frequently with process IDs because it uses them to track
+child jobs spawned. \texttt{Scheme B} is suffient to eliminate active fork-points in \texttt{anacron}
+entirely. Thus, \texttt{Scheme B} uses precise silhouetting
+in which execution does not diverge till the very end of our workload,
+whereas \texttt{Scheme A} elongates the execution prefix ($P$) slightly
+to 5.50\%. As before, \texttt{Scheme A} and \texttt{Scheme B} simulate {\em write compression}
+to improve $A$. 
+
+As shown in Figure \ref{anacron1}, \texttt{Scheme A}
+does not affect $A$ much; because of the small increase
+in $P$ (the prefix), $A$ remains close to 1.
+However, \texttt{Scheme B} improves the ratio $A$ and
+takes it to a reasonably high value ($A > 10$), converting a CPU load {\em increase}
+into a CPU load reduction. $A$ scales better as $N$ increases for \texttt{anacron}
+than for \texttt{acpid}, because \texttt{anacron} has 
+a $10\times$ lower memory-writes-to-instructions (i.e. $M/I$) ratio 
+than \texttt{acpid}; this means there is less 
+overhead when silhouettes restore the leader's memory image 
+in \texttt{anacron}.  Eventually, however, the 
+very conservative design overhead $\vec K$
+causes $A$ to plateau when $N$ becomes very large.
+
+As before, Figure \ref{anacron2} shows how $A$ changes with $N$ when we pick less conservative
+values of overhead constants ($\vec K$). The achieved values of $A$ 
+exceed 50 for $N < 3000$, a significant simulated reduction in the CPU
+pressure from user-space. The value of $A$ scales well for moderately high $N$
+(Figure \ref{anacron2}) before it plateaus due
+to expected design overhead.
+
+The highest theoretically possible
+$A$ ($A_{MAX}$) is equal to $\frac{I}{F+M}$. For our samples of \texttt{anacron}, $A_{MAX}$ 
+is about 377, and we again get within a factor of 10 of that number in Figure \ref{acpid3}. 
+
+\begin{figure}
+  \centering
+  \subfloat%[Part 1]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 4.5cm]{anacron-2.pdf} \label{anacron2}} \\
+  \subfloat%[Part 2]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 3cm]{anacron-3.pdf} \label{anacron3}} 
+  \caption[For \texttt{anacron}, $A$ as a function of $N$ (moderately conservative $\vec K$)]% 
+          {For \texttt{anacron}, $A$ as a function of $N$ (moderately conservative $\vec K$).
+          The top graph is a zoomed-in version of the lower graph.}
+  \label{anacron23}
+\end{figure}
+
+
+\subsection{\texttt{cron}}
+The program {\texttt{cron}} is a job scheduler
+that allows users to periodically execute scripts or programs;
+it automates system maintenance or administration
+and complements \texttt{anacron}. \texttt{Cron}
+assumes that the system is running continuously; 
+\texttt{anacron} catches jobs missed
+by \texttt{cron} while the computer is turned off.
+
+\begin{figure}[h]
+  \center
+  \includegraphics[scale=0.80, trim=5cm 3cm 0cm 3cm]{cron-1.pdf}
+  \caption[For \texttt{cron}, $A$ as a function of $N$ (highly conservative $\vec K$)]% ]%
+          {
+            For \texttt{cron}, computing $A$ as a function of $N$ (highly conservative $\vec K$).\newline
+            \texttt{PS}, \texttt{OPT NC} and \texttt{OPT C} are lines for precise silhouetting, optimistic 
+            silhouetting (excluding control flow) and optimistic silhouetting
+            (including control flow) without any improvements; they
+            serve as a baseline to measure the success of our techniques
+            in our simulations. \texttt{Scheme A} and \texttt{Scheme B} represent the improved values of $A$
+            achieved through deterministic silhouette execution:
+            \texttt{Scheme A} reduces execution differences because
+            of security, randomization and architecture-specific instructions;
+            \texttt{Scheme B} incrementally adds the techniques used to
+            virtualize the process ID layer on top of \texttt{Scheme A}.            
+          }
+  \label{cron1}
+\end{figure}
+
+\newpage
+\noindent Figure \ref {cron1} shows the results of our experiments
+to measure any improvements in $A$ from the techniques described in Section \ref{silimprove}.
+Our workload consisted of a few iterations of the main loop in \texttt{cron}.
+The analysis for \texttt{cron} is somewhat similar to that of 
+\texttt{anacron} because of the similar nature of the two programs.
+
+As before, \texttt{Scheme A} includes the techniques we described to reduce
+execution differences that arise from randomization, security and time.
+Just like \texttt{anacron}, \texttt{cron} uses process IDs
+in its interactions with any spawned child jobs,
+so \texttt{Scheme A} itself is not effective and only elongates the 
+execution prefix ($P$) to 12.40\%.
+However, \texttt{Scheme B} adds {\em process ID virtualization} to
+\texttt{Scheme A}, which is sufficent to eliminate
+execution differences in \texttt{cron}.
+{Scheme B} thus uses precise silhouetting
+in which execution does not branch till the very end of our workload.
+Both schemes simulate {\em write compression}.
+
+As shown in Figure \ref{cron1}, \texttt{Scheme B} improves $A$ 
+to be slightly higher than 1. In fact, $A > 4$, which represents                                                                                             
+a theoretical reduction in CPU pressure unlike the baseline
+scores. However, the achieved $A$ is much lower for \texttt{cron} than that for \texttt{anacron},
+which is probably because of the lower memory-writes-to-instructions (i.e. $M/I$) ratio
+for the latter.
+
+Figure \ref{cron23} shows how $A$ changes with $N$ when we pick less conservative
+values of overhead constants ($\vec K$) 
+The achieved values of $A$ 
+exceed 17 for $N < 1000$, which represents a significant
+theoretical reduction in the number of user-space instructions
+executed. The value of $A$ scales well for small $N$
+(Figure \ref{cron2}) but plateaus as expected
+for very large $N$.
+
+The highest theoretically possible
+$A$, $A_{MAX} = \frac{I}{F+M}$  is about 120, and we get within a factor of 10 of that number in Figure \ref{cron3}. 
+
+\begin{figure}
+  \centering
+  \subfloat%[Part 1]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 4.5cm]{cron-2.pdf} \label{cron2}} \\
+  \subfloat%[Part 2]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 3cm]{cron-3.pdf} \label{cron3}} 
+  \caption[For \texttt{cron}, $A$ as a function of $N$ (moderately conservative $\vec K$)]% 
+          {For \texttt{cron}, $A$ as a function of $N$ (moderately conservative $\vec K$).
+          The top graph is a zoomed-in version of the lower graph.}
+  \label{cron23}
+\end{figure}
+
+\newpage
+\subsection{\texttt{cups}}
+The \texttt{cups} program is a printing service
+for Linux systems that allows a computer to act as a print server. 
+Because of the modularity in \texttt{cups}, the print {\em scheduler}
+can easily communicate with many kinds of printers (including local, remote or
+virtual printers).
+
+
 
 

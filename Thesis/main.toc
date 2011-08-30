@@ -41,7 +41,9 @@
 \contentsline {subsection}{\numberline {4.5.1}\texttt {acpid}}{85}
 \contentsline {subsection}{\numberline {4.5.2}\texttt {anacron}}{88}
 \contentsline {subsection}{\numberline {4.5.3}\texttt {cron}}{91}
-\contentsline {subsection}{\numberline {4.5.4}\texttt {cups}}{92}
-\contentsline {chapter}{\numberline {5}Conclusion}{95}
-\contentsline {section}{\numberline {5.1}Limitations of Deterministic Execution}{95}
-\contentsline {section}{\numberline {5.2}Summary}{97}
+\contentsline {subsection}{\numberline {4.5.4}\texttt {cups}}{94}
+\contentsline {subsection}{\numberline {4.5.5}ntpd}{97}
+\contentsline {section}{\numberline {4.6}Limitations of Deterministic Execution}{98}
+\contentsline {section}{\numberline {4.7}Summary}{101}
+\contentsline {chapter}{\numberline {5}Conclusion}{103}
+\contentsline {section}{\numberline {5.1}Future Work}{103}

@@ -167,13 +167,14 @@ Specifically, we:
 \item propose several simple techniques (e.g. {\em I/O} and {\em signal alignment}, {\em process ID virtualization})
   to reduce the overhead in silhouette execution from controllable nondeterminism.
 \end {enumerate}
+
 Through our simple models, we estimate that silhouette execution {\em increases} the number
-of instructions executed in user-space by 50\% (for 10 VMs) and 40\%
-(for 100 VMs) and 30\% (for 1000 VMs) over the status-quo. However, after we
+of instructions executed in user-space by 6\% (for 1000 VMs) 
+over the status-quo. However, after we
 use our proposed strategies to reduce synthetic execution differences
 between VMs, silhouette execution {\em reduces} the number of instructions executed
-by 15\% (for 10 VMs), 40\% (for 100 VMs) and 100\% (for 1000 VMs)
-over the status-quo.
+by a factor of $5.33\times$ (very conservative estimate) or $19.18\times$ (moderately
+conservative estimate) over the status-quo (for 1000 VMs).
 
 Strategies to achieve deterministic execution have been proposed at the operating system layer \cite{bergan2010dos} before,
 but they require modifications to Linux. Nondeterminism in multi-threaded programs 

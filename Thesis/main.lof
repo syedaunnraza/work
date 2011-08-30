@@ -34,4 +34,8 @@
 \contentsline {figure}{\numberline {4-11}{\ignorespaces For \texttt {anacron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{90}
 \contentsline {figure}{\numberline {4-12}{\ignorespaces For \texttt {cron}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{91}
 \contentsline {figure}{\numberline {4-13}{\ignorespaces For \texttt {cron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{93}
+\contentsline {figure}{\numberline {4-14}{\ignorespaces For \texttt {cups}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{94}
+\contentsline {figure}{\numberline {4-15}{\ignorespaces For \texttt {cups}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{96}
+\contentsline {figure}{\numberline {4-16}{\ignorespaces For \texttt {ntp}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{97}
+\contentsline {figure}{\numberline {4-17}{\ignorespaces For \texttt {ntpd}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{99}
 \addvspace {10\p@ }

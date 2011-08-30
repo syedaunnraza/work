@@ -1777,13 +1777,214 @@ $A$, $A_{MAX} = \frac{I}{F+M}$  is about 120, and we get within a factor of 10 o
 \end{figure}
 
 \newpage
-\subsection{\texttt{cups}}
+\subsection{\texttt{cups}} \label{cups:hard}
 The \texttt{cups} program is a printing service
 for Linux systems that allows a computer to act as a print server. 
 Because of the modularity in \texttt{cups}, the print {\em scheduler}
 can easily communicate with many kinds of printers (including local, remote or
 virtual printers).
 
+\begin{figure}[h]
+  \center
+  \includegraphics[scale=0.80, trim=5cm 3cm 0cm 3cm]{cups-1.pdf}
+  \caption[For \texttt{cups}, $A$ as a function of $N$ (highly conservative $\vec K$)]% ]%
+          {
+            For \texttt{cups}, computing $A$ as a function of $N$ (highly conservative $\vec K$).\newline
+            \texttt{PS}, \texttt{OPT NC} and \texttt{OPT C} are lines for precise silhouetting, optimistic 
+            silhouetting (excluding control flow) and optimistic silhouetting
+            (including control flow) without any improvements; they
+            serve as a baseline to measure the success of our techniques
+            in our simulations. \texttt{Scheme A}, \texttt{Scheme B}, \texttt{Scheme C} and
+            \texttt{Scheme D} represent the improved values of $A$
+            achieved through incremental levels of deterministic silhouette execution.
+          }
+  \label{cups1}
+\end{figure}
 
+\newpage
+Figure \ref{cups1} shows how $A$ depends on $N$ for various design
+strategies for silhouette execution in \texttt{cups}. The workload
+considered was a few iterations of the \texttt{cups} daemon on a 
+machine configured to print remotely to \texttt{cups.csail.mit.edu}.
+The various schemes illustrated in Figure \ref{cups1} are:
+\begin{itemize}
+\item {\bf Scheme A} \newline
+  This scheme reduces execution differences that occur because of Linux security
+  features, time, randomization and architecture-specific instructions.
+\item {\bf Scheme B} \newline
+  This scheme includes Scheme A, and also handles execution
+  differences from \texttt{Netlink} and the process ID layer
+  in Linux.
+\item {\bf Scheme C} \newline
+  This scheme includes Scheme B, and also handles execution
+  differences from file contents (e.g. cache files)
+  or file timestamps (e.g. from \texttt{stat}).
+  Scheme $C$ reduces fork-points from \texttt{stat}
+  calls by tainting their timestamps automatically
+  and deletes/forces agreements between cache
+  files if they do not matter for correctness.
+
+\item {\bf Scheme D} \newline
+  This scheme includes Scheme C, and also handles execution
+  differences from variable timing,
+  latency or ordering of I/O operations e.g.
+  signals or scalable polling (\texttt{epoll})
+  engines.
+\end{itemize}
+For each of these schemes, the measured advantage ratio
+is higher than 1, so they all successfully reduce CPU
+pressure in our simulations unlike the baseline designs.
+\texttt{Scheme D} is necessary because \texttt{cups}
+uses signals and \texttt{epoll}; using it,
+the achieved value of $A$ is reasonably high ($A > 15$
+for $N < 500$). \texttt{Scheme D} eliminates
+all active fork-points, so we can
+use precise silhouetting 
+for \texttt{cups}. 
+
+\begin{figure}
+  \centering
+  \subfloat%[Part 1]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 4.5cm]{cups-2.pdf} \label{cups2}} \\
+  \subfloat%[Part 2]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 3cm]{cups-3.pdf} \label{cups3}} 
+  \caption[For \texttt{cups}, $A$ as a function of $N$ (moderately conservative $\vec K$)]% 
+          {For \texttt{cups}, $A$ as a function of $N$ (moderately conservative $\vec K$).
+          The top graph is a zoomed-in version of the lower graph.}
+  \label{cups23}
+\end{figure}
+
+For less conservative values of $\vec K$, FIgure \ref{cups23} shows that $A$
+plateaus at a higher value of $A = 30$ as $N$ gets very large. The maximum
+theoretical advantage achievable, $A_{MAX}$ is equal to 194, and we 
+are within a factor of $10\times$ that value.
+
+\newpage
+\subsection{ntpd}
+The Network Time Protocol daemon (\texttt{ntpd}) is a background
+service that synchronizes the system time with time servers
+using the Network Time Protocol (NTP). \texttt{ntpd}
+uses a single configuration file, can operate in both server or client
+mode. and can even try to correct for clock skew using a drift file
+in the absence of an accessible time server.
+
+\begin{figure}[h]
+  \center
+  \includegraphics[scale=0.80, trim=5cm 3cm 0cm 3cm]{ntp-1.pdf}
+  \caption[For \texttt{ntp}, $A$ as a function of $N$ (highly conservative $\vec K$)]% ]%
+          {
+            For \texttt{ntpd}, computing $A$ as a function of $N$ (highly conservative $\vec K$).\newline
+            \texttt{PS}, \texttt{OPT NC} and \texttt{OPT C} are lines for precise silhouetting, optimistic 
+            silhouetting (excluding control flow) and optimistic silhouetting
+            (including control flow) without any improvements; they
+            serve as a baseline to measure the success of our techniques
+            in our simulations. \texttt{Scheme A}, \texttt{Scheme B}, \texttt{Scheme C} and
+            \texttt{Scheme D} represent the improved values of $A$
+            achieved through incremental levels of deterministic silhouette execution.
+          }
+  \label{ntp1}
+\end{figure}
+
+\newpage
+Figure \ref{ntp1} shows how deterministic silhouette execution affects
+$A$ for \texttt{ntpd}. The workload considered was a few
+iterations of \texttt{ntpd} after it starts up, to simulate
+what happens at boot time. The schemes 
+for \texttt{ntpd} are the same as those defined for \texttt{cupsd}
+in Section \ref{cups:hard}, except that \texttt{Scheme D} 
+monitors \texttt{select} events rather than \texttt{epoll}.
+
+For the conservative values of overhead constants ($\vec K$),
+\texttt{Scheme D} yields $A > 2$ for $N < 1000$,
+which means that the CPU pressure is halved in our simulation of silhouette execution.
+This value of $A$ is not as high for
+\texttt{ntpd} as for \texttt{cupsd}
+because \texttt{ntpd} has almost twice as many memory 
+writes as \texttt{cupsd} for the same number of instructions 
+(which, in turn, translates into higher overhead for \texttt{ntpd}).
+
+For less conservative values of ($\vec K$), $A$ plateaus
+at a value greater than 10. The maximum theoretical
+advantage achievable $A_{MAX} = \frac{I}{F+M} = 72$ for 
+\texttt{ntpd}, and our simulated $A$ is within a factor of $10\times$ 
+of $A_{MAX}$.
+
+\begin{figure}
+  \centering
+  \subfloat%[Part 1]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 4.5cm]{ntp-2.pdf} \label{ntp2}} \\
+  \subfloat%[Part 2]
+           {\includegraphics[scale=0.75, trim=5cm 3cm 0cm 3cm]{ntp-3.pdf} \label{ntp3}} 
+  \caption[For \texttt{ntpd}, $A$ as a function of $N$ (moderately conservative $\vec K$)]% 
+          {For \texttt{ntpd}, $A$ as a function of $N$ (moderately conservative $\vec K$).
+          The top graph is a zoomed-in version of the lower graph.}
+  \label{ntp23}
+\end{figure}
+
+\section{Limitations of Deterministic Execution} \label{ch3:issues}
+This section describes some of the drawbacks
+of deterministic silhouette execution. \newline
+
+\noindent \textbf{Security} \newline
+To achieve deterministic silhouette execution,
+we have to disable ASLR. We also have to fix 
+canary (\texttt{gs:0x14}) or pointer guard (\texttt{gs:0x18})
+values across many different VMs.
+Disabling ASLR increases the vulnerability of
+applications to external attacks. 
+Though canary and pointer guard
+values are still dynamically chosen in
+our brand of deterministic execution, 
+they must agree across all VMs. Thus,
+an adversary  who can compromise one VM by
+guessing its canary could easily attack the other VMs.
+The fact that we can choose different
+canary or guard values between different successive boot storms
+is some consolation and provides some security. \newline
+\newpage
+\noindent \textbf{Randomization} \newline
+Randomization can be essential for security (e.g. random values
+may be used to generate keys or certificates),
+performance, and sometimes simply correctness (e.g. 
+clients may choose random IDs for themselves).
+Making PRNG seeds agree across all VM instances can entail
+a compromise on all of these fronts.
+In our sample of Linux services, we have not yet discovered any such
+issues. Technically,
+our approach simulates the extremely unlikely 
+-- yet possible -- scenario that all concurrently executing
+instances somehow generated the same seeds
+from external sources. \newline
+
+\noindent \textbf{Time and Correctness} \newline
+Any programs that rely on precise
+measurements of time (e.g. through \texttt{rdtsc})
+will lose correctness. 
+Some Linux services such as \texttt{ntpd} 
+do need to measure time accurately in order to synchronize the system clock
+Our semantics can cause such services to 
+behave incorrectly at start up,
+because we may give incorrect values
+of time to \texttt{ntpd}.
+Thankfully, this is not a huge correctness problem because network 
+clock synchronization programs are self-healing and
+because we ultimately do provide monotonically
+increasing time values. After the booting process is over,
+and all VMs branch in execution, \texttt{ntpd} will synchronize
+the current time correctly. \newline
+
+\newpage
+\section{Summary}
+In this chapter, we introduced the general notion of {\em Silhouette Execution},
+which is our own design innovation. To study whether silhouette execution
+can be effective in solving the boot storm problem, we outlined some design
+sketches for silhouette execution in user-space and evaluated their
+effectiveness on a few Linux services via simulation and modeling. Preliminary
+analysis of silhouette execution was discouraging and showed
+an average CPU load {\em increase} in our simulations. We proposed
+strategies to control the nondeterminism in Linux services
+(e.g. I/O alignment, memory-write compression and process ID virtualization). Through our
+simulations in user-space, we found that silhouette execution can reduce CPU
+pressure by a factor of $19\times$ on average for $N = 1000$ program instances.
 
 

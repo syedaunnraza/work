@@ -5,5 +5,102 @@
 %% \files=
 %% prompt when you run the file main.tex through LaTeX.
 \chapter{Conclusion} \label{ch:conc}
+The ability to run as many VMs as possible
+on individual hosts is an important determinant
+in the cost-savings achievable
+by server and desktop virtualization.
+In this context, VM boot storms represent a major -- and often daily -- 
+obstacle for data centers that wish to sustain a high VM density
+per host in all workloads.
+
+This thesis proposed a novel
+design idea, {\em silhouette execution},
+as a possible strategy for
+mitigating the prohibitively high
+CPU overhead that results from concurrently
+booting VMs. In theory, silhouette execution 
+exploits potential overlap in distinct instruction streams
+of different VMs and uses it to avoid repetitive
+execution on a host.
+
+In order to understand whether
+there is sufficient overlap in the instruction streams of
+concurrently booting VMs to merit an implementation of 
+silhouette execution, we used dynamic instrumentation 
+techniques to study user-space execution traces of 
+a few Linux services. Using our traces,
+we were able to statistically profile
+the extent of nondeterminism in these programs,
+and also collect a comprehensive list of 
+the sources behind such nondeterminism.
+Through our experiments, we found that a
+lot of the nondeterminism in Linux services
+arises from the numerous -- and sometimes obscure --
+interactions between user-space programs
+and the lower software layers. We also
+found that most of the nondeterminism
+is an artefact of synthetic differences
+in program execution (e.g. variable ordering
+or latency of I/O events, unpredictability
+of process IDs) rather than 
+semantic differences in execution.
+
+We outlined a few design sketches
+for silhouette execution in user-space,
+and used simple simulation techniques to
+mathematically model the effectiveness of 
+silhouette execution for a few Linux services. In
+our simulations, synthetic differences in program execution
+caused silhouette execution to fail and in fact
+increased the number of instructions
+executed in user space by 6\% for 1000 VMs.
+However, using our knowledge of nondeterminism
+in programs, we were able to propose
+techniques that can increase
+the instruction overlap 
+between various progarm instances (e.g.
+signal, I/O alignment and process ID virtualization).
+Based on the few Linux services we sampled, silhouette execution
+theoretically achieves a $19\times$ reduction
+in user-space CPU pressure for 1000 VMs,
+which is an encouraging result. 
+The improvement in host scalability
+during boot storms may be somewhat larger
+because reduced CPU pressure can allow
+transparent page sharing to be more
+effective.
 
 \section {Future Work}
+There are several ways we can expand on the 
+results presented in this thesis: \newline
+
+\noindent{\bf Improve Silhouette Execution Modeling}\newline
+Currently, we only evaluate silhouette
+execution in user-space, by studying
+nondeterminism in a few Linux services. 
+In the future, we hope to consolidate
+our results by:
+\begin{itemize}
+\item Incorporating results from a greater 
+  number and variety of Linux services and
+  distributions.
+\item Finding more sophisticated models 
+  for each of the design sketches
+  for silhouette execution. Currently,
+  the models for execution overhead are linear and
+  conservative and do not account for
+  execution latencies.
+\item Incorporate nondeterminism
+and instruction traces from lower software
+layers (e.g. the kernel or hypervisor)
+for completeness.
+\end{itemize} 
+\noindent{{\bf Implementation}}\newline
+We are currently working on a user-space
+implementation of silhouette execution 
+that uses dynamic instrumentation.
+In the future, we hope
+our endeavors will serve as a foundation
+for a complete implementation of silhouette execution
+that provably mitigates boot storms. \newline
+

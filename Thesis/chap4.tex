@@ -4,7 +4,7 @@ we identified how and why
 multiple executions of the same
 Linux service can diverge in behavior.
 In light of our results, this chapter introduces a 
-novel design strategy that aims to mitigate the bootstorm problem:
+novel design strategy that aims to mitigate the boot storm problem:
 {\em silhouette} execution (Section \ref{def:sil}).
 For the sake of evaluation, this chapter
 presents some design sketches for silhouette
@@ -18,7 +18,7 @@ to improve the effectiveness of
 silhouette execution (Section \ref{silimprove})
 and evaluate them (Section \ref{sileval}).
 Our simulations show that the proposed designs can be successful
-in mitigating the bootstorm problem. 
+in mitigating the boot storm problem. 
 
 \section{What is {\em Silhouette} execution?} \label{def:sil}
 The previous few chapters showed that
@@ -31,7 +31,7 @@ then executing many instructions over
 and over again during boot represents a waste of scarce CPU cycles.
 {\em Silhouette} execution, in essence, targets
 redundant execution of the same instructions across distinct but
-identical virtual machines in order to reduce CPU pressure in bootstorm
+identical virtual machines in order to reduce CPU pressure in boot storm
 scenarios. 
 
 \newpage
@@ -54,7 +54,7 @@ While page sharing reduces
 pressure on the memory subsystem
 by identifying and refactoring
 overlapping memory contents,
-silhouettte execution identifies
+silhouette execution identifies
 overlapping instruction streams
 and refactors execution to
 reduce pressure on the CPU.
@@ -142,7 +142,7 @@ and a silhouette, then these instructions
 need to be executed by each silhouette independently.
 This ensures that the silhouette's execution
 semantics are retained. 
-It is not known {\em apriori} which instructions in the
+It is not known {\em a priori} which instructions in the
 two instances of the same program will behave
 differently or not.
 Our detailed analysis of the various interfaces
@@ -356,7 +356,7 @@ In this design:
   or memory values written during the branch interval. 
 
 \item  An {\em analysis engine} figures out
-  whether the two executions are reconcileable
+  whether the two executions are reconcilable
   or not based on what happened
   in the branch interval. 
 \end{itemize}
@@ -423,7 +423,7 @@ For simplicity, we will assume that
 if any instance executes
 a system call in its branch interval
 that mutates some external state, then the executions
-are irreconcileable.
+are irreconcilable.
 
 \section{Evaluation Scheme} \label{silsimulation}
 The data collection scheme described in Chapter \ref{ch:boot} does not
@@ -854,7 +854,7 @@ that result from tainted memory accesses,
 and the high volume of memory operations that silhouettes
 have to emulate.
 
-\noindent {\bf Optimistic Silhouetting (Including Control FLow)} \newline
+\noindent {\bf Optimistic Silhouetting (Including Control Flow)} \newline
 Table \ref{osc:inittbl} shows the results of modeling 
 optimistic silhouetting (including control flow) on our sample of Linux services.
 As before, we treat all system calls as fork-points. We use the same values of $k1 = 20$, $k2 = 40$, $k3 = 1000$, $k4 = 20$
@@ -922,7 +922,7 @@ divergence across our sample
 of Linux services were synthetic i.e. they were an artefact
 of external sources of nondeterminism
 rather than semantic differences in program execution.
-We thus decided to introduce a determininstic
+We thus decided to introduce a deterministic
 execution layer to our previous
 designs to eliminate as many sources of 
 fork-points as possible and to 
@@ -932,21 +932,21 @@ of silhouette execution.
 \subsection{Modified Data Collection Scheme}
 We modified our data collection scheme from Chapter \ref{ch:boot} 
 (shown in Figure \ref{data:naive}) to simulate and
-evaluate silhouette execution in the bootstorm scenario.
+evaluate silhouette execution in the boot storm scenario.
 
 \begin{figure}[]
   \center
   \includegraphics[scale=0.75, trim=2cm 0cm 1cm 0cm]
                   {simulation.pdf}
-  \caption[Simulation of {\em Silhouette Execution} in a bootstorm scenario]%
-  {Simulation of {\em Silhouette Execution} in a bootstorm scenario.
+  \caption[Simulation of {\em Silhouette Execution} in a boot storm scenario]%
+  {Simulation of {\em Silhouette Execution} in a boot storm scenario.
     We use dynamic instrumentation to 
     generate a trace signature file for the leader.
     While we do not bypass execution in the 
     silhouettes, try to reduce the number of fork-points 
     and record information about them.
     Our analysis and visualization
-    scripts allow us to simualate and evaluate
+    scripts allow us to simulate and evaluate
     the effectiveness of {\em silhouette} execution.
   }
   \label{ch3:figsimulation}
@@ -1221,7 +1221,7 @@ for correctness.
 
 In practice, this is equivalent
 to using an operating system that assigns
-process IDs in a determininstic fashion.
+process IDs in a deterministic fashion.
 In a complete implementation of silhouette
 execution, we could expect the leader VM
 to store process IDs in its execution 
@@ -1408,7 +1408,7 @@ till they are available by waiting for
 another readiness update on the same file descriptor inside 
 dynamic instrumentation layer.
 In our experiments, this approach has been sufficient 
-for overcoming nondeterminsm from event-based I/O
+for overcoming nondeterminism from event-based I/O
 schemes.
 For asynchronous I/O schemes (e.g. \texttt{aio\_read}), strategies
 similar to those used for reordering
@@ -1601,7 +1601,7 @@ exceed 6 for $N < 1000$, which represents a significant
 theoretical reduction in the number of user-space instructions
 executed. The value of $A$ scales well for small $N$
 (Figure \ref{acpid2}).
-However, as $N$ increases, $A$ plateaues because some
+However, as $N$ increases, $A$ plateaus because some
 of the design overhead (e.g. executing forking instructions or system
 calls in the execution signature) grows with $N$. 
 
@@ -1665,7 +1665,7 @@ execution differences that arise from randomization, security and time.
 \texttt{Scheme B} adds {\em process ID virtualization}
 to \texttt{Scheme A}; \texttt{anacron} interacts
 frequently with process IDs because it uses them to track
-child jobs spawned. \texttt{Scheme B} is suffient to eliminate active fork-points in \texttt{anacron}
+child jobs spawned. \texttt{Scheme B} is sufficient to eliminate active fork-points in \texttt{anacron}
 entirely. Thus, \texttt{Scheme B} uses precise silhouetting
 in which execution does not diverge till the very end of our workload,
 whereas \texttt{Scheme A} elongates the execution prefix ($P$) slightly
@@ -1753,7 +1753,7 @@ in its interactions with any spawned child jobs,
 so \texttt{Scheme A} itself is not effective and only elongates the 
 execution prefix ($P$) to 12.40\%.
 However, \texttt{Scheme B} adds {\em process ID virtualization} to
-\texttt{Scheme A}, which is sufficent to eliminate
+\texttt{Scheme A}, which is sufficient to eliminate
 execution differences in \texttt{cron}.
 {Scheme B} thus uses precise silhouetting
 in which execution does not branch till the very end of our workload.
@@ -1868,7 +1868,7 @@ for \texttt{cups}.
   \label{cups23}
 \end{figure}
 
-For less conservative values of $\vec K$, FIgure \ref{cups23} shows that $A$
+For less conservative values of $\vec K$, Figure \ref{cups23} shows that $A$
 plateaus at a higher value of $A = 30$ as $N$ gets very large. The maximum
 theoretical advantage achievable, $A_{MAX}$ is equal to 194, and we 
 are within a factor of $10\times$ that value.

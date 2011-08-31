@@ -106,7 +106,7 @@ or reading other \texttt{AT\_RANDOM} bytes provided by the kernel
 \section{Randomization Schemes} \label{ch3:rand}
 As already clear from Section \ref{ch3:security}, 
 randomization schemes can lead to significant nondeterminism 
-in programs. Applications generally employ pseudorandom number
+in programs. Applications generally employ pseudo-random number
 generators (PRNGs), so they need only a few random
 bytes to {\em seed} PRNGs. 
 These few random bytes are
@@ -287,7 +287,7 @@ before any \texttt{write}s take place.
 The return value of \texttt{lseek} is the
 updated cursor byte-offset into the file.
 Clearly, if the length of a file is different across
-multiple exections of a program, then
+multiple executions of a program, then
 \texttt{lseek} will return conflicting values.
 Many Linux services maintain log files
 which can have different lengths due
@@ -537,7 +537,7 @@ This directory is an interface
 to kernel data and system information
 that would otherwise be available
 via system calls (if at all);
-thus, many of the sources of nondeterminsm
+thus, many of the sources of nondeterminism
 already described can be propagated
 through it.
 

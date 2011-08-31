@@ -55,7 +55,7 @@ Apart from improvements in virtualization technology, two additional trends
 are expected to boost the attainable VM density per host in the future:
 \begin{itemize}
 \item improvements in hardware available i.e. hosts with
-more avalaible memory and processor cores \cite{hansen2010lithium},
+more available memory and processor cores \cite{hansen2010lithium},
 and 
 \item the anticipated use of Virtual Desktop Infrastructures (VDIs) \cite{vmwarevdi}.
 \end{itemize}
@@ -107,7 +107,7 @@ data center energy bills \cite{qureshi2009bills}.
 While data deduplication \cite{clements2009deduplication}
 can mitigate the stress on the storage layer in
 a boot storm, lowered memory latency can in turn overwhelm the CPU, 
-fibre channel, bus infrastructure or controller resources 
+fiber channel, bus infrastructure or controller resources 
 and simply turn them into bottlenecks instead \cite{netappstorm}. 
 
 With the spread of virtualization, we believe that it is important to address the
@@ -127,7 +127,7 @@ the hypervisor could identify the overlap in the instruction streams of
 the VMs to avoid repetitive execution and reduce
 CPU pressure. Just like {\em page sharing} (i.e. eliminating page
 duplication) allows hosts to use memory resources in a scalable fashion in
-the steady-state, perhaps {\em silhouette exection} (i.e. eliminating
+the steady-state, perhaps {\em silhouette execution} (i.e. eliminating
 instruction duplication) will allow hosts to use CPUs in a more scalable fashion during boot storms.
 
 \section{Goal of Thesis}
@@ -201,7 +201,7 @@ and in turn, a long-term solution to the VM boot storm problem.
 \section{Importance of Deterministic Execution}
 Our study of nondeterminism was driven by a specific application,
 deterministic execution is desirable in a variety of scenarios.
-The motivations for deterministic multhreading listed in
+The motivations for deterministic multithreading listed in
 \cite{marek2011scaling, patil2010pinplay} apply to our work as well. \newline
 
 \noindent {\bf Silhouette Execution} \newline 
@@ -218,7 +218,7 @@ pressure through determinism and silhouette execution clearly facilitates
 transparent page sharing during boot storms.
 More generally, removing synthetic differences due to controllable nondeterminism in the execution
 of concurrently running VMs can improve transparent page sharing
-as well, because the contents of data accessed/written are more likey
+as well, because the contents of data accessed/written are more likely
 to be similar when minor differences due to e.g. process IDs,
 timestamps or execution statistics are eliminated. \newline
 
@@ -245,7 +245,7 @@ across different executions (for the same inputs). \newline
 
 \noindent {\bf Debugging} \newline 
 Erroneous behavior can be more easily reproduced
-via determininstic execution, which
+via deterministic execution, which
 helps with debugging. Deterministic
 execution has much lower storage overhead
 than traditional record-and-replay approaches. 

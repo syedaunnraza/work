@@ -1471,23 +1471,23 @@ accordingly.
 
 \newpage
 \section{Evaluation of Improved Silhouette Execution} \label{sileval}
-In this section, we show the effectiveness of some of the techniques
-introduced earlier to boost the advantage ratio $A$ in the 
-same Linux services.
-
-Tables \ref{evalsummarytbl1} and \ref{evalsummarytbl2} summarize the results of our experiments
-using the modified data collection scheme on a few Linux services.
-When we pick very high values for the overhead constants (represented by $\vec K$),
-our techniques yield an aggregate improvement of 5.33$\times$
-in the advantage ratio $A$. That is, 
-we go from a CPU load {\em increase} of 6\% due
-to silhouette execution to a CPU load {\em reduction} by a 
-{\em factor} of 4.772$\times$ in our simulations. When we pick reasonably conservative
-values of $\vec K$ in our simulations, our techniques boost $A$ by a factor of 19.01$\times$,
-and theoretically reduce the CPU load by a factor of 19.18$\times$.
+In this section, we evaluate the effectiveness of some of the techniques
+introduced earlier to increase determinism in Linux services.
 The next few subsections analyze some of 
 the Linux services we sampled in our experiments
 individually.
+
+Tables \ref{evalsummarytbl1} and \ref{evalsummarytbl2} summarize the results of our experiments
+using the modified data collection scheme. When we pick very high values for the overhead constants (represented by $\vec K$),
+our techniques yield an aggregate improvement of 5.33$\times$
+in the advantage ratio $A$ for 1000 VMs. That is, 
+we go from a CPU load {\em increase} of 6\% due
+to silhouette execution to a CPU load {\em reduction} by a 
+{\em factor} of 4.772$\times$. When we pick reasonably conservative
+values of $\vec K$ in our simulations, our techniques boost $A$ by a factor of 19.01$\times$,
+and theoretically reduce the CPU load by a factor of 19.18$\times$.
+Figure \ref{sumresults} visually graphs such improvements 
+in $A$ over different values of $N$.
 
 \begin{table} [h]
 \begin{center}
@@ -1501,8 +1501,8 @@ individually.
   \textbf{Average} & \textbf{0.886} & \textbf{4.772} & {\bf 5.33$\times$}  \\\hline
 \end{tabular}
 \caption{Improvements in $A$ for Linux services
-  for $N = 1000$ ($N$ is the number of concurrent instances) and $\vec K$, 
-  chosen conservatively, $ = (20, 1000, 20, 40, 1000)$.}
+  when $N = 1000$ and $\vec K$ is 
+  picked conservatively i.e. $\vec K = (20, 1000, 20, 40, 1000)$.}
 \label{evalsummarytbl1}
 \end{center}
 \end{table}
@@ -1519,11 +1519,25 @@ individually.
   \textbf{Average} & \textbf{1.009} & \textbf{19.18} & {\bf 19.01$\times$}  \\\hline
 \end{tabular}
 \caption{Improvements in $A$ for Linux services
-  for $N = 1000$ ($N$ is the number of concurrent instances) and $\vec K$, 
-  chosen moderately conservatively, $ = (10, 100, 5, 20, 50)$.}
+  when $N = 1000$ and $\vec K$ is 
+  picked less conservatively i.e. $\vec K = (10, 100, 5, 20, 50)$.}
 \label{evalsummarytbl2}
 \end{center}
 \end{table}
+
+
+\begin{figure}
+  \centering
+  \subfloat%[Part 1]
+           {\includegraphics[scale=0.85, trim=5cm 8.5cm 5cm 10cm]{results1.pdf} \label{results1}} \\
+  \subfloat%[Part 2]
+      {\includegraphics[scale=0.85, trim=5cm 8cm 5cm 8cm]{results2.pdf} \label{results2}} 
+  \caption[Improvements in $A$ after controlling nondeterminism in Linux services.]%
+          {Improvements in $A$ after controlling nondeterminism in Linux services.
+          $\vec K$ for the top graph is much more conservative than that for the bottom graph.}
+
+  \label{sumresults}
+\end{figure}
 
 \subsection{\texttt{acpid}}
 The program {\texttt{acpid}} is a user-space daemon

@@ -28,14 +28,15 @@
 \contentsline {figure}{\numberline {4-5}{\ignorespaces Simulation of {\em Silhouette Execution} in a bootstorm scenario}}{74}
 \contentsline {figure}{\numberline {4-6}{\ignorespaces Virtualizing the process ID layer using Pin}}{78}
 \contentsline {figure}{\numberline {4-7}{\ignorespaces Reordering I/O events using Pin}}{81}
-\contentsline {figure}{\numberline {4-8}{\ignorespaces For \texttt {acpid}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{85}
-\contentsline {figure}{\numberline {4-9}{\ignorespaces For \texttt {acpid}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{87}
-\contentsline {figure}{\numberline {4-10}{\ignorespaces For \texttt {anacron}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{88}
-\contentsline {figure}{\numberline {4-11}{\ignorespaces For \texttt {anacron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{90}
-\contentsline {figure}{\numberline {4-12}{\ignorespaces For \texttt {cron}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{91}
-\contentsline {figure}{\numberline {4-13}{\ignorespaces For \texttt {cron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{93}
-\contentsline {figure}{\numberline {4-14}{\ignorespaces For \texttt {cups}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{94}
-\contentsline {figure}{\numberline {4-15}{\ignorespaces For \texttt {cups}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{96}
-\contentsline {figure}{\numberline {4-16}{\ignorespaces For \texttt {ntp}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{97}
-\contentsline {figure}{\numberline {4-17}{\ignorespaces For \texttt {ntpd}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{99}
+\contentsline {figure}{\numberline {4-8}{\ignorespaces Improvements in $A$ after controlling nondeterminism in Linux services.}}{85}
+\contentsline {figure}{\numberline {4-9}{\ignorespaces For \texttt {acpid}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{86}
+\contentsline {figure}{\numberline {4-10}{\ignorespaces For \texttt {acpid}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{88}
+\contentsline {figure}{\numberline {4-11}{\ignorespaces For \texttt {anacron}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{89}
+\contentsline {figure}{\numberline {4-12}{\ignorespaces For \texttt {anacron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{91}
+\contentsline {figure}{\numberline {4-13}{\ignorespaces For \texttt {cron}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{92}
+\contentsline {figure}{\numberline {4-14}{\ignorespaces For \texttt {cron}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{94}
+\contentsline {figure}{\numberline {4-15}{\ignorespaces For \texttt {cups}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{95}
+\contentsline {figure}{\numberline {4-16}{\ignorespaces For \texttt {cups}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{97}
+\contentsline {figure}{\numberline {4-17}{\ignorespaces For \texttt {ntp}, $A$ as a function of $N$ (highly conservative $\mathaccent "017E\relax K$)}}{98}
+\contentsline {figure}{\numberline {4-18}{\ignorespaces For \texttt {ntpd}, $A$ as a function of $N$ (moderately conservative $\mathaccent "017E\relax K$)}}{100}
 \addvspace {10\p@ }

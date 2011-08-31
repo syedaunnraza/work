@@ -169,12 +169,11 @@ Specifically, we:
 \end {enumerate}
 
 Through our simple models, we estimate that silhouette execution {\em increases} the number
-of instructions executed in user-space by 6\% (for 1000 VMs) 
-over the status-quo. However, after we
-use our proposed strategies to reduce synthetic execution differences
+of instructions executed in user-space by 13\% for 100 VMs and 6\% for 1000 VMs and 
+over the status-quo. However, after we use our proposed strategies to reduce synthetic execution differences
 between VMs, silhouette execution {\em reduces} the number of instructions executed
-by a factor of $5.33\times$ (very conservative estimate) or $19.18\times$ (moderately
-conservative estimate) over the status-quo (for 1000 VMs).
+by a factor of $8\times$ for 100 VMs and $19\times$ for 1000 VMs over the status-quo 
+in our simulations.
 
 Strategies to achieve deterministic execution have been proposed at the operating system layer \cite{bergan2010dos} before,
 but they require modifications to Linux. Nondeterminism in multi-threaded programs 
